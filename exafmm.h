@@ -12,17 +12,19 @@
   exit(-1);\
 }
 
-namespace exafmm {
+namespace exafmm
+{
   //! Basic type definitions
-  typedef double real_t;                                        //!< Floating point type
-  typedef std::complex<real_t> complex_t;                       //!< Complex type
+  typedef double real_t;	//!< Floating point type
+  typedef std::complex < real_t > complex_t;	//!< Complex type
 
   //! Structure of bodies
-  struct Body {
-    real_t X[3];                                                //!< Position
-    real_t q;                                                   //!< Charge
-    real_t F[3];                                                //!< Force
-    real_t p;                                                   //!< Potential
+  struct Body
+  {
+    real_t X[3];		//!< Position
+    real_t q;			//!< Charge
+    real_t F[3];		//!< Force
+    real_t p;			//!< Potential
     real_t V[3];
     real_t acc_old;
     real_t timestep;
@@ -30,55 +32,58 @@ namespace exafmm {
     bool issink;
     bool issource;
   };
-  typedef std::vector<Body> Bodies;                             //!< Vector of bodies
+  typedef std::vector < Body > Bodies;	//!< Vector of bodies
   Bodies bodies;
 
   //! Structure of cells
-  struct Cell {
-    real_t M[(EXPANSION+1)*(EXPANSION+1)];
-    real_t L[(EXPANSION+1)*(EXPANSION+1)];
-    real_t Pn[(EXPANSION+1)];
-    int NCHILD;                                                 //!< Number of child cells
-    size_t NBODY;                                               //!< Number of descendant bodies
-    Cell * CHILD;                                               //!< Pointer of first child cell
-    Body * BODY;                                                //!< Pointer of first body
-    real_t X[3];                                                //!< Cell center
-    real_t R;                                                   //!< Cell radius
-    real_t min_acc;    
+  struct Cell
+  {
+    real_t M[(EXPANSION + 1) * (EXPANSION + 1)];
+    real_t L[(EXPANSION + 1) * (EXPANSION + 1)];
+    real_t Pn[(EXPANSION + 1)];
+    int NCHILD;			//!< Number of child cells
+    size_t NBODY;		//!< Number of descendant bodies
+    Cell *CHILD;		//!< Pointer of first child cell
+    Body *BODY;			//!< Pointer of first body
+    real_t X[3];		//!< Cell center
+    real_t R;			//!< Cell radius
+    real_t min_acc;
     real_t cell_mass;
     bool has_sink;
 #if EXAFMM_LAZY
-    std::vector<Cell*> listM2L;                                 //!< M2L interaction list
-    std::vector<Cell*> listP2P;                                 //!< P2P interaction list
-#endif    
+      std::vector < Cell * >listM2L;	//!< M2L interaction list
+      std::vector < Cell * >listP2P;	//!< P2P interaction list
+#endif
   };
-  typedef std::vector<Cell> Cells;                              //!< Vector of cells
+  typedef std::vector < Cell > Cells;	//!< Vector of cells
 
-struct particle {
-  real_t pos[3];
-  real_t pos_e[3];
-  real_t mass;
-  real_t vel[3];
-  real_t timestep;
-  real_t acc[3];
-  real_t pot;
-  real_t jerk[3];
-  real_t postime;
-  unsigned int id;
+  struct particle
+  {
+    real_t pos[3];
+    real_t pos_e[3];
+    real_t mass;
+    real_t vel[3];
+    real_t timestep;
+    real_t acc[3];
+    real_t pot;
+    real_t jerk[3];
+    real_t postime;
+    unsigned int id;
   };
 
   //! Global variables
- static char input_fname[200];
- unsigned int numBodies;
- int snapnum;
+  static char input_fname[200];
+  unsigned int numBodies;
+  int snapnum;
 
- real_t t_now;
- real_t force_accuracy=4e-8;
+  real_t t_now;
+  real_t force_accuracy = 4e-8;
 
- real_t G=1;//0.004300710573170628; 
- //gravitaional constant with Msun, pc and km/s.
+  real_t G = 1;			//0.004300710573170628; 
+  //gravitaional constant with Msun, pc and km/s.
 
-  struct sys {
+  struct sys
+  {
     size_t n;
     struct particle *part;
     struct particle *last;
@@ -86,11 +91,11 @@ struct particle {
 
   struct sys mainsys;
 
-  int P;                                                        //!< Order of expansions
-  int NTERM;                                                    //!< Number of coefficients
-  int ncrit=128;                                                    //!< Number of bodies per leaf cell
-  real_t theta=0.5;                                                 //!< Multipole acceptance criterion
-  real_t dX[3], dV[3];                                          //!< Distance vector
-#pragma omp threadprivate(dX, dV)                               //!< Make global variables private
+  int P;			//!< Order of expansions
+  int NTERM;			//!< Number of coefficients
+  int ncrit = 64;		//!< Number of bodies per leaf cell
+  real_t theta = 0.5;		//!< Multipole acceptance criterion
+  real_t dX[3], dV[3];		//!< Distance vector
+#pragma omp threadprivate(dX, dV)	//!< Make global variables private
 }
 #endif
