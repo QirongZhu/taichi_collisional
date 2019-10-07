@@ -23,9 +23,9 @@ double interval;
 
 struct diagnostics global_diag;
 struct diagnostics *diag;
-struct sys zerosys = {0, NULL, NULL};
+struct sys zerosys = { 0, NULL, NULL };
 
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
   P = EXPANSION;
 
@@ -54,7 +54,7 @@ int main (int argc, char **argv)
   printf("\n");
   fflush(stdout);
 
-if(argc != 5)
+  if(argc != 5)
     {
       printf("\nwrong number of arguments\n");
       printf
@@ -74,100 +74,114 @@ if(argc != 5)
 
   if(std::stoi(argv[1]) == 0)
     {
-  snapnum = 0;  
-  t_now = 0;
+      snapnum = 0;
+      t_now = 0;
 
-  bool gadget_file = false;
-  std::vector<double> array;
+      bool gadget_file = false;
+      std::vector < double >array;
 
-  if(!gadget_file){
-  start("reading bodies");
-  size_t number_of_lines = 0;
-  std::string line;
-  std::ifstream file(input_fname);
-  while (std::getline(file, line))
-    ++number_of_lines;
-  numBodies = number_of_lines;
-  file.close();
+      if(!gadget_file)
+	{
+	  start("reading bodies");
+	  size_t number_of_lines = 0;
+	  std::string line;
+	  std::ifstream file(input_fname);
+	  while(std::getline(file, line))
+	    ++number_of_lines;
+	  numBodies = number_of_lines;
+	  file.close();
 
-  std::ifstream fin(input_fname);
-  array.resize(numBodies * 7);
-  array.assign(std::istream_iterator<double>(fin), 
-  	std::istream_iterator<double>());
-  fin.close();
-  stop("reading bodies");
-  }
-  else{
-    int files = 1;
-    load_snapshot(input_fname, files);
-    printf("Reading IC done with %d particles \n", NumPart);
-    fflush( stdout );
-    numBodies = NumPart; 
-  }
+	  std::ifstream fin(input_fname);
+	  array.resize(numBodies * 7);
+	  array.assign(std::istream_iterator < double >(fin), std::istream_iterator < double >());
+	  fin.close();
+	  stop("reading bodies");
+	}
+      else
+	{
+	  int files = 1;
+	  load_snapshot(input_fname, files);
+	  printf("Reading IC done with %d particles \n", NumPart);
+	  fflush(stdout);
+	  numBodies = NumPart;
+	}
 
-	mainsys.n = numBodies;
-  mainsys.part = (struct particle *)
-  malloc(numBodies * sizeof(struct particle));
-  mainsys.last = &mainsys.part[numBodies - 1];
+      mainsys.n = numBodies;
+      mainsys.part = (struct particle *) malloc(numBodies * sizeof(struct particle));
+      mainsys.last = &mainsys.part[numBodies - 1];
 
-  if(!gadget_file){
-  for(size_t b = 0; b < numBodies; b++) {
-	  mainsys.part[b].id     = b;
-	  mainsys.part[b].mass   = array[b*7+0];
-	  mainsys.part[b].pos[0] = array[b*7+1];
-	  mainsys.part[b].pos[1] = array[b*7+2];
-	  mainsys.part[b].pos[2] = array[b*7+3];
-	  mainsys.part[b].vel[0] = array[b*7+4];
-	  mainsys.part[b].vel[1] = array[b*7+5];
-	  mainsys.part[b].vel[2] = array[b*7+6]; 
-	  }
-  }
-  else{
-    for(size_t b = 0; b < numBodies; b++) {
-	    mainsys.part[b].pos[0] =PPP[b+1].Pos[0];
-	    mainsys.part[b].pos[1] =PPP[b+1].Pos[1];
-	    mainsys.part[b].pos[2] =PPP[b+1].Pos[2];
-	    mainsys.part[b].vel[0] =PPP[b+1].Vel[0];
-	    mainsys.part[b].vel[1] =PPP[b+1].Vel[1];
-	    mainsys.part[b].vel[2] =PPP[b+1].Vel[2];
-	    mainsys.part[b].mass   =PPP[b+1].Mass  ;
-      mainsys.part[b].id     =PPP[b+1].Id;
+      if(!gadget_file)
+	{
+	  for(size_t b = 0; b < numBodies; b++)
+	    {
+	      mainsys.part[b].id     = b;
+	      mainsys.part[b].mass   = array[b * 7 + 0];
+	      mainsys.part[b].pos[0] = array[b * 7 + 1];
+	      mainsys.part[b].pos[1] = array[b * 7 + 2];
+	      mainsys.part[b].pos[2] = array[b * 7 + 3];
+	      mainsys.part[b].vel[0] = array[b * 7 + 4];
+	      mainsys.part[b].vel[1] = array[b * 7 + 5];
+	      mainsys.part[b].vel[2] = array[b * 7 + 6];
+	    }
+	}
+      else
+	{
+	  for(size_t b = 0; b < numBodies; b++)
+	    {
+	      mainsys.part[b].pos[0] = PPP[b + 1].Pos[0];
+	      mainsys.part[b].pos[1] = PPP[b + 1].Pos[1];
+	      mainsys.part[b].pos[2] = PPP[b + 1].Pos[2];
+	      mainsys.part[b].vel[0] = PPP[b + 1].Vel[0];
+	      mainsys.part[b].vel[1] = PPP[b + 1].Vel[1];
+	      mainsys.part[b].vel[2] = PPP[b + 1].Vel[2];
+	      mainsys.part[b].mass   = PPP[b + 1].Mass;
+	      mainsys.part[b].id     = PPP[b + 1].Id;
+	    }
+	}
     }
-  }
-    }
-    else
+  else
     {
-    read_snapshot(snapnum);
+      read_snapshot(snapnum);
     }
 
-  for(unsigned int b = 0; b < mainsys.n; b++) {
-    mainsys.part[b].pos_e[0] = 0;
-    mainsys.part[b].pos_e[1] = 0;
-    mainsys.part[b].pos_e[2] = 0;
-  }
+  for(unsigned int b = 0; b < mainsys.n; b++)
+    {
+      mainsys.part[b].pos_e[0] = 0;
+      mainsys.part[b].pos_e[1] = 0;
+      mainsys.part[b].pos_e[2] = 0;
+    }
 
   start("Intergration");
 
-  if(t_end > 0) 
-  {
-    while(t_end > t_now)
+  if(t_end > 0)
     {
-      kick_naive(0, mainsys, zerosys, zerosys, 0, true);
-      write_snapshot(snapnum, mainsys);
-      snapnum++;
+      while(t_end > t_now)
+	{
 
-      real_t kinetic = system_kinetic_energy(mainsys);
-      real_t pot     = system_potential_energy(mainsys);      
-      system_center_of_mass(mainsys, cmpos, cmvel);      
-      printf("pot=%18.12f kin=%18.12f tot=%18.12f \n", pot, kinetic, -pot+kinetic);
-      fflush(stdout);
+#ifdef DEBUG
+	  start("Dummy Poisson test");
+	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
+	  stop("Dummy Poisson test");
+          fflush(stdout);
+#endif
 
-      if(mainsys.n > 0)
-        do_evolve(mainsys, dt);
+          kick_naive(0, mainsys, zerosys, zerosys, 0, true);
+	  
+	  write_snapshot(snapnum, mainsys);
+	  snapnum++;
 
-      t_now += dt;
+	  real_t kinetic = system_kinetic_energy(mainsys);
+	  real_t pot = system_potential_energy(mainsys);
+	  system_center_of_mass(mainsys, cmpos, cmvel);
+	  printf("pot=%18.12f kin=%18.12f tot=%18.12f \n", pot, kinetic, -pot + kinetic);
+	  fflush(stdout);
+
+	  if(mainsys.n > 0)
+	    do_evolve(mainsys, dt);
+
+	  t_now += dt;
+	}
     }
-  }
 
   stop("Intergration");
 

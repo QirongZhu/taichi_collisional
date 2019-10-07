@@ -21,7 +21,7 @@ struct io_header
   double Omega0;
   double OmegaLambda;
   double HubbleParam;
-  char fill[256-6*4-6*8-2*8-2*4-6*4-2*4-4*8];      /* fills to 256 Bytes */
+  char fill[256 - 6 * 4 - 6 * 8 - 2 * 8 - 2 * 4 - 6 * 4 - 2 * 4 - 4 * 8];	/* fills to 256 Bytes */
 } header1;
 
 int NumPart;
@@ -31,7 +31,7 @@ struct particle_data
   float Pos[3];
   float Vel[3];
   float Mass;
-  int   Type;
+  int Type;
   unsigned int Id;
 } *PPP;
 
@@ -149,8 +149,8 @@ void load_snapshot(char *fname, int files)
       fclose(fd);
     }
 
-    Time = header1.time;
-    Redshift = header1.time;
+  Time = header1.time;
+  Redshift = header1.time;
 
 }
 
@@ -159,12 +159,12 @@ void load_snapshot(char *fname, int files)
 void allocate_gadget_memory(void)
 {
 //  printf("allocating memory for N=%d ...\n", NumPart);
-  if(!(PPP = (particle_data*)malloc(NumPart * sizeof(struct particle_data))))
+  if(!(PPP = (particle_data *) malloc(NumPart * sizeof(struct particle_data))))
     {
       fprintf(stderr, "failed to allocate memory.\n");
       exit(0);
     }
-  PPP--; /* start with offset 1 */
+  PPP--;			/* start with offset 1 */
 //  printf("allocating memory...done\n");
 }
 
