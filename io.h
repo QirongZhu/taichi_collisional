@@ -224,6 +224,18 @@ namespace exafmm
     status = H5Dclose(dset_id);
 #endif
 
+#ifdef OUTPUTSTEP
+    memspace = H5Screate_simple(1, dims, NULL);
+    space_id = H5Screate_simple(1, dims, NULL);
+    for(unsigned int b = 0; b < s.n; b++)
+      data[b] = s.part[ids[b]].timestep;
+    dset_id = H5Dcreate(file_id, "Stepsize", H5T_NATIVE_DOUBLE, space_id, H5P_DEFAULT);
+    status = H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, memspace, space_id, H5P_DEFAULT, data);
+    status = H5Sclose(space_id);
+    status = H5Sclose(memspace);
+    status = H5Dclose(dset_id);
+#endif
+
 #ifdef OUTPUTACC
     memspace = H5Screate_simple(1, dims, NULL);
     space_id = H5Screate_simple(1, dims, NULL);

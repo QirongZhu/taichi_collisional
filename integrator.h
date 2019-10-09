@@ -241,7 +241,7 @@ void kick(int clevel, struct sys sinks, struct sys sources,
 
 void get_force_and_potential(Bodies & bodies, bool get_steps)
 {
-  if(bodies.size() < 2e3)
+  if(bodies.size() < 5e3)
     {
       direct(bodies, bodies, get_steps);
     }
