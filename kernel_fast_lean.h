@@ -1204,8 +1204,10 @@ namespace exafmm
 
 	complex_2_real(c_local, r_local, P);
 
-	for(int indice = 0; indice < NTERM; indice++)
+	for(int indice = 0; indice < NTERM; indice++) {
+#pragma omp atomic
 	  Ci->L[indice] += r_local[indice];
+	}
       }
   }
 
