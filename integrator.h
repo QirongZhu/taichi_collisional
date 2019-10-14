@@ -24,19 +24,19 @@ extern struct diagnostics *diag;
 #define SWAP(a,b,c) {c t;t=(a);(a)=(b);(b)=t;}
 #define ABS(X) (((X) >= 0) ? (X) : -(X))
 #define SIGN(X)   ((X>0)-(X<0))
-#define LOG(fmt, ...) {\
-  printf("%s:%d\t", __FILE__, __LINE__);\
-  printf(fmt, ## __VA_ARGS__);\
-}
+#define LOG(fmt, ...) {				\
+    printf("%s:%d\t", __FILE__, __LINE__);	\
+    printf(fmt, ## __VA_ARGS__);		\
+  }
 
 
-#define CHECK_TIMESTEP(etime,stime,dt,clevel) \
-  if(sizeof(dt)==sizeof(long double)) { \
-  if(etime == stime ||  dt==0 || clevel>=MAXLEVEL) \
-    ENDRUN("timestep too small: etime=%Le stime=%Le dt=%Le clevel=%u\n", etime, stime, dt, clevel); \
-  } else { \
-  if(etime == stime ||  dt==0 || clevel>=MAXLEVEL) \
-    ENDRUN("timestep too small: etime=%le stime=%le dt=%le clevel=%u\n", (double) etime, (double) stime, (double) dt, clevel); \
+#define CHECK_TIMESTEP(etime,stime,dt,clevel)				\
+  if(sizeof(dt)==sizeof(long double)) {					\
+    if(etime == stime ||  dt==0 || clevel>=MAXLEVEL)			\
+      ENDRUN("timestep too small: etime=%Le stime=%Le dt=%Le clevel=%u\n", etime, stime, dt, clevel); \
+  } else {								\
+    if(etime == stime ||  dt==0 || clevel>=MAXLEVEL)			\
+      ENDRUN("timestep too small: etime=%le stime=%le dt=%le clevel=%u\n", (double) etime, (double) stime, (double) dt, clevel); \
   }
 
 #define COMPSUM(s,e,ds){double a=s;e+=ds;s=(a+e);e+=(a-s);}
@@ -45,9 +45,11 @@ void get_force_and_potential(Bodies & bodies, bool get_steps);
 
 void split(double dt, struct sys s, struct sys *slow, struct sys *fast);
 
+void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt);
+
 void kick(int clevel, struct sys sinks, struct sys sources, double dt,
 	  bool update_timestep, bool sinks_are_fast);
-  /* =kick sys1 for interactions with sys2  */
+/* =kick sys1 for interactions with sys2  */
 
 void drift(int clevel, struct sys s, double etime, double dt);	/* drift sys */
 
@@ -59,9 +61,49 @@ void evolve_split_naive(int clevel, struct sys sys1, struct sys sys2,
 void evolve_split_hold_dkd(int clevel, struct sys s, double stime,
 			   double etime, double dt, int calc_timestep);
 
+
+void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt)
+{
+  unsigned int i, j;
+  real_t dx[3], dr3, dr2, dr, acci;
+  real_t acc[3];
+
+  for(i = 0; i < s1.n; i++)
+    {
+      acc[0] = 0.;
+      acc[1] = 0.;
+      acc[2] = 0.;
+
+      for(j = 0; j < s2.n; j++)
+	{
+	  dx[0] = s1.part[i].pos[0] - s2.part[j].pos[0];
+	  dx[1] = s1.part[i].pos[1] - s2.part[j].pos[1];
+	  dx[2] = s1.part[i].pos[2] - s2.part[j].pos[2];
+	  dr2 = dx[0] * dx[0] + dx[1] * dx[1] + dx[2] * dx[2];
+	  if(dr2 > 0)
+	    {
+	      dr = sqrt(dr2);
+	      dr3 = dr * dr2;
+	      acci = s2.part[j].mass / dr3;
+
+	      acc[0] -= dx[0] * acci;
+	      acc[1] -= dx[1] * acci;
+	      acc[2] -= dx[2] * acci;
+	    }
+	}
+      s1.part[i].vel[0] += dt * acc[0];
+      s1.part[i].vel[1] += dt * acc[1];
+      s1.part[i].vel[2] += dt * acc[2];
+    }
+}
+
 void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sources2,
 		double dt, bool update_timestep)
 {
+
+#if DEBUG
+  start("Prepare");
+#endif
 
   bodies.clear();
   bodies.resize(sinks.n + sources1.n + sources2.n);
@@ -114,11 +156,20 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
 	}
     }
 
-  get_force_and_potential(bodies, true);
+#if DEBUG
+  stop("Prepare");
+#endif
+
+  get_force_and_potential(bodies, update_timestep);
+
+#if DEBUG
+  start("Getting result");
+#endif
 
   real_t *force = new real_t[3 * bodies.size()];
   real_t *potential = new real_t[bodies.size()];
   real_t *timestep = new real_t[bodies.size()];
+  real_t *acc_old = new real_t[bodies.size()];
 
   for(size_t b = 0; b < bodies.size(); b++)
     {
@@ -128,6 +179,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
       force[3 * i + 2] = bodies[b].F[2];
       potential[i] = bodies[b].p;
       timestep[i] = bodies[b].timestep;
+      acc_old[i] = bodies[b].acc_old;
     }
 
   if(update_timestep)
@@ -145,6 +197,8 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
       sinks.part[i].vel[1] += force[i * 3 + 1] * dt;
       sinks.part[i].vel[2] += force[i * 3 + 2] * dt;
 
+      sinks.part[i].acc_old = acc_old[i];
+
 #ifdef OUTPUTACC
       sinks.part[i].acc[0] = force[i * 3 + 0];
       sinks.part[i].acc[1] = force[i * 3 + 1];
@@ -156,6 +210,9 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
   delete[]potential;
   delete[]timestep;
 
+#if DEBUG
+  stop("Getting result");
+#endif
 }
 
 void kick(int clevel, struct sys sinks, struct sys sources,
@@ -241,21 +298,63 @@ void kick(int clevel, struct sys sinks, struct sys sources,
 
 void get_force_and_potential(Bodies & bodies, bool get_steps)
 {
-  if(bodies.size() < 5e3)
+  if(bodies.size() < 8e3)
     {
       direct(bodies, bodies, get_steps);
     }
   else
     {
-      
-#if DEBUG      
+#if DEBUG
       start("buildTree");
 #endif
-      Cells cells  = buildTree(bodies);
+      Cells cells = buildTree(bodies);
 
 #if DEBUG
       stop("buildTree");
 #endif
+
+#if DEBUG
+      start("upwardPass_low");
+#endif
+      upwardPass_low(cells);
+#if DEBUG
+      stop("upwardPass_low");
+#endif
+#if DEBUG
+      start("horizontalPass_low");
+#endif
+      horizontalPass_low(cells, cells);
+#if DEBUG
+      stop("horizontalPass_low");
+#endif
+
+#if DEBUG
+      start("downwardPass");
+#endif
+      downwardPass_low(cells);
+#if DEBUG
+      stop("downwardPass");
+#endif
+
+      for(size_t b = 0; b < bodies.size(); b++)
+	{
+	  bodies[b].F[0] = 0;
+	  bodies[b].F[1] = 0;
+	  bodies[b].F[2] = 0;
+	  bodies[b].p = 0;
+	  bodies[b].timestep = HUGE;
+	}
+
+      for(size_t i = 0; i < cells.size(); i++)
+	{
+	  for(int term = 0; term < NTERM; term++)
+	    {
+	      cells[i].L[term] = 0;
+	      cells[i].M[term] = 0;
+	      cells[i].min_acc = HUGE;
+	      cells[i].has_sink = false;
+	    }
+	}
 
 #if DEBUG
       start("upwardPass");
@@ -264,14 +363,26 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
 #if DEBUG
       stop("upwardPass");
 #endif
+      for(size_t i = 0; i < cells.size(); i++)
+	{
+	  for(int n = 0; n <= P; n++)
+	    {
+	      for(int m = -n; m <= n; m++)
+		{
+		  int index = n * n + n + m;
+		  cells[i].Pn[n] += cells[i].M[index] *
+		    cells[i].M[index] * factorial_table[n + m] * factorial_table[n - m];
+		}
+	      cells[i].Pn[n] = sqrt(cells[i].Pn[n]);
+	    }
+	}
 #if DEBUG
       start("horizontalPass");
 #endif
-      horizontalPass(cells, cells, 0, get_steps);
+      horizontalPass(cells, cells, 1, get_steps);
 #if DEBUG
       stop("horizontalPass");
 #endif
-
 #if DEBUG
       start("downwardPass");
 #endif
@@ -280,34 +391,18 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
       stop("downwardPass");
 #endif
 
-/*
-  for(size_t b = 0; b < bodies.size(); b++){
-    bodies[b].acc_old = sqrt(norm(bodies[b].F));
-    bodies[b].F[0]    = 0;
-    bodies[b].F[1]    = 0;
-    bodies[b].F[2]    = 0;
-    bodies[b].p       = 0;
-    bodies[b].timestep= HUGE;
-   }
+      int NM2L = 0, NP2P = 0;
+      for(size_t i = 0; i < cells.size(); i++)
+	{
+	  NM2L += cells[i].NM2L;
+	  NP2P += cells[i].NP2P;
+	}
 
-  Cells newcells = buildTree(bodies);
-  upwardPass(newcells);
-  for(size_t i=0; i<newcells.size(); i++) {
-    for(int n=0; n<=P; n++){
-      for(int m=-n; m<=n; m++) {
-        int index = n*n+n+m;
-        newcells[i].Pn[n]+= newcells[i].M[index] * 
-          newcells[i].M[index] * factorial_table[n+m]*factorial_table[n-m];
-      }
-      newcells[i].Pn[n] = sqrt(newcells[i].Pn[n]);
+#if DEBUG
+      printf("horizontal pass: %d P2P, %d M2L\n", NP2P, NM2L);
+      fflush(stdout);
+#endif
     }
-  }
-  horizontalPass(newcells, newcells, 1, get_steps);
-  downwardPass(newcells);
-    */
-
-    }
-
 }
 
 struct sys join(struct sys sinks, struct sys sources)
@@ -473,6 +568,9 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
   if(fast.n == 0)
     {
       diag->simtime += dt;
+#if DEBUG
+      printf("t=%g s=%d \n", diag->simtime, s.n);
+#endif
     }
 
   fflush(stdout);
@@ -483,12 +581,23 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
   drift(clevel, slow, stime + dt / 2, dt / 2);
 
   bool update_timestep = false;
-  bool sinks_are_fast = false;
-  kick(clevel, slow, fast, dt, update_timestep, sinks_are_fast);
 
-  sinks_are_fast = true;
-  if(fast.n > 0)
-    kick(clevel, fast, slow, dt, update_timestep, sinks_are_fast);
+  if(s.n > 128)
+    {
+      bool sinks_are_fast = false;
+      kick(clevel, slow, fast, dt, update_timestep, sinks_are_fast);
+
+      sinks_are_fast = true;
+      if(fast.n > 0)
+	kick(clevel, fast, slow, dt, update_timestep, sinks_are_fast);
+    }
+  else if(slow.n > 0)
+    {
+      kick_cpu(clevel, slow, join(slow, fast), dt);
+      if(fast.n > 0)
+	kick_cpu(clevel, fast, slow, dt);
+    }
+
   drift(clevel, slow, etime, dt / 2);
 
   if(fast.n > 0)

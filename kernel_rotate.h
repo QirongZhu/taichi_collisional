@@ -18,14 +18,14 @@ namespace exafmm
       arr[4] = (4 * arrold[5]) * coeff;
       arr[5] = (arrold[4]) * coeff;
       arr[6] = (-arrold[6] + arrold[8]) * coeff;
-      /*arr[7] = (2*arrold[7])*coeff;*/
+    /*arr[7] = (2*arrold[7])*coeff; */
       arr[8] = (3 * arrold[6] + arrold[8]) * coeff;
 #endif
 
 #if EXPANSION > 2
       coeff = 1 / 4.0;
       arr[9] = (arrold[9] + 15 * arrold[11]) * coeff;
-      /*arr[10] = (4*arrold[10])*coeff; */
+    /*arr[10] = (4*arrold[10])*coeff; */
       arr[11] = (arrold[9] - arrold[11]) * coeff;
       arr[12] = (-3 * arrold[13] + arrold[15]) * coeff;
       arr[13] = (-2 * arrold[12] + 2 * arrold[14]) * coeff;

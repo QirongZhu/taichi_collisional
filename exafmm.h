@@ -42,7 +42,9 @@ namespace exafmm
     real_t L[(EXPANSION + 1) * (EXPANSION + 1)];
     real_t Pn[(EXPANSION + 1)];
     int NCHILD;			//!< Number of child cells
-    size_t NBODY;		//!< Number of descendant bodies
+    int NBODY;			//!< Number of descendant bodies
+    int NP2P;
+    int NM2L;
     Cell *CHILD;		//!< Pointer of first child cell
     Body *BODY;			//!< Pointer of first body
     real_t X[3];		//!< Cell center
@@ -68,6 +70,7 @@ namespace exafmm
     real_t pot;
     real_t jerk[3];
     real_t postime;
+    real_t acc_old;
     unsigned int id;
   };
 
@@ -77,7 +80,7 @@ namespace exafmm
   int snapnum;
 
   real_t t_now;
-  real_t force_accuracy = 4e-8;
+  real_t force_accuracy = 5.6e-07;
 
   real_t G = 1;			//0.004300710573170628; 
   //gravitaional constant with Msun, pc and km/s.
@@ -93,7 +96,7 @@ namespace exafmm
 
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
-  int ncrit = 64;		//!< Number of bodies per leaf cell
+  int ncrit = 300;		//!< Number of bodies per leaf cell
   real_t theta = 0.5;		//!< Multipole acceptance criterion
   real_t dX[3], dV[3];		//!< Distance vector
 #pragma omp threadprivate(dX, dV)	//!< Make global variables private

@@ -32,8 +32,7 @@ namespace exafmm
       H5Gclose(hdf5_headergrp);
 
       mainsys.n = numBodies;
-      mainsys.part = (struct particle *) 
-	malloc(numBodies * sizeof(struct particle));
+      mainsys.part = (struct particle *) malloc(numBodies * sizeof(struct particle));
 
       mainsys.last = &mainsys.part[numBodies - 1];
 
@@ -138,8 +137,7 @@ namespace exafmm
     std::iota(ids.begin(), ids.end(), 0);
     sort(ids.begin(), ids.end(),[&s] (unsigned int i1, unsigned int i2)
 	 {
-	 return s.part[i1].id < s.part[i2].id;
-	 }
+	 return s.part[i1].id < s.part[i2].id;}
     );
 
     memspace = H5Screate_simple(1, dims, NULL);
@@ -224,12 +222,24 @@ namespace exafmm
     status = H5Dclose(dset_id);
 #endif
 
-#ifdef OUTPUTSTEP
+#ifdef DEBUG
     memspace = H5Screate_simple(1, dims, NULL);
     space_id = H5Screate_simple(1, dims, NULL);
     for(unsigned int b = 0; b < s.n; b++)
       data[b] = s.part[ids[b]].timestep;
     dset_id = H5Dcreate(file_id, "Stepsize", H5T_NATIVE_DOUBLE, space_id, H5P_DEFAULT);
+    status = H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, memspace, space_id, H5P_DEFAULT, data);
+    status = H5Sclose(space_id);
+    status = H5Sclose(memspace);
+    status = H5Dclose(dset_id);
+#endif
+
+#ifdef DEBUG
+    memspace = H5Screate_simple(1, dims, NULL);
+    space_id = H5Screate_simple(1, dims, NULL);
+    for(unsigned int b = 0; b < s.n; b++)
+      data[b] = s.part[ids[b]].acc_old;
+    dset_id = H5Dcreate(file_id, "Scalarforce", H5T_NATIVE_DOUBLE, space_id, H5P_DEFAULT);
     status = H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, memspace, space_id, H5P_DEFAULT, data);
     status = H5Sclose(space_id);
     status = H5Sclose(memspace);

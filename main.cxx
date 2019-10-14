@@ -114,8 +114,8 @@ int main(int argc, char **argv)
 	{
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
-	      mainsys.part[b].id     = b;
-	      mainsys.part[b].mass   = array[b * 7 + 0];
+	      mainsys.part[b].id = b;
+	      mainsys.part[b].mass = array[b * 7 + 0];
 	      mainsys.part[b].pos[0] = array[b * 7 + 1];
 	      mainsys.part[b].pos[1] = array[b * 7 + 2];
 	      mainsys.part[b].pos[2] = array[b * 7 + 3];
@@ -134,8 +134,8 @@ int main(int argc, char **argv)
 	      mainsys.part[b].vel[0] = PPP[b + 1].Vel[0];
 	      mainsys.part[b].vel[1] = PPP[b + 1].Vel[1];
 	      mainsys.part[b].vel[2] = PPP[b + 1].Vel[2];
-	      mainsys.part[b].mass   = PPP[b + 1].Mass;
-	      mainsys.part[b].id     = PPP[b + 1].Id;
+	      mainsys.part[b].mass = PPP[b + 1].Mass;
+	      mainsys.part[b].id = PPP[b + 1].Id;
 	    }
 	}
     }
@@ -162,11 +162,11 @@ int main(int argc, char **argv)
 	  start("Dummy Poisson test");
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
 	  stop("Dummy Poisson test");
-          fflush(stdout);
+	  fflush(stdout);
 #endif
 
-          kick_naive(0, mainsys, zerosys, zerosys, 0, true);
-	  
+	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);
+
 	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
 

@@ -114,7 +114,7 @@ namespace exafmm
     getBounds(bodies, R0, X0);	// Get bounding box from bodies
     Bodies buffer = bodies;	// Copy bodies to buffer
     Cells cells(1);		// Vector of cells
-    cells.reserve(bodies.size() / 8 + 1000);	// Reserve memory space
+    cells.reserve(bodies.size());	// Reserve memory space
     buildCells(&bodies[0], &buffer[0], 0, bodies.size(), &cells[0], cells, X0, R0);	// Build tree recursively
     return cells;		// Return pointer of root cell
   }
