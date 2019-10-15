@@ -163,9 +163,7 @@ int main(int argc, char **argv)
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
 	  stop("Dummy Poisson test");
 	  fflush(stdout);
-#endif
-
-	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);
+#endif	  
 
 	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
@@ -175,6 +173,8 @@ int main(int argc, char **argv)
 	  system_center_of_mass(mainsys, cmpos, cmvel);
 	  printf("pot=%18.12f kin=%18.12f tot=%18.12f \n", pot, kinetic, -pot + kinetic);
 	  fflush(stdout);
+
+	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);
 
 	  if(mainsys.n > 0)
 	    do_evolve(mainsys, dt);
