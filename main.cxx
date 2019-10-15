@@ -157,13 +157,10 @@ int main(int argc, char **argv)
     {
       while(t_end > t_now)
 	{
-
-#ifdef DEBUG
 	  start("Dummy Poisson test");
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
 	  stop("Dummy Poisson test");
 	  fflush(stdout);
-#endif	  
 
 	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
