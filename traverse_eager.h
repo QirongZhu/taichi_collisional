@@ -97,8 +97,6 @@ namespace exafmm
       }
 
     real_t thres = 1;
-    if(get_steps)
-      thres = 10;
 
     //symmetric tree walk, use f2 < thres for unsymmetric walk
 
