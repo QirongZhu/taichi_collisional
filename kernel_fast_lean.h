@@ -7,15 +7,17 @@
 #include <stdio.h>		/*printf */
 
 #include "vectorclass/vectorclass.h"
+#ifndef DOUBLE_P2P
 #define NSIMD 16
-#include "kernel_rotate.h"
+#else
+#define NSIMD 8
+#endif
 
 #ifdef MINIBALL
 #include "miniball.hpp"
 #endif
 
-//#define M_SQRT2 1.41421356237309504880168872420969808
-//#define TINY 1.52587890625e-05
+#include "kernel_rotate.h"
 
 double dt_param = 0.025;
 
@@ -284,10 +286,15 @@ namespace exafmm
 	  {
 	    int nii = ceil((float) ni / (float) NSIMD) * NSIMD;
 
+#ifndef DOUBLE_P2P
 	    float Xi[nii] __attribute__ ((aligned(64)));
 	    float Yi[nii] __attribute__ ((aligned(64)));
 	    float Zi[nii] __attribute__ ((aligned(64)));
-
+#else
+	    double Xi[nii] __attribute__ ((aligned(64)));
+	    double Yi[nii] __attribute__ ((aligned(64)));
+            double Zi[nii] __attribute__ ((aligned(64)));
+#endif
 	    for(int k = 0; k < ni; k++)
 	      {
 		Xi[k] = -Bi[k].X[0];
@@ -295,10 +302,15 @@ namespace exafmm
 		Zi[k] = -Bi[k].X[2];
 	      }
 
+#ifndef DOUBLE_P2P
 	    Vec16f xi, yi, zi, r, mj;
 	    Vec16f invR, factor1, fac1, dx, dy, dz, r2;
 	    Vec16f ax, ay, az, pot;
-
+#else
+	    Vec8d xi, yi, zi, r, mj;
+            Vec8d invR, factor1, fac1, dx, dy, dz, r2;
+            Vec8d ax, ay, az, pot;
+#endif
 	    for(int i = 0; i < nii; i = i + NSIMD)
 	      {
 		xi.load(Xi + i);
@@ -339,8 +351,11 @@ namespace exafmm
 		      {
 #pragma omp atomic
 			Bi[i + k].p += (real_t) pot[k];
+#pragma omp atomic
 			Bi[i + k].F[0] += (real_t) ax[k];
+#pragma omp atomic
 			Bi[i + k].F[1] += (real_t) ay[k];
+#pragma omp atomic
 			Bi[i + k].F[2] += (real_t) az[k];
 		      }
 		  }
@@ -390,8 +405,11 @@ namespace exafmm
 
 #pragma omp atomic
 		Bi[i].p += (real_t) pot;
+#pragma omp atomic
 		Bi[i].F[0] += (real_t) ax;
+#pragma omp atomic
 		Bi[i].F[1] += (real_t) ay;
+#pragma omp atomic
 		Bi[i].F[2] += (real_t) az;
 	      }
 	  }
@@ -433,8 +451,11 @@ namespace exafmm
 	      {
 #pragma omp atomic
 		Bi[i].p += pot;
+#pragma omp atomic
 		Bi[i].F[0] -= ax;
+#pragma omp atomic
 		Bi[i].F[1] -= ay;
+#pragma omp atomic
 		Bi[i].F[2] -= az;
 	      }
 	  }
@@ -458,9 +479,12 @@ namespace exafmm
 	int ni = Ci->NBODY;
 	int nj = Cj->NBODY;
 
+	real_t delta_t;
+
 #if SIMD_P2P
 	int nii = ceil((float) ni / (float) NSIMD) * NSIMD;
 
+#ifndef DOUBLE_P2P
 	float Mi[nii] __attribute__ ((aligned(64)));
 	float Xi[nii] __attribute__ ((aligned(64)));
 	float Yi[nii] __attribute__ ((aligned(64)));
@@ -468,6 +492,15 @@ namespace exafmm
 	float VXi[nii] __attribute__ ((aligned(64)));
 	float VYi[nii] __attribute__ ((aligned(64)));
 	float VZi[nii] __attribute__ ((aligned(64)));
+#else
+	double Mi[nii] __attribute__ ((aligned(64)));
+        double Xi[nii] __attribute__ ((aligned(64)));
+	double Yi[nii] __attribute__ ((aligned(64)));
+        double Zi[nii] __attribute__ ((aligned(64)));
+        double VXi[nii] __attribute__ ((aligned(64)));
+        double VYi[nii] __attribute__ ((aligned(64)));
+        double VZi[nii] __attribute__ ((aligned(64)));
+#endif
 
 	for(int k = 0; k < ni; k++)
 	  {
@@ -480,10 +513,15 @@ namespace exafmm
 	    VZi[k] = -Bi[k].V[2];
 	  }
 
+#ifndef DOUBLE_P2P
 	Vec16f mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
 	Vec16f invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
 	Vec16f ax, ay, az, pot, timestep, tau, dtau;
-
+#else
+	Vec8d mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
+        Vec8d invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
+        Vec8d ax, ay, az, pot, timestep, tau, dtau;
+#endif
 	for(int i = 0; i < nii; i = i + NSIMD)
 	  {
 	    mi.load(Mi + i);
@@ -547,16 +585,17 @@ namespace exafmm
 		if(Bi[i + k].issink)
 		  {
 #pragma omp atomic
-		    Bi[i + k].p += (real_t) pot[k];
+		    Bi[i + k].p    += (real_t) pot[k];
+#pragma omp atomic
 		    Bi[i + k].F[0] += (real_t) ax[k];
+#pragma omp atomic
 		    Bi[i + k].F[1] += (real_t) ay[k];
+#pragma omp atomic
 		    Bi[i + k].F[2] += (real_t) az[k];
-
-		    if(Bi[i + k].timestep > timestep[k])
-		      {
-			Bi[i + k].timestep = timestep[k];
-		      }
-
+		   
+		    if(Bi[i + k].timestep > (real_t)timestep[k])
+		      Bi[i + k].timestep = (real_t)timestep[k];	      
+	     
 		  }
 	      }
 	  }
@@ -625,12 +664,16 @@ namespace exafmm
 	      {
 #pragma omp atomic
 		Bi[i].p += pot;
+#pragma omp atomic
 		Bi[i].F[0] += ax;
+#pragma omp atomic
 		Bi[i].F[1] += ay;
+#pragma omp atomic
 		Bi[i].F[2] += az;
 
 		if(Bi[i].timestep > timestep)
 		  Bi[i].timestep = timestep;
+
 	      }
 	  }
 #endif
@@ -1373,9 +1416,15 @@ namespace exafmm
 #if SIMD_P2P
     int nii = ceil((float) ni / (float) NSIMD) * NSIMD;
 
+#ifndef DOUBLE_P2P
     float Xi[nii] __attribute__ ((aligned(64)));
     float Yi[nii] __attribute__ ((aligned(64)));
     float Zi[nii] __attribute__ ((aligned(64)));
+#else
+    double Xi[nii] __attribute__ ((aligned(64)));
+    double Yi[nii] __attribute__ ((aligned(64)));
+    double Zi[nii] __attribute__ ((aligned(64)));
+#endif
 
     for(int k = 0; k < ni; k++)
       {
@@ -1384,7 +1433,11 @@ namespace exafmm
 	Zi[k] = Bi[k].X[2];
       }
 
+#ifndef DOUBLE_P2P
     Vec16f xi, yi, zi, r, mj, factor1, dx, dy, dz, r2;
+#else
+    Vec8d xi, yi, zi, r, mj, factor1, dx, dy, dz, r2;
+#endif
 
     for(int i = 0; i < nii; i = i + NSIMD)
       {

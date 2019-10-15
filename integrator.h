@@ -298,6 +298,7 @@ void kick(int clevel, struct sys sinks, struct sys sources,
 
 void get_force_and_potential(Bodies & bodies, bool get_steps)
 {
+#ifdef FMM
   if(bodies.size() < 8e3)
     {
       direct(bodies, bodies, get_steps);
@@ -403,6 +404,12 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
       fflush(stdout);
 #endif
     }
+
+#else // if FMM not defined, use direct summation instead
+
+  direct(bodies, bodies, get_steps);
+
+#endif
 }
 
 struct sys join(struct sys sinks, struct sys sources)
@@ -560,8 +567,10 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
 {
   struct sys slow = zerosys, fast = zerosys;
 
-  if(calc_timestep)
+  if(calc_timestep){
+    
     kick_naive(clevel, s, zerosys, zerosys, 0, true);
+  }
 
   split(dt, s, &slow, &fast);
 
@@ -586,7 +595,7 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
     {
       bool sinks_are_fast = false;
       kick(clevel, slow, fast, dt, update_timestep, sinks_are_fast);
-
+      
       sinks_are_fast = true;
       if(fast.n > 0)
 	kick(clevel, fast, slow, dt, update_timestep, sinks_are_fast);
@@ -595,7 +604,7 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
     {
       kick_cpu(clevel, slow, join(slow, fast), dt);
       if(fast.n > 0)
-	kick_cpu(clevel, fast, slow, dt);
+    	kick_cpu(clevel, fast, slow, dt);
     }
 
   drift(clevel, slow, etime, dt / 2);
