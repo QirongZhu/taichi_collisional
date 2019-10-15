@@ -708,6 +708,10 @@ namespace exafmm
 	    C->R = rminball + 1e-6;
 	  }
       }
+    else
+      {
+	C->R = 0;
+      }  
 #endif
 
     complex_t c_multipole[NTERM];
@@ -782,42 +786,61 @@ namespace exafmm
 	Ci->R = 0;
       }
 #else
-    if(Ci->NCHILD > 0)
+    if (Ci->NCHILD > 0) {
+
+      std::list<std::vector<real_t> > lp;
+
+      for (Cell *ci=Ci->CHILD; ci!=Ci->CHILD+Ci->NCHILD; ci++) {
+
+	min_acc = fmin(ci->min_acc, min_acc);
+
+	if(ci->has_sink) Ci->has_sink=true;
+
+	if(ci->NCHILD == 0) { //leaves, just use bodies to get R_max
+	  for(Body*B=ci->BODY; B!=ci->BODY+ci->NBODY; B++) {
+	    std::vector<real_t> p(3);
+	    p[0] = B->X[0];
+	    p[1] = B->X[1];
+	    p[2] = B->X[2];
+	    lp.push_back(p);
+	  }
+	}
+	else{ 
+	  // use granddaughers information to get R_max with a 
+	  // precomputed t-design of a sphere with 64 points.
+	  for (Cell *cii=ci->CHILD; cii!=ci->CHILD+ci->NCHILD; cii++) {
+	    for(int k=0; k<64; k++) {
+	      std::vector<real_t> p(3);
+	      p[0] = cii->X[0] + cii->R * t_design[3*k+0];
+	      p[1] = cii->X[1] + cii->R * t_design[3*k+1];
+	      p[2] = cii->X[2] + cii->R * t_design[3*k+2];
+	      lp.push_back(p);
+	    }
+	  }
+	}
+      }
+
+      typedef std::list<std::vector<real_t> >::const_iterator PointIterator;
+      typedef std::vector<real_t>::const_iterator CoordIterator;
+      typedef Miniball::
+	Miniball <Miniball::CoordAccessor<PointIterator, CoordIterator> > MB;
+      MB mb (3, lp.begin(), lp.end());
+
+      real_t rminball = sqrt(mb.squared_radius());
+
+      if(Ci->R  > rminball) {
+	const real_t* center = mb.center();
+	Ci->X[0]    = center[0];
+	Ci->X[1]    = center[1];
+	Ci->X[2]    = center[2];
+	Ci->R       = rminball + 1e-6;
+      }
+    
+      Ci->min_acc = min_acc;
+    }
+    else
       {
-	std::list < std::vector < real_t > >lp;
-
-	for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
-	  {
-	    min_acc = fmin(Cj->min_acc, min_acc);
-
-	    if(Cj->has_sink)
-	      Ci->has_sink = true;
-
-	    for(int i = 0; i < 64; i++)
-	      {
-		std::vector < real_t > p(3);
-		p[0] = Cj->X[0] + Cj->R * t_design[3 * i + 0];
-		p[1] = Cj->X[1] + Cj->R * t_design[3 * i + 0];
-		p[2] = Cj->X[2] + Cj->R * t_design[3 * i + 0];
-		lp.push_back(p);
-	      }
-	  }
-
-	typedef std::list < std::vector < real_t > >::const_iterator PointIterator;
-	typedef std::vector < real_t >::const_iterator CoordIterator;
-	typedef Miniball:: Miniball < Miniball::CoordAccessor < PointIterator, CoordIterator > > MB;
-	MB mb(3, lp.begin(), lp.end());
-
-	real_t rminball = sqrt(mb.squared_radius());
-	const real_t *center = mb.center();
-
-	if(rminball < Ci->R)
-	  {
-	    Ci->X[0] = center[0];
-	    Ci->X[1] = center[1];
-	    Ci->X[2] = center[2];
-	    Ci->R = rminball + 1e-6;
-	  }
+	Ci->R  = 0;
       }
 #endif
 

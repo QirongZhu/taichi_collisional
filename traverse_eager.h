@@ -64,7 +64,7 @@ namespace exafmm
       dX[d] = Ci->X[d] - Cj->X[d];
 
     real_t R2 = norm(dX);
-    real_t f2 = 10;
+    real_t f1 = 10, f2 = 10;
 
     real_t Ra = Ci->R;
     real_t Rb = Cj->R;
@@ -77,26 +77,32 @@ namespace exafmm
 	real_t power_Ra = 1;	//std::pow(Ra, P);
 	real_t power_Rb = 1;	//std::pow(Rb, P);
 
-	real_t Eba = 0;		//Eab = 0;
+	real_t Eba = 0, Eab = 0;
 
 	for(int k = 0; k <= P; k++)
 	  {
 	    real_t fac = combinator_coef[P][k];
-	    //      Eab += (Ci->Pn[P-k] * power_Rb * fac);
+	    Eab += (Ci->Pn[P-k] * power_Rb * fac);
 	    Eba += (Cj->Pn[P - k] * power_Ra * fac);
 	    power_Ra *= Ra;
-	    //      power_Rb *= Rb;
+	    power_Rb *= Rb;
 	    Rp *= R;
 	  }
 
 	real_t fac = 8 * fmax(Ra, Rb) / Ra_p_Rb / Rp;
-	//      Eab *= fac;
-	//      f1 = Eab / (force_accuracy * Cj->min_acc);
+	Eab *= fac;
+	f1 = Eab / (force_accuracy * Cj->min_acc);
 	Eba *= fac;
 	f2 = Eba / (force_accuracy * Ci->min_acc);
       }
 
-    if(f2 < 1)
+    real_t thres = 1;
+    if(get_steps)
+      thres = 10;
+
+    //symmetric tree walk, use f2 < thres for unsymmetric walk
+
+    if(f2 < thres && f1 < thres) 
       {
 	if((Ci->NBODY <= 2 && Cj->NBODY <= 8) || (Cj->NBODY <= 2 && Ci->NBODY <= 8))
 	  {
@@ -109,9 +115,10 @@ namespace exafmm
 		P2P_simple(Ci, Cj);
 	      }
 	  }
-	else
+	else	  
 	  {
-	    M2L_rotate(Ci, Cj);	//  M2L kernel
+	    if(!get_steps)
+	      M2L_rotate(Ci, Cj);	//  M2L kernel
 	  }
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
@@ -165,7 +172,8 @@ namespace exafmm
 	  }
 	else
 	  {
-	    M2L_rotate(Ci, Cj);	//  M2L kernel
+	    if(!get_steps)
+	      M2L_rotate(Ci, Cj);	//  M2L kernel
 	  }
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
