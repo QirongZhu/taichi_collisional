@@ -19,6 +19,10 @@
 
 #include "kernel_rotate.h"
 
+#ifdef SIMD_M2L
+#include "kernel_rotate_two_arrays.h"
+#endif
+
 double dt_param = 0.025;
 
 namespace exafmm
@@ -242,30 +246,21 @@ namespace exafmm
 
 	Gnm[ind] = Gnm[n2 - 1] * complex_t(dX[0] / (2 * n), dX[1] / (2 * n));
 
-	if(n > 0)
+	int m, m2, indexstart = n2 - n, indexnew = n2 + n;
+
+	for(m = 0; m < n - 1; m++)
 	  {
-	    int m, m2, indexstart = n2 - n, indexnew = n2 + n;
-
-	    if(n > 1)
-	      {
-		for(m = 0; m < n - 1; m++)
-		  {
-		    m2 = m * m;
-		    Gnm[indexnew + m] =
-		      (2 * n - 1.) / (n2 - m2) * dX[2] * Gnm[indexstart + m] - r2 / (n2 - m2) * Gnm[n2 -
-												    3 * n +
-												    2 + m];
-		  }
-	      }
-
-	    m = n - 1;
-	    Gnm[indexnew + m] = dX[2] * Gnm[indexstart + m];
+	    m2 = n2 - m * m;
+	    Gnm[indexnew + m] =
+	      (2 * n - 1.) / m2 * dX[2] * Gnm[indexstart + m] - r2 / m2 * Gnm[n2 - 3 * n + 2 + m];
 	  }
+		
+	Gnm[indexnew + n - 1] = dX[2] * Gnm[indexstart + n - 1];
 
 	real_t oddoreven = -1;
 	for(int m = 1; m <= n; m++)
 	  {
-	    Gnm[n2 + n - m] = std::conj(Gnm[n2 + n + m] * oddoreven);
+	    Gnm[indexnew - m] = std::conj(Gnm[indexnew + m] * oddoreven);
 	    oddoreven *= -1;
 	  }
       }
@@ -284,7 +279,7 @@ namespace exafmm
 #if SIMD_P2P
 	if(ni > NSIMD)
 	  {
-	    int nii = ceil((float) ni / (float) NSIMD) * NSIMD;
+	    int nii = (ni + NSIMD - 1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
 	    float Xi[nii] __attribute__ ((aligned(64)));
@@ -293,7 +288,7 @@ namespace exafmm
 #else
 	    double Xi[nii] __attribute__ ((aligned(64)));
 	    double Yi[nii] __attribute__ ((aligned(64)));
-            double Zi[nii] __attribute__ ((aligned(64)));
+	    double Zi[nii] __attribute__ ((aligned(64)));
 #endif
 	    for(int k = 0; k < ni; k++)
 	      {
@@ -308,8 +303,8 @@ namespace exafmm
 	    Vec16f ax, ay, az, pot;
 #else
 	    Vec8d xi, yi, zi, r, mj;
-            Vec8d invR, factor1, fac1, dx, dy, dz, r2;
-            Vec8d ax, ay, az, pot;
+	    Vec8d invR, factor1, fac1, dx, dy, dz, r2;
+	    Vec8d ax, ay, az, pot;
 #endif
 	    for(int i = 0; i < nii; i = i + NSIMD)
 	      {
@@ -462,8 +457,8 @@ namespace exafmm
 #endif
 
 
-#pragma omp atomic
-	Ci->NP2P += 1;
+	//#pragma omp atomic
+	//	Ci->NP2P += 1;
 
       }
   }
@@ -482,7 +477,7 @@ namespace exafmm
 	real_t delta_t;
 
 #if SIMD_P2P
-	int nii = ceil((float) ni / (float) NSIMD) * NSIMD;
+	int nii = (ni + NSIMD - 1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
 	float Mi[nii] __attribute__ ((aligned(64)));
@@ -494,12 +489,12 @@ namespace exafmm
 	float VZi[nii] __attribute__ ((aligned(64)));
 #else
 	double Mi[nii] __attribute__ ((aligned(64)));
-        double Xi[nii] __attribute__ ((aligned(64)));
+	double Xi[nii] __attribute__ ((aligned(64)));
 	double Yi[nii] __attribute__ ((aligned(64)));
-        double Zi[nii] __attribute__ ((aligned(64)));
-        double VXi[nii] __attribute__ ((aligned(64)));
-        double VYi[nii] __attribute__ ((aligned(64)));
-        double VZi[nii] __attribute__ ((aligned(64)));
+	double Zi[nii] __attribute__ ((aligned(64)));
+	double VXi[nii] __attribute__ ((aligned(64)));
+	double VYi[nii] __attribute__ ((aligned(64)));
+	double VZi[nii] __attribute__ ((aligned(64)));
 #endif
 
 	for(int k = 0; k < ni; k++)
@@ -519,8 +514,8 @@ namespace exafmm
 	Vec16f ax, ay, az, pot, timestep, tau, dtau;
 #else
 	Vec8d mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
-        Vec8d invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
-        Vec8d ax, ay, az, pot, timestep, tau, dtau;
+	Vec8d invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
+	Vec8d ax, ay, az, pot, timestep, tau, dtau;
 #endif
 	for(int i = 0; i < nii; i = i + NSIMD)
 	  {
@@ -585,17 +580,17 @@ namespace exafmm
 		if(Bi[i + k].issink)
 		  {
 #pragma omp atomic
-		    Bi[i + k].p    += (real_t) pot[k];
+		    Bi[i + k].p += (real_t) pot[k];
 #pragma omp atomic
 		    Bi[i + k].F[0] += (real_t) ax[k];
 #pragma omp atomic
 		    Bi[i + k].F[1] += (real_t) ay[k];
 #pragma omp atomic
 		    Bi[i + k].F[2] += (real_t) az[k];
-		   
-		    if(Bi[i + k].timestep > (real_t)timestep[k])
-		      Bi[i + k].timestep = (real_t)timestep[k];	      
-	     
+
+		    if(Bi[i + k].timestep > (real_t) timestep[k])
+		      Bi[i + k].timestep = (real_t) timestep[k];
+
 		  }
 	      }
 	  }
@@ -678,8 +673,8 @@ namespace exafmm
 	  }
 #endif
 
-#pragma omp atomic
-	Ci->NP2P += 1;
+	//#pragma omp atomic
+	//	Ci->NP2P += 1;
       }
   }
 
@@ -698,10 +693,6 @@ namespace exafmm
 	    comy += B->X[1] * B->q;
 	    comz += B->X[2] * B->q;
 	    totalq += B->q;
-
-	    min_acc = fmin(B->acc_old, min_acc);
-	    if(B->issink)
-	      C->has_sink = true;
 	  }
 
 	comx /= totalq;
@@ -715,7 +706,7 @@ namespace exafmm
       }
     else
       {
-	C->R = 0;
+	C->R = 1e-6;
       }
 #else
     if(C->NBODY > 0)
@@ -729,32 +720,26 @@ namespace exafmm
 	    p[1] = B->X[1];
 	    p[2] = B->X[2];
 	    lp.push_back(p);
-
-	    min_acc = fmin(B->acc_old, min_acc);
-
-	    if(B->issink)
-	      C->has_sink = true;
 	  }
 	// define the types of iterators through the points and their coordinates
 	typedef std::list < std::vector < real_t > >::const_iterator PointIterator;
 	typedef std::vector < real_t >::const_iterator CoordIterator;
-	typedef Miniball:: Miniball < Miniball::CoordAccessor < PointIterator, CoordIterator > > MB;
+	typedef Miniball::Miniball < Miniball::CoordAccessor < PointIterator, CoordIterator > >MB;
 	MB mb(3, lp.begin(), lp.end());
 	real_t rminball = sqrt(mb.squared_radius());
 	const real_t *center = mb.center();
 
-	if(rminball < C->R)
-	  {			//use rminball as R
-	    C->X[0] = center[0];
-	    C->X[1] = center[1];
-	    C->X[2] = center[2];
-	    C->R = rminball + 1e-6;
-	  }
+	//use rminball as R
+	C->X[0] = center[0];
+	C->X[1] = center[1];
+	C->X[2] = center[2];
+	C->R = rminball + 1e-6;
+
       }
     else
       {
-	C->R = 0;
-      }  
+	C->R = 1e-6;
+      }
 #endif
 
     complex_t c_multipole[NTERM];
@@ -765,6 +750,11 @@ namespace exafmm
 	  {
 	    dX[d] = B->X[d] - C->X[d];
 	  }
+
+	min_acc = fmin(B->acc_old, min_acc);
+
+	if(B->issink)
+	  C->has_sink = true;
 
 	complex_t Gnm[NTERM];
 
@@ -808,11 +798,6 @@ namespace exafmm
 	comy /= totalq;
 	comz /= totalq;
 
-	Ci->X[0] = comx;
-	Ci->X[1] = comy;
-	Ci->X[2] = comz;
-	Ci->cell_mass = totalq;
-
 	real_t max_r = 1e-10;
 
 	for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
@@ -823,67 +808,78 @@ namespace exafmm
 	  }
 
 	Ci->R = max_r;
+	Ci->min_acc = min_acc;
+	Ci->X[0] = comx;
+	Ci->X[1] = comy;
+	Ci->X[2] = comz;
+	Ci->cell_mass = totalq;
       }
     else
       {
-	Ci->R = 0;
+	Ci->R = 1e-6;
+	Ci->min_acc = min_acc;
       }
 #else
-    if (Ci->NCHILD > 0) {
+    if(Ci->NCHILD > 0)
+      {
 
-      std::list<std::vector<real_t> > lp;
+	std::list < std::vector < real_t > >lp;
 
-      for (Cell *ci=Ci->CHILD; ci!=Ci->CHILD+Ci->NCHILD; ci++) {
+	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
+	  {
 
-	min_acc = fmin(ci->min_acc, min_acc);
+	    min_acc = fmin(ci->min_acc, min_acc);
 
-	if(ci->has_sink) Ci->has_sink=true;
+	    if(ci->has_sink)
+	      Ci->has_sink = true;
 
-	if(ci->NCHILD == 0) { //leaves, just use bodies to get R_max
-	  for(Body*B=ci->BODY; B!=ci->BODY+ci->NBODY; B++) {
-	    std::vector<real_t> p(3);
-	    p[0] = B->X[0];
-	    p[1] = B->X[1];
-	    p[2] = B->X[2];
-	    lp.push_back(p);
+	    if(ci->NCHILD == 0)
+	      {			//leaves, just use bodies to get R_max
+		for(Body * B = ci->BODY; B != ci->BODY + ci->NBODY; B++)
+		  {
+		    std::vector < real_t > p(3);
+		    p[0] = B->X[0];
+		    p[1] = B->X[1];
+		    p[2] = B->X[2];
+		    lp.push_back(p);
+		  }
+	      }
+	    else
+	      {
+		// use granddaughers information to get R_max with a 
+		// precomputed t-design of a sphere with 64 points.
+		for(Cell * cii = ci->CHILD; cii != ci->CHILD + ci->NCHILD; cii++)
+		  {
+		    for(int k = 0; k < 64; k++)
+		      {
+			std::vector < real_t > p(3);
+			p[0] = cii->X[0] + cii->R * t_design[3 * k + 0];
+			p[1] = cii->X[1] + cii->R * t_design[3 * k + 1];
+			p[2] = cii->X[2] + cii->R * t_design[3 * k + 2];
+			lp.push_back(p);
+		      }
+		  }
+	      }
 	  }
-	}
-	else{ 
-	  // use granddaughers information to get R_max with a 
-	  // precomputed t-design of a sphere with 64 points.
-	  for (Cell *cii=ci->CHILD; cii!=ci->CHILD+ci->NCHILD; cii++) {
-	    for(int k=0; k<64; k++) {
-	      std::vector<real_t> p(3);
-	      p[0] = cii->X[0] + cii->R * t_design[3*k+0];
-	      p[1] = cii->X[1] + cii->R * t_design[3*k+1];
-	      p[2] = cii->X[2] + cii->R * t_design[3*k+2];
-	      lp.push_back(p);
-	    }
-	  }
-	}
+
+	typedef std::list < std::vector < real_t > >::const_iterator PointIterator;
+	typedef std::vector < real_t >::const_iterator CoordIterator;
+	typedef Miniball::Miniball < Miniball::CoordAccessor < PointIterator, CoordIterator > >MB;
+	MB mb(3, lp.begin(), lp.end());
+
+	real_t rminball = sqrt(mb.squared_radius());
+
+	const real_t *center = mb.center();
+	Ci->X[0] = center[0];
+	Ci->X[1] = center[1];
+	Ci->X[2] = center[2];
+	Ci->R = rminball + 1e-6;
+	Ci->min_acc = min_acc;
       }
-
-      typedef std::list<std::vector<real_t> >::const_iterator PointIterator;
-      typedef std::vector<real_t>::const_iterator CoordIterator;
-      typedef Miniball::
-	Miniball <Miniball::CoordAccessor<PointIterator, CoordIterator> > MB;
-      MB mb (3, lp.begin(), lp.end());
-
-      real_t rminball = sqrt(mb.squared_radius());
-
-      if(Ci->R  > rminball) {
-	const real_t* center = mb.center();
-	Ci->X[0]    = center[0];
-	Ci->X[1]    = center[1];
-	Ci->X[2]    = center[2];
-	Ci->R       = rminball + 1e-6;
-      }
-    
-      Ci->min_acc = min_acc;
-    }
     else
       {
-	Ci->R  = 0;
+	Ci->R = 1e-6;
+	Ci->min_acc = min_acc;
       }
 #endif
 
@@ -932,8 +928,6 @@ namespace exafmm
 
     for(int indice = 0; indice < NTERM; indice++)
       Ci->M[indice] += r_multipole[indice];
-
-    Ci->min_acc = min_acc;
   }
 
   void L2L(Cell * Ci)
@@ -1016,9 +1010,6 @@ namespace exafmm
 	      {
 		int indice = n * n + n + m;
 
-		if(indice == 1)
-		  continue;
-
 		for(int k = 0; k <= P - n; k++)
 		  for(int l = -k; l <= k; l++)
 		    Phi[indice] += c_local_Ci[(n + k) * (n + k) + (n + k) + (m + l)] * Gnm[k * k + k + l];
@@ -1034,193 +1025,265 @@ namespace exafmm
 
   void M2L_rotate(Cell * Ci, Cell * Cj)
   {
-    if(Ci->has_sink)
+    if(Ci > Cj || (!Ci->has_sink && !Cj->has_sink))
+      return;			//only do pairs in this order 
+
+    for(int d = 0; d < 3; d++)
+      dX[d] = Ci->X[d] - Cj->X[d];
+
+    real_t r2_xy = dX[0] * dX[0] + dX[1] * dX[1];
+    real_t r_xy = sqrt(r2_xy);
+    real_t r2 = r2_xy + dX[2] * dX[2];
+    real_t r = sqrt(r2);
+    real_t r_inv = 1.0 / r;
+
+    real_t exp_a_z_re[P + 1], exp_a_z_im[P + 1];
+    real_t exp_a_x_re[P + 1], exp_a_x_im[P + 1];
+
+    exp_a_z_re[0] = 1;
+    exp_a_z_im[0] = 0;
+    exp_a_x_re[0] = 1;
+    exp_a_x_im[0] = 0;
+    exp_a_z_re[1] = 1;
+    exp_a_z_im[1] = 0;
+    exp_a_x_re[1] = dX[2] * r_inv;
+    exp_a_x_im[1] = -r_xy * r_inv;
+
+    if(r_xy > 0)
       {
-	for(int d = 0; d < 3; d++)
-	  dX[d] = Ci->X[d] - Cj->X[d];
+	r_xy = 1.0 / r_xy;
+	exp_a_z_re[1] = dX[1] * r_xy;
+	exp_a_z_im[1] = dX[0] * r_xy;
+      }
 
-	real_t r2_xy = dX[0] * dX[0] + dX[1] * dX[1];
-	real_t r_xy = sqrt(r2_xy);
-	real_t r2 = r2_xy + dX[2] * dX[2];
-	real_t r = sqrt(r2);
-	real_t r_inv = 1.0 / r;
+    for(int m = 1; m < P; m++)
+      {
+	exp_a_z_re[m + 1] = exp_a_z_re[m] * exp_a_z_re[1] - exp_a_z_im[m] * exp_a_z_im[1];
+	exp_a_z_im[m + 1] = exp_a_z_re[m] * exp_a_z_im[1] + exp_a_z_im[m] * exp_a_z_re[1];
+	exp_a_x_re[m + 1] = exp_a_x_re[m] * exp_a_x_re[1] - exp_a_x_im[m] * exp_a_x_im[1];
+	exp_a_x_im[m + 1] = exp_a_x_re[m] * exp_a_x_im[1] + exp_a_x_im[m] * exp_a_x_re[1];
+      }
 
-#if 1
-	real_t exp_a_z_re[P + 1], exp_a_z_im[P + 1];
-	real_t exp_a_x_re[P + 1], exp_a_x_im[P + 1];
+    real_t r_multipole_Cj[NTERM], r_local_ci[NTERM];
+    real_t r_multipole_Ci[NTERM], r_local_cj[NTERM];
 
-	exp_a_z_re[0] = 1;
-	exp_a_z_im[0] = 0;
-	exp_a_x_re[0] = 1;
-	exp_a_x_im[0] = 0;
+    //Step 0:       copy multipoles, and make multipoles into homogenius polynomials
+    for(int indice = 0; indice < NTERM; indice++)
+      {
+	r_local_ci[indice] = 0;
+	r_local_cj[indice] = 0;
+	r_multipole_Ci[indice] = Ci->M[indice] * factorial_coef_oned[indice];
+	r_multipole_Cj[indice] = Cj->M[indice] * factorial_coef_oned[indice];
+      }
 
-	exp_a_z_re[1] = 1;
-	exp_a_z_im[1] = 0;
-	exp_a_x_re[1] = dX[2] * r_inv;
-	exp_a_x_im[1] = -r_xy * r_inv;
-
-	if(r_xy > 0)
+    //Step 1:       first rotate multipoles around the original z - axis with alpha_z
+    for(int n = 1; n <= P; n++)
+      {
+	int index_start = n * n + n;
+	real_t Re_ei, Im_ei, Im_r, Re_r;
+	real_t oddoreven = -1;
+	for(int m = 1; m <= n; m++)
 	  {
-	    r_xy = 1.0 / r_xy;
-	    exp_a_z_re[1] = dX[1] * r_xy;
-	    exp_a_z_im[1] = dX[0] * r_xy;
-	  }
+	    Re_ei = exp_a_z_re[m];
+	    Im_ei = exp_a_z_im[m];
+	    Im_r = r_multipole_Cj[index_start - m];
+	    Re_r = r_multipole_Cj[index_start + m];
+	    r_multipole_Cj[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
+	    r_multipole_Cj[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
 
-	for(int m = 1; m < P; m++)
-	  {
-	    exp_a_z_re[m + 1] = exp_a_z_re[m] * exp_a_z_re[1] - exp_a_z_im[m] * exp_a_z_im[1];
-	    exp_a_z_im[m + 1] = exp_a_z_re[m] * exp_a_z_im[1] + exp_a_z_im[m] * exp_a_z_re[1];
-	    exp_a_x_re[m + 1] = exp_a_x_re[m] * exp_a_x_re[1] - exp_a_x_im[m] * exp_a_x_im[1];
-	    exp_a_x_im[m + 1] = exp_a_x_re[m] * exp_a_x_im[1] + exp_a_x_im[m] * exp_a_x_re[1];
+	    Re_ei *= oddoreven;
+	    Im_ei *= oddoreven;
+	    Im_r = r_multipole_Ci[index_start - m];
+	    Re_r = r_multipole_Ci[index_start + m];
+	    r_multipole_Ci[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
+	    r_multipole_Ci[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
+	    oddoreven *= -1;
 	  }
+      }
+
+    //Step 2:       swap x and z
+#ifndef SIMD_M2L
+    swap_x_z(r_multipole_Cj);
+    swap_x_z(r_multipole_Ci);
+#else
+    swap_x_z_two_arrays(r_multipole_Cj, r_multipole_Ci);
 #endif
 
-	real_t r_multipole_Cj[NTERM], r_local[NTERM];
-
-	//Step 0:       copy multipoles, and make multipoles into homogenius polynomials
-	for(int indice = 0; indice < NTERM; indice++)
+    //step 3:       rotate around(new) z - axis by alpha_x
+    for(int n = 1; n <= P; n++)
+      {
+	int index_start = n * n + n;
+	real_t Re_ei, Im_ei, Im_r, Re_r;
+	real_t oddoreven = -1;
+	for(int m = 1; m <= n; m++)
 	  {
-	    r_local[indice] = 0;
-	    r_multipole_Cj[indice] = Cj->M[indice] * factorial_coef_oned[indice];
-	  }
+	    Re_ei = exp_a_x_re[m];
+	    Im_ei = exp_a_x_im[m];
+	    Im_r = r_multipole_Cj[index_start - m];
+	    Re_r = r_multipole_Cj[index_start + m];
+	    r_multipole_Cj[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
+	    r_multipole_Cj[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
 
-#if 1
-	//Step 1:       first rotate multipoles around the original z - axis with alpha_z
-	for(int n = 1; n <= P; n++)
-	  {
-	    int index_start = n * n + n;
-	    real_t Re_ei, Im_ei, Im_r, Re_r;
-	    for(int m = 1; m <= n; m++)
-	      {
-		Re_ei = exp_a_z_re[m];
-		Im_ei = exp_a_z_im[m];
-		Im_r = r_multipole_Cj[index_start - m];
-		Re_r = r_multipole_Cj[index_start + m];
-		r_multipole_Cj[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
-		r_multipole_Cj[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
-	      }
+
+	    Re_ei *= oddoreven;
+	    Im_ei *= oddoreven * (-1);
+	    Im_r = r_multipole_Ci[index_start - m];
+	    Re_r = r_multipole_Ci[index_start + m];
+	    r_multipole_Ci[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
+	    r_multipole_Ci[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
+	    oddoreven *= -1;
 	  }
+      }
+
+    //Step 4:       swap x and z
+#ifndef SIMD_M2L
+    swap_x_z(r_multipole_Cj);
+    swap_x_z(r_multipole_Ci);
+#else
+    swap_x_z_two_arrays(r_multipole_Cj, r_multipole_Ci);
 #endif
 
-	//Step 2:       swap x and z
-	swap_x_z(r_multipole_Cj);
+    //Lastly multiply multipoles by proper normalizations
+    for(int n = 0; n <= NTERM; n++)
+      {
+	r_multipole_Ci[n] *= factorial_coef_inv_oned[n];
+	r_multipole_Cj[n] *= factorial_coef_inv_oned[n];
+      }
 
-#if 1
-	//step 3:       rotate around(new) z - axis by alpha_x
-	for(int n = 1; n <= P; n++)
+    real_t powers_of_r, powers_of_r_n, powers_of_r_m;
+
+    powers_of_r_n = r_inv;
+
+    for(int n = 0; n <= P; n++)
+      {
+	int index_start = n * (n + 1);
+	powers_of_r = powers_of_r_n;
+
+	for(int k = 0; k <= P - n; k++)
 	  {
-	    int index_start = n * n + n;
-	    real_t Re_ei, Im_ei, Im_r, Re_r;
-	    for(int m = 1; m <= n; m++)
-	      {
-		Re_ei = exp_a_x_re[m];
-		Im_ei = exp_a_x_im[m];
-		Im_r = r_multipole_Cj[index_start - m];
-		Re_r = r_multipole_Cj[index_start + m];
-		r_multipole_Cj[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
-		r_multipole_Cj[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
-	      }
-	  }
-#endif
-
-	//Step 4:       swap x and z
-	swap_x_z(r_multipole_Cj);
-
-	//Lastly multiply multipoles by proper normalizations
-	for(int n = 0; n <= NTERM; n++)
-	  {
-	    r_multipole_Cj[n] *= factorial_coef_inv_oned[n];
+	    real_t fac = factorial_table[n + k] * powers_of_r;
+	    r_local_ci[index_start] += r_multipole_Cj[k * (k + 1)] * fac;
+	    r_local_cj[index_start] += r_multipole_Ci[k * (k + 1)] * fac;
+	    powers_of_r *= r_inv;
 	  }
 
-	real_t powers_of_r, powers_of_r_n, powers_of_r_m;
+	powers_of_r_m = r_inv;
 
-	powers_of_r_n = r_inv;
+	real_t oddevenfac = -1, fac;
+	int index_start_k;
 
-	for(int n = 0; n <= P; n++)
+	for(int m = 1; m <= std::min(n, P - n); m++)
 	  {
-	    int index_start = n * (n + 1);
-	    powers_of_r = powers_of_r_n;
-
-	    for(int k = 0; k <= P - n; k++)
+	    powers_of_r = powers_of_r_n * powers_of_r_m;
+	    for(int k = m; k <= P - n; k++)
 	      {
-		real_t fac = factorial_table[n + k] * powers_of_r;
-		r_local[index_start] += r_multipole_Cj[k * (k + 1)] * fac;
+                index_start_k = k * (k + 1);
+		fac = factorial_table[n + k] * powers_of_r * oddevenfac;
+		r_local_ci[index_start - m] += r_multipole_Cj[index_start_k - m] * fac;
+		r_local_ci[index_start + m] += r_multipole_Cj[index_start_k + m] * fac;
+		r_local_cj[index_start - m] += r_multipole_Ci[index_start_k - m] * fac;
+		r_local_cj[index_start + m] += r_multipole_Ci[index_start_k + m] * fac;
 		powers_of_r *= r_inv;
 	      }
-
-	    powers_of_r_m = r_inv;
-
-	    real_t oddevenfac = -1;
-
-	    for(int m = 1; m <= std::min(n, P - n); m++)
-	      {
-		powers_of_r = powers_of_r_n * powers_of_r_m;
-		for(int k = m; k <= P - n; k++)
-		  {
-		    real_t fac = factorial_table[n + k] * powers_of_r * oddevenfac;
-		    int index_start_k = k * (k + 1);
-		    r_local[index_start - m] += r_multipole_Cj[index_start_k - m] * fac;
-		    r_local[index_start + m] += r_multipole_Cj[index_start_k + m] * fac;
-		    powers_of_r *= r_inv;
-		  }
-		oddevenfac *= -1;
-		powers_of_r_m *= r_inv;
-	      }
-	    powers_of_r_n *= r_inv;
+	    oddevenfac *= -1;
+	    powers_of_r_m *= r_inv;
 	  }
+	powers_of_r_n *= r_inv;
+      }
 
-	//Step 5:       swap x and z
-	swap_x_z(r_local);
-
-#if 1
-	//Step 6:       Rotate local expansion around z - axis by(-alpha_x)
-	for(int n = 1; n <= P; n++)
-	  {
-	    int index_start = n * n + n;
-	    real_t Re_ei, Im_ei, Im_c, Re_c;
-	    for(int m = 1; m <= n; m++)
-	      {
-		Re_ei = exp_a_x_re[m];
-		Im_ei = exp_a_x_im[m];
-		Im_c = r_local[index_start - m];
-		Re_c = r_local[index_start + m];
-		r_local[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
-		r_local[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
-	      }
-	  }
+    //Step 5:       swap x and z
+#ifndef SIMD_M2L
+    swap_x_z(r_local_ci);
+    swap_x_z(r_local_cj);
+#else
+    swap_x_z_two_arrays(r_local_ci, r_local_cj);
 #endif
 
-	//Step 7:       swap x and z
-	swap_x_z(r_local);
 
-#if 1
-	//Step 8:       Final rotation around z - axis by(-alpha_z)
-	for(int n = 1; n <= P; n++)
+    //Step 6:       Rotate local expansion around z - axis by(-alpha_x)
+    for(int n = 1; n <= P; n++)
+      {
+	int index_start = n * n + n;
+	real_t Re_ei, Im_ei, Im_c, Re_c;
+	real_t oddoreven = -1;
+	for(int m = 1; m <= n; m++)
 	  {
-	    int index_start = n * n + n;
-	    real_t Re_ei, Im_ei, Im_c, Re_c;
-	    for(int m = 1; m <= n; m++)
-	      {
-		Re_ei = exp_a_z_re[m];
-		Im_ei = exp_a_z_im[m];
-		Im_c = r_local[index_start - m];
-		Re_c = r_local[index_start + m];
-		r_local[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
-		r_local[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
-	      }
-	  }
-#endif
-	//Now local expansion is expressed consistently with the original coordinates
+	    Re_ei = exp_a_x_re[m];
+	    Im_ei = exp_a_x_im[m];
+	    Im_c = r_local_ci[index_start - m];
+	    Re_c = r_local_ci[index_start + m];
+	    r_local_ci[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
+	    r_local_ci[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
 
-	// Store the results in real - valued form              
+
+	    Re_ei *= oddoreven;
+	    Im_ei *= oddoreven * (-1);
+	    Im_c = r_local_cj[index_start - m];
+	    Re_c = r_local_cj[index_start + m];
+	    r_local_cj[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
+	    r_local_cj[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
+	    oddoreven *= -1;
+	  }
+      }
+
+    //Step 7:       swap x and z
+#ifndef SIMD_M2L
+    swap_x_z(r_local_ci);
+    swap_x_z(r_local_cj);
+#else
+    swap_x_z_two_arrays(r_local_ci, r_local_cj);
+#endif
+
+    //Step 8:       Final rotation around z - axis by(-alpha_z)
+    for(int n = 1; n <= P; n++)
+      {
+	int index_start = n * n + n;
+	real_t Re_ei, Im_ei, Im_c, Re_c;
+	real_t oddoreven=-1;
+	for(int m = 1; m <= n; m++)
+	  {
+	    Re_ei = exp_a_z_re[m];
+	    Im_ei = exp_a_z_im[m];
+	    Im_c = r_local_ci[index_start - m];
+	    Re_c = r_local_ci[index_start + m];
+	    r_local_ci[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
+	    r_local_ci[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
+
+            Re_ei *= oddoreven;
+            Im_ei *= oddoreven;
+	    Im_c = r_local_cj[index_start - m];
+	    Re_c = r_local_cj[index_start + m];
+	    r_local_cj[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
+	    r_local_cj[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
+	    oddoreven *= -1;
+	  }
+      }
+
+    //Now local expansion is expressed consistently with the original coordinates
+    // Store the results in real - valued form              
+
+    if(Ci->has_sink)
+      {
 	for(int indice = 0; indice < NTERM; indice++)
 	  {
 #pragma omp atomic
-	    Ci->L[indice] += r_local[indice];
+	    Ci->L[indice] += r_local_ci[indice];
 	  }
-#pragma omp atomic
-	Ci->NM2L += 1;
+	//#pragma omp atomic
+	//	Ci->NM2L += 1;
       }
+
+    if(Cj->has_sink)
+      {
+	for(int indice = 0; indice < NTERM; indice++)
+	  {
+#pragma omp atomic
+	    Cj->L[indice] += r_local_cj[indice];
+	  }
+	//#pragma omp atomic
+	//	Cj->NM2L += 1;
+      }
+
   }
 
   void M2L(Cell * Ci, Cell * Cj)
@@ -1270,10 +1333,11 @@ namespace exafmm
 
 	complex_2_real(c_local, r_local, P);
 
-	for(int indice = 0; indice < NTERM; indice++) {
+	for(int indice = 0; indice < NTERM; indice++)
+	  {
 #pragma omp atomic
-	  Ci->L[indice] += r_local[indice];
-	}
+	    Ci->L[indice] += r_local[indice];
+	  }
       }
   }
 
@@ -1402,7 +1466,6 @@ namespace exafmm
 #pragma omp atomic
 	Ci->L[indice] += r_local[indice];
       }
-
   }
 
   void P2P_low(Cell * Ci, Cell * Cj)
@@ -1414,7 +1477,7 @@ namespace exafmm
     int nj = Cj->NBODY;
 
 #if SIMD_P2P
-    int nii = ceil((float) ni / (float) NSIMD) * NSIMD;
+    int nii = (ni + NSIMD - 1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
     float Xi[nii] __attribute__ ((aligned(64)));
@@ -1574,8 +1637,5 @@ namespace exafmm
 			   std::imag(Phi[3]) * std::imag(Phi[3]) + std::real(Phi[2]) * std::real(Phi[2]));
       }
   }
-
-
-
 }
 #endif
