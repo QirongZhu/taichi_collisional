@@ -27,6 +27,17 @@ namespace exafmm
     real_t p;			//!< Potential
     real_t V[3];
     real_t acc_old;
+    unsigned int Morton[3];     //!< Morton IDs for tree build
+    bool operator<(const Body &rhs) const {
+      unsigned int x_=(Morton[0]^rhs.Morton[0]);
+      unsigned int y_=(Morton[1]^rhs.Morton[1]);
+      unsigned int z_=(Morton[2]^rhs.Morton[2]);
+      if((z_>x_||((z_^x_)<x_&&(z_^x_)<z_))&&(z_>y_||((z_^y_)<y_ &&(z_^y_)<z_)))
+	return Morton[2]<rhs.Morton[2];
+      if((y_>x_||((y_^x_)<x_ && (y_^x_)<y_)))
+	return Morton[1]<rhs.Morton[1];
+      return Morton[0]<rhs.Morton[0];
+    }
     real_t timestep;
     int index;
     bool issink;
@@ -43,8 +54,9 @@ namespace exafmm
     real_t Pn[(EXPANSION + 1)];
     int NCHILD;			//!< Number of child cells
     int NBODY;			//!< Number of descendant bodies
-    int NP2P;
-    int NM2L;
+    //    int NP2P;
+    //    int NM2L;
+    //    int index;
     Cell *CHILD;		//!< Pointer of first child cell
     Body *BODY;			//!< Pointer of first body
     real_t X[3];		//!< Cell center
@@ -80,7 +92,7 @@ namespace exafmm
   int snapnum;
 
   real_t t_now;
-  real_t force_accuracy = 1.0e-07;
+  real_t force_accuracy = 2.0e-07;
 
   real_t G = 1;			//0.004300710573170628; 
   //gravitaional constant with Msun, pc and km/s.
