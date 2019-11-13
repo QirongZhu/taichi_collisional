@@ -266,6 +266,32 @@ namespace exafmm
       }
   }
 
+
+    
+  void make_Gnmdot(real_t *dV, complex_t *Gnm, complex_t *Gnmdot, int Order){
+        
+    complex_t etadot = complex_t(-dV[0]*(real_t)0.5,  dV[1]*(real_t)0.5);
+    complex_t zdot   = complex_t(dV[2],        0);
+    complex_t ksidot = complex_t(dV[0]*(real_t)0.5,  dV[1]*(real_t)0.5);
+        
+    for (int n = 0; n <= Order; n++) {
+            
+      int index_start       = n*n+n;
+            
+      int index_start_lower = (n-1)*(n-1)+(n-1);
+
+      for (int m = -n;  m <= n-2; m++)
+	Gnmdot[index_start + m] += Gnm[index_start_lower + (m+1)] * etadot;
+            
+      for (int m = -n+1; m <= n-1; m++)
+	Gnmdot[index_start + m] += Gnm[index_start_lower + m]     * zdot;
+            
+      for (int m = -n+2; m <= n;  m++)
+	Gnmdot[index_start + m] += Gnm[index_start_lower + (m-1)] * ksidot;
+            
+    }
+  }
+
   void P2P_simple(Cell * Ci, Cell * Cj)
   {
     if(Ci->has_sink)
@@ -455,11 +481,6 @@ namespace exafmm
 	      }
 	  }
 #endif
-
-
-	//#pragma omp atomic
-	//	Ci->NP2P += 1;
-
       }
   }
 
@@ -474,27 +495,25 @@ namespace exafmm
 	int ni = Ci->NBODY;
 	int nj = Cj->NBODY;
 
-	real_t delta_t;
-
 #if SIMD_P2P
 	int nii = (ni + NSIMD - 1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
-	float Mi[nii] __attribute__ ((aligned(64)));
-	float Xi[nii] __attribute__ ((aligned(64)));
-	float Yi[nii] __attribute__ ((aligned(64)));
-	float Zi[nii] __attribute__ ((aligned(64)));
-	float VXi[nii] __attribute__ ((aligned(64)));
-	float VYi[nii] __attribute__ ((aligned(64)));
-	float VZi[nii] __attribute__ ((aligned(64)));
+	float Mi[nii] __attribute__ ((aligned(32)));
+	float Xi[nii] __attribute__ ((aligned(32)));
+	float Yi[nii] __attribute__ ((aligned(32)));
+	float Zi[nii] __attribute__ ((aligned(32)));
+	float VXi[nii] __attribute__ ((aligned(32)));
+	float VYi[nii] __attribute__ ((aligned(32)));
+	float VZi[nii] __attribute__ ((aligned(32)));
 #else
-	double Mi[nii] __attribute__ ((aligned(64)));
-	double Xi[nii] __attribute__ ((aligned(64)));
-	double Yi[nii] __attribute__ ((aligned(64)));
-	double Zi[nii] __attribute__ ((aligned(64)));
-	double VXi[nii] __attribute__ ((aligned(64)));
-	double VYi[nii] __attribute__ ((aligned(64)));
-	double VZi[nii] __attribute__ ((aligned(64)));
+	double Mi[nii] __attribute__ ((aligned(32)));
+	double Xi[nii] __attribute__ ((aligned(32)));
+	double Yi[nii] __attribute__ ((aligned(32)));
+	double Zi[nii] __attribute__ ((aligned(32)));
+	double VXi[nii] __attribute__ ((aligned(32)));
+	double VYi[nii] __attribute__ ((aligned(32)));
+	double VZi[nii] __attribute__ ((aligned(32)));
 #endif
 
 	for(int k = 0; k < ni; k++)
@@ -509,70 +528,72 @@ namespace exafmm
 	  }
 
 #ifndef DOUBLE_P2P
-	Vec16f mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
-	Vec16f invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
-	Vec16f ax, ay, az, pot, timestep, tau, dtau;
+	Vec16f mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotr, r, mj;
+	Vec16f invR, invR2, factor, fac1, dx, dy, dz, dvx, dvy, dvz;
+	Vec16f ax, ay, az, pot, jx, jy, jz;
 #else
-	Vec8d mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
-	Vec8d invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
-	Vec8d ax, ay, az, pot, timestep, tau, dtau;
+	Vec8d mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotr, r, mj;
+	Vec8d invR, invR2, factor, fac1, dx, dy, dz, dvx, dvy, dvz;
+	Vec8d ax, ay, az, pot, jx, jy, jz;
 #endif
 	for(int i = 0; i < nii; i = i + NSIMD)
 	  {
 	    mi.load(Mi + i);
+
 	    xi.load(Xi + i);
 	    yi.load(Yi + i);
 	    zi.load(Zi + i);
+
 	    vxi.load(VXi + i);
 	    vyi.load(VYi + i);
 	    vzi.load(VZi + i);
 
-	    ax = 0, ay = 0, az = 0, pot = 0, timestep = 1e38;
+	    ax = 0, ay = 0, az = 0, pot = 0;
+	    jx = 0, jy = 0, jz = 0;
+
 
 	    for(int j = 0; j < nj; j++)
 	      {
+		if(!Bj[j].issource)
+		  continue;
+
 		mj = Bj[j].q;
+
 		dx = xi + Bj[j].X[0];
 		dy = yi + Bj[j].X[1];
 		dz = zi + Bj[j].X[2];
+
 		dvx = vxi + Bj[j].V[0];
 		dvy = vyi + Bj[j].V[1];
 		dvz = vzi + Bj[j].V[2];
 
-		r2 = dx * dx + dy * dy + dz * dz;
-		v2 = dvx * dvx + dvy * dvy + dvz * dvz + 1e-20;
-
-		mj = select(r2 > 0, mj, 0);
-		mi += mj;
-		r2 = select(r2 > 0, r2, 1e38);
-
-		vdotdr2 = (dx * dvx + dy * dvy + dz * dvz) / r2;
+		r2 = dx*dx+dy*dy+dz*dz;
+		vdotr = 3*(dx*dvx+dy*dvy+dz*dvz);
+                    
+		mj = select(r2>0, mj, 0);
+		r2 = select(r2>0, r2, 1e38);
 
 		r = sqrt(r2);
-		invR = 1 / r;
+		invR  = 1 / r;
+		invR2 = invR * invR;
 
-		tau = dt_param / M_SQRT2 * r * sqrt(r / mi);
-		dtau = 3 * tau * vdotdr2 / 2;
-		dtau = select(dtau < 1, dtau, 1);
-		tau /= (1 - dtau / 2);
-		timestep = min(tau, timestep);
+		factor = mj*invR;
+		factor *= select(r>0, 1, 0);
 
-		tau = dt_param * r / sqrt(v2);
-		dtau = tau * vdotdr2 * (1 + mi / (v2 * r));
-		dtau = select(dtau < 1, dtau, 1);
-		tau /= (1 - dtau / 2);
-		timestep = min(tau, timestep);
+		pot += factor;
 
-		mj *= invR;
-
-		if(Bj[j].issource)
-		  {
-		    pot += mj;
-		    factor1 = mj * (invR * invR);
-		    ax += dx * factor1;
-		    ay += dy * factor1;
-		    az += dz * factor1;
-		  }
+		factor *= invR2;
+		ax += dx*factor;
+		ay += dy*factor;
+		az += dz*factor;
+		jx += dvx*factor;
+		jy += dvy*factor;
+		jz += dvz*factor;
+                    
+		factor *= -invR2*vdotr;
+		jx += dx*factor;
+		jy += dy*factor;
+		jz += dz*factor;
 	      }
 
 	    for(int k = 0; (k < NSIMD) && (i + k < ni); k++)
@@ -580,17 +601,19 @@ namespace exafmm
 		if(Bi[i + k].issink)
 		  {
 #pragma omp atomic
-		    Bi[i + k].p += (real_t) pot[k];
+		    Bi[i + k].p    += (real_t) pot[k];
 #pragma omp atomic
 		    Bi[i + k].F[0] += (real_t) ax[k];
 #pragma omp atomic
 		    Bi[i + k].F[1] += (real_t) ay[k];
 #pragma omp atomic
 		    Bi[i + k].F[2] += (real_t) az[k];
-
-		    if(Bi[i + k].timestep > (real_t) timestep[k])
-		      Bi[i + k].timestep = (real_t) timestep[k];
-
+#pragma omp atomic
+                    Bi[i + k].J[0] += (real_t) jx[k];
+#pragma omp atomic
+                    Bi[i + k].J[1] += (real_t) jy[k];
+#pragma omp atomic
+                    Bi[i + k].J[2] += (real_t) jz[k];
 		  }
 	      }
 	  }
@@ -600,9 +623,8 @@ namespace exafmm
 	    real_t ax = 0;
 	    real_t ay = 0;
 	    real_t az = 0;
-	    real_t pot = 0;
-
-	    real_t timestep = 1e38;
+	    real_t pot = 0, jx = 0, jy = 0, jz = 0;
+	    real_t vdotr;
 
 	    for(int j = 0; j < nj; j++)
 	      {
@@ -612,46 +634,35 @@ namespace exafmm
 		    dV[d] = Bj[j].V[d] - Bi[i].V[d];
 		  }
 
-		real_t R2 = norm(dX);
+		real_t  R2 = norm(dX);
+		real_t  vdotr = 3*(dV[0]*dX[0]+dV[1]*dX[1]+dV[2]*dX[2]);
 
 		if(R2 > 0)
 		  {
-		    real_t R = sqrt(R2);
-		    real_t vdotdr2;
-		    real_t v2 = norm(dV);
-
-		    vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
-
-		    real_t tau = dt_param / M_SQRT2 * sqrt(R * R2 / (Bi[i].q + Bj[j].q));
-		    real_t dtau = 3 * tau * vdotdr2 / 2;
-		    if(dtau > 1)
-		      dtau = 1;
-		    tau /= (1 - dtau / 2);
-		    if(tau < timestep)
-		      timestep = tau;
-
-		    if(v2 > 0)
-		      {
-			tau = dt_param * R / sqrt(v2);
-			dtau = tau * vdotdr2 * (1 + (Bi[i].q + Bj[j].q) / (v2 * R));
-			if(dtau > 1)
-			  dtau = 1;
-			tau /= (1 - dtau / 2);
-			if(tau < timestep)
-			  timestep = tau;
-		      }
-
 		    real_t invR2 = 1.0 / R2;
-		    real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
+		    real_t invR = Bj[j].q * sqrt(invR2);
 
-		    pot += invR;
+		    pot +=invR;
 
-		    for(int d = 0; d < 3; d++)
-		      dX[d] *= invR2 * invR;
+		    for(int d = 0; d < 3; d++){
+		      dX[d] *= invR2*invR;
+		      dV[d] *= invR2*invR;
+		    }
 
 		    ax += dX[0];
 		    ay += dX[1];
 		    az += dX[2];
+                        
+		    jx += dV[0];
+		    jy += dV[1];
+		    jz += dV[2];
+                        
+		    for(int d=0; d<3; d++)
+		      dX[d] *= invR2 * vdotr;
+                        
+		    jx -= dX[0];
+		    jy -= dX[1];
+		    jz -= dX[2];		    
 		  }
 	      }
 
@@ -665,22 +676,24 @@ namespace exafmm
 		Bi[i].F[1] += ay;
 #pragma omp atomic
 		Bi[i].F[2] += az;
-
-		if(Bi[i].timestep > timestep)
-		  Bi[i].timestep = timestep;
-
+#pragma omp atomic
+                Bi[i].J[0] += jx;
+#pragma omp atomic
+                Bi[i].J[1] += jy;
+#pragma omp atomic
+                Bi[i].J[2] += jz;		
 	      }
 	  }
 #endif
-
-	//#pragma omp atomic
-	//	Ci->NP2P += 1;
       }
   }
 
   void P2M(Cell * C)
   {
     real_t min_acc = 1e30;
+
+
+    if(1) {
 
 #ifndef MINIBALL
     if(C->NBODY > 0)
@@ -741,14 +754,23 @@ namespace exafmm
 	C->R = 1e-6;
       }
 #endif
+    }
+
 
     complex_t c_multipole[NTERM];
+    complex_t c_multipoledot[NTERM];
+
+    for (int i = 0; i < NTERM; i++) {
+      c_multipole[i] = 0;
+      c_multipoledot[i] = 0;
+    }
 
     for(Body * B = C->BODY; B != C->BODY + C->NBODY; B++)
       {
 	for(int d = 0; d < 3; d++)
 	  {
 	    dX[d] = B->X[d] - C->X[d];
+	    dV[d] = B->V[d];
 	  }
 
 	min_acc = fmin(B->acc_old, min_acc);
@@ -757,18 +779,26 @@ namespace exafmm
 	  C->has_sink = true;
 
 	complex_t Gnm[NTERM];
+	complex_t Gnmdot[NTERM];
 
 	make_Gnm(&dX[0], &Gnm[0], P);
+	make_Gnmdot(&dV[0], &Gnm[0], &Gnmdot[0], P);
 
-	for(int indice = 0; indice < NTERM; indice++)
-	  c_multipole[indice] += (B->q * B->issource) * Gnm[indice];
+	for(int indice = 0; indice < NTERM; indice++) {
+	  c_multipole[indice]   += (B->q * B->issource) * Gnm[indice];
+	  c_multipoledot[indice]+= (B->q * B->issource) * Gnmdot[indice];
+	}
       }
 
-    real_t r_multipole[NTERM];
-    complex_2_real(&c_multipole[0], &r_multipole[0], P);
+    real_t r_multipole[NTERM], r_multipoledot[NTERM];
 
+    complex_2_real(&c_multipole[0], &r_multipole[0], P);
     for(int indice = 0; indice < NTERM; indice++)
       C->M[indice] += r_multipole[indice];
+
+    complex_2_real(&c_multipoledot[0], &r_multipoledot[0], P);
+    for (int indice = 0; indice < NTERM; indice++)
+      C->Mdot[indice] += r_multipoledot[indice];
 
     C->min_acc = min_acc;
   }
@@ -776,6 +806,8 @@ namespace exafmm
   void M2M(Cell * Ci)
   {
     real_t min_acc = 1e30;
+
+    if(1) {
 
 #ifndef MINIBALL
     if(Ci->NCHILD > 0)
@@ -883,10 +915,16 @@ namespace exafmm
       }
 #endif
 
+    }
+
+
     complex_t c_multipole[NTERM];
+    complex_t c_multipoledot[NTERM];
+
     for(int i = 0; i < NTERM; i++)
       {
 	c_multipole[i] = 0;
+	c_multipoledot[i] = 0;
       }
 
     for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
@@ -896,16 +934,21 @@ namespace exafmm
 	    dX[d] = Cj->X[d] - Ci->X[d];
 	  }
 
-	real_t r_multipole_Cj[NTERM];
-	complex_t c_multipole_Cj[NTERM];
+	real_t r_multipole_Cj[NTERM], r_multipole_Cjdot[NTERM];
+	complex_t c_multipole_Cj[NTERM], c_multipole_Cjdot[NTERM];
 
 	for(int i = 0; i < NTERM; i++)
 	  {
 	    r_multipole_Cj[i] = Cj->M[i];
+	    r_multipole_Cjdot[i] = Cj->Mdot[i];
+
+	   
 	    c_multipole_Cj[i] = 0;
+	    c_multipole_Cjdot[i] = 0;
 	  }
 
 	real_2_complex(r_multipole_Cj, c_multipole_Cj, P);
+	real_2_complex(r_multipole_Cjdot, c_multipole_Cjdot, P);
 
 	complex_t Gnm[NTERM];
 	make_Gnm(&dX[0], &Gnm[0], P);
@@ -916,39 +959,49 @@ namespace exafmm
 	      {
 		int indice = n * n + n + m;
 		for(int k = 0; k <= n; k++)
-		  for(int l = std::max(-k, m - n + k); l <= std::min(k, m + n - k); l++)
-		    c_multipole[indice] +=
-		      c_multipole_Cj[(n - k) * (n - k) + (n - k) + (m - l)] * Gnm[k * k + k + l];
+		  for(int l = std::max(-k, m - n + k); l <= std::min(k, m + n - k); l++) {
+		    c_multipole[indice]    +=    c_multipole_Cj[(n-k)*(n-k)+(n-k)+(m-l)]*Gnm[k*k+k+l];
+		    c_multipoledot[indice] += c_multipole_Cjdot[(n-k)*(n-k)+(n-k)+(m-l)]*Gnm[k*k+k+l];
+		  }
 	      }
 	  }
       }
 
     real_t r_multipole[NTERM];
     complex_2_real(c_multipole, r_multipole, P);
-
     for(int indice = 0; indice < NTERM; indice++)
       Ci->M[indice] += r_multipole[indice];
+
+    real_t r_multipoledot[NTERM];
+    complex_2_real(c_multipoledot, r_multipoledot, P);
+    for (int indice = 0; indice < NTERM; indice++)
+      Ci->Mdot[indice]+= r_multipoledot[indice];
   }
 
   void L2L(Cell * Ci)
   {
-    real_t r_local_Ci[NTERM];
-    complex_t c_local_Ci[NTERM];
+    real_t r_local_Ci[NTERM], r_local_Cidot[NTERM];
+    complex_t c_local_Ci[NTERM], c_local_Cidot[NTERM];
 
-    for(int indice = 0; indice < NTERM; indice++)
-      r_local_Ci[indice] = Ci->L[indice];
+    for(int indice = 0; indice < NTERM; indice++) {
+      r_local_Ci[indice]    = Ci->L[indice];
+      r_local_Cidot[indice] = Ci->Ldot[indice];
+    }
 
     real_2_complex(r_local_Ci, c_local_Ci, P);
+    real_2_complex(r_local_Cidot, c_local_Cidot, P);
 
     for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
       {
 	for(int d = 0; d < 3; d++)
 	  dX[d] = Ci->X[d] - Cj->X[d];
 
-	complex_t c_local[NTERM];
+	complex_t c_local[NTERM], c_localdot[NTERM];
 
-	for(int indice = 0; indice < NTERM; indice++)
+	for(int indice = 0; indice < NTERM; indice++) {
 	  c_local[indice] = 0.0;
+	  c_localdot[indice] = 0.0;
+	}
 
 	complex_t Gnm[NTERM];
 
@@ -963,46 +1016,63 @@ namespace exafmm
 	      {
 		int indice = n * n + n + m;
 		for(int k = 0; k <= P - n; k++)
-		  for(int l = -k; l <= k; l++)
+		  for(int l = -k; l <= k; l++) {
 		    c_local[indice] += c_local_Ci[(n + k) * (n + k) + (n + k) + (m + l)] * Gnm[k * k + k + l];
+		    c_localdot[indice]+= c_local_Cidot[(n+k)*(n+k)+(n+k)+(m+l)]*Gnm[k*k+k+l];
+		  }
 	      }
 	  }
 
-	real_t r_local[NTERM];
+	real_t r_local[NTERM], r_localdot[NTERM];
 
 	complex_2_real(c_local, r_local, P);
+	complex_2_real(c_localdot, r_localdot, P);
 
-	for(int indice = 0; indice < NTERM; indice++)
+
+	for(int indice = 0; indice < NTERM; indice++) {
 	  Cj->L[indice] += r_local[indice];
+	  Cj->Ldot[indice] += r_localdot[indice];
+	}
 
       }
   }
 
   void L2P(Cell * Ci)
   {
-    real_t r_local_Ci[NTERM];
-    complex_t c_local_Ci[NTERM];
+    real_t r_local_Ci[NTERM], r_local_Cidot[NTERM];
+    complex_t c_local_Ci[NTERM], c_local_Cidot[NTERM];
 
-    for(int indice = 0; indice < NTERM; indice++)
+    for(int indice = 0; indice < NTERM; indice++) {
       r_local_Ci[indice] = Ci->L[indice];
+      r_local_Cidot[indice] = Ci->Ldot[indice];
+    }
 
     real_2_complex(r_local_Ci, c_local_Ci, P);
+    real_2_complex(r_local_Cidot, c_local_Cidot, P);
+
 
     for(Body * B = Ci->BODY; B != Ci->BODY + Ci->NBODY; B++)
       {
-	complex_t Phi[4];
+	complex_t Phi[4], Phidot[4];
 
 	if(!B->issink)
 	  continue;
-
-	for(int d = 0; d < 3; d++)
+ 
+	for(int d = 0; d < 3; d++) {
 	  dX[d] = Ci->X[d] - B->X[d];
+	  dV[d] = -B->V[d];
+	}
 
 	complex_t Gnm[NTERM];
 	make_Gnm(&dX[0], &Gnm[0], P);
-
-	for(int i = 0; i < NTERM; i++)
-	  Gnm[i] = std::conj(Gnm[i]);
+            
+	complex_t Gnmdot[NTERM];
+	make_Gnmdot(&dV[0], &Gnm[0], &Gnmdot[0], P);
+ 
+	for(int i = 0; i < NTERM; i++) {
+	  Gnm[i]    = std::conj(Gnm[i]);
+	  Gnmdot[i] = std::conj(Gnmdot[i]);
+	}
 
 	for(int n = 0; n <= 1; n++)
 	  {
@@ -1010,9 +1080,19 @@ namespace exafmm
 	      {
 		int indice = n * n + n + m;
 
-		for(int k = 0; k <= P - n; k++)
-		  for(int l = -k; l <= k; l++)
-		    Phi[indice] += c_local_Ci[(n + k) * (n + k) + (n + k) + (m + l)] * Gnm[k * k + k + l];
+		for(int k = 0; k <= P - n; k++) 
+		  for(int l = -k; l <= k; l++) { 
+
+		    int indexk = (n+k)*(n+k)+(n+k)+(m+l);
+		    int indexl = k*k+k+l;
+
+		    Phi[indice]    += c_local_Ci[indexk]    * Gnm[indexl];
+
+		    Phidot[indice] += c_local_Ci[indexk]    * Gnmdot[indexl];
+
+		    Phidot[indice] += c_local_Cidot[indexk] * Gnm[indexl];
+
+		  }
 	      }
 	  }
 
@@ -1020,13 +1100,17 @@ namespace exafmm
 	B->F[0] -= std::real(Phi[3]);
 	B->F[1] -= std::imag(Phi[3]);
 	B->F[2] -= std::real(Phi[2]);
+
+	B->J[0] -= std::real(Phidot[3]);
+	B->J[1] -= std::imag(Phidot[3]);
+	B->J[2] -= std::real(Phidot[2]);
       }
   }
 
   void M2L_rotate(Cell * Ci, Cell * Cj)
   {
-    if(Ci > Cj || (!Ci->has_sink && !Cj->has_sink))
-      return;			//only do pairs in this order 
+    if(!Ci->has_sink)
+      return;		       
 
     for(int d = 0; d < 3; d++)
       dX[d] = Ci->X[d] - Cj->X[d];
@@ -1064,16 +1148,16 @@ namespace exafmm
 	exp_a_x_im[m + 1] = exp_a_x_re[m] * exp_a_x_im[1] + exp_a_x_im[m] * exp_a_x_re[1];
       }
 
-    real_t r_multipole_Cj[NTERM], r_local_ci[NTERM];
-    real_t r_multipole_Ci[NTERM], r_local_cj[NTERM];
+    real_t r_multipole_Cj[NTERM], r_local[NTERM];
+    real_t r_multipole_Cjdot[NTERM], r_localdot[NTERM];
 
     //Step 0:       copy multipoles, and make multipoles into homogenius polynomials
     for(int indice = 0; indice < NTERM; indice++)
       {
-	r_local_ci[indice] = 0;
-	r_local_cj[indice] = 0;
-	r_multipole_Ci[indice] = Ci->M[indice] * factorial_coef_oned[indice];
-	r_multipole_Cj[indice] = Cj->M[indice] * factorial_coef_oned[indice];
+	r_local[indice]    = 0;
+	r_localdot[indice] = 0;
+	r_multipole_Cj[indice]    = Cj->M   [indice]*factorial_coef_oned[indice];
+	r_multipole_Cjdot[indice] = Cj->Mdot[indice]*factorial_coef_oned[indice];
       }
 
     //Step 1:       first rotate multipoles around the original z - axis with alpha_z
@@ -1086,27 +1170,25 @@ namespace exafmm
 	  {
 	    Re_ei = exp_a_z_re[m];
 	    Im_ei = exp_a_z_im[m];
+
 	    Im_r = r_multipole_Cj[index_start - m];
 	    Re_r = r_multipole_Cj[index_start + m];
 	    r_multipole_Cj[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
 	    r_multipole_Cj[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
 
-	    Re_ei *= oddoreven;
-	    Im_ei *= oddoreven;
-	    Im_r = r_multipole_Ci[index_start - m];
-	    Re_r = r_multipole_Ci[index_start + m];
-	    r_multipole_Ci[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
-	    r_multipole_Ci[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
-	    oddoreven *= -1;
+	    Im_r = r_multipole_Cjdot[index_start - m];
+	    Re_r = r_multipole_Cjdot[index_start + m];
+	    r_multipole_Cjdot[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
+	    r_multipole_Cjdot[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
 	  }
       }
 
     //Step 2:       swap x and z
 #ifndef SIMD_M2L
     swap_x_z(r_multipole_Cj);
-    swap_x_z(r_multipole_Ci);
+    swap_x_z(r_multipole_Cjdot);
 #else
-    swap_x_z_two_arrays(r_multipole_Cj, r_multipole_Ci);
+    swap_x_z_two_arrays(r_multipole_Cj, r_multipole_Cjdot);
 #endif
 
     //step 3:       rotate around(new) z - axis by alpha_x
@@ -1119,35 +1201,33 @@ namespace exafmm
 	  {
 	    Re_ei = exp_a_x_re[m];
 	    Im_ei = exp_a_x_im[m];
+
 	    Im_r = r_multipole_Cj[index_start - m];
 	    Re_r = r_multipole_Cj[index_start + m];
 	    r_multipole_Cj[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
 	    r_multipole_Cj[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
 
+            Im_r  = r_multipole_Cjdot[index_start-m];
+            Re_r  = r_multipole_Cjdot[index_start+m];
+            r_multipole_Cjdot[index_start-m] = Re_ei*Im_r + Im_ei*Re_r;
+            r_multipole_Cjdot[index_start+m] = Re_ei*Re_r - Im_ei*Im_r;
 
-	    Re_ei *= oddoreven;
-	    Im_ei *= oddoreven * (-1);
-	    Im_r = r_multipole_Ci[index_start - m];
-	    Re_r = r_multipole_Ci[index_start + m];
-	    r_multipole_Ci[index_start - m] = Re_ei * Im_r + Im_ei * Re_r;
-	    r_multipole_Ci[index_start + m] = Re_ei * Re_r - Im_ei * Im_r;
-	    oddoreven *= -1;
 	  }
       }
 
     //Step 4:       swap x and z
 #ifndef SIMD_M2L
     swap_x_z(r_multipole_Cj);
-    swap_x_z(r_multipole_Ci);
+    swap_x_z(r_multipole_Cjdot);
 #else
-    swap_x_z_two_arrays(r_multipole_Cj, r_multipole_Ci);
+    swap_x_z_two_arrays(r_multipole_Cj, r_multipole_Cjdot);
 #endif
 
     //Lastly multiply multipoles by proper normalizations
     for(int n = 0; n <= NTERM; n++)
       {
-	r_multipole_Ci[n] *= factorial_coef_inv_oned[n];
-	r_multipole_Cj[n] *= factorial_coef_inv_oned[n];
+	r_multipole_Cj[n]    *= factorial_coef_inv_oned[n];
+	r_multipole_Cjdot[n] *= factorial_coef_inv_oned[n];
       }
 
     real_t powers_of_r, powers_of_r_n, powers_of_r_m;
@@ -1162,8 +1242,8 @@ namespace exafmm
 	for(int k = 0; k <= P - n; k++)
 	  {
 	    real_t fac = factorial_table[n + k] * powers_of_r;
-	    r_local_ci[index_start] += r_multipole_Cj[k * (k + 1)] * fac;
-	    r_local_cj[index_start] += r_multipole_Ci[k * (k + 1)] * fac;
+	    r_local[index_start] += r_multipole_Cj[k * (k + 1)] * fac;
+	    r_localdot[index_start] += r_multipole_Cjdot[k * (k + 1)] * fac;
 	    powers_of_r *= r_inv;
 	  }
 
@@ -1177,12 +1257,15 @@ namespace exafmm
 	    powers_of_r = powers_of_r_n * powers_of_r_m;
 	    for(int k = m; k <= P - n; k++)
 	      {
+
                 index_start_k = k * (k + 1);
 		fac = factorial_table[n + k] * powers_of_r * oddevenfac;
-		r_local_ci[index_start - m] += r_multipole_Cj[index_start_k - m] * fac;
-		r_local_ci[index_start + m] += r_multipole_Cj[index_start_k + m] * fac;
-		r_local_cj[index_start - m] += r_multipole_Ci[index_start_k - m] * fac;
-		r_local_cj[index_start + m] += r_multipole_Ci[index_start_k + m] * fac;
+
+		r_local[index_start - m] += r_multipole_Cj[index_start_k - m] * fac;
+		r_local[index_start + m] += r_multipole_Cj[index_start_k + m] * fac;
+
+		r_localdot[index_start - m] += r_multipole_Cjdot[index_start_k - m] * fac;
+		r_localdot[index_start + m] += r_multipole_Cjdot[index_start_k + m] * fac;
 		powers_of_r *= r_inv;
 	      }
 	    oddevenfac *= -1;
@@ -1193,10 +1276,10 @@ namespace exafmm
 
     //Step 5:       swap x and z
 #ifndef SIMD_M2L
-    swap_x_z(r_local_ci);
-    swap_x_z(r_local_cj);
+    swap_x_z(r_local);
+    swap_x_z(r_localdot);
 #else
-    swap_x_z_two_arrays(r_local_ci, r_local_cj);
+    swap_x_z_two_arrays(r_local, r_localdot);
 #endif
 
 
@@ -1210,28 +1293,27 @@ namespace exafmm
 	  {
 	    Re_ei = exp_a_x_re[m];
 	    Im_ei = exp_a_x_im[m];
-	    Im_c = r_local_ci[index_start - m];
-	    Re_c = r_local_ci[index_start + m];
-	    r_local_ci[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
-	    r_local_ci[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
 
+	    Im_c = r_local[index_start - m];
+	    Re_c = r_local[index_start + m];
+	    r_local[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
+	    r_local[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
 
-	    Re_ei *= oddoreven;
-	    Im_ei *= oddoreven * (-1);
-	    Im_c = r_local_cj[index_start - m];
-	    Re_c = r_local_cj[index_start + m];
-	    r_local_cj[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
-	    r_local_cj[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
-	    oddoreven *= -1;
+              
+            Im_c = r_localdot[index_start-m];
+            Re_c = r_localdot[index_start+m];
+            r_localdot[index_start-m] = Re_ei*Im_c-Im_ei*Re_c;
+            r_localdot[index_start+m] = Re_ei*Re_c+Im_ei*Im_c;
+
 	  }
       }
 
     //Step 7:       swap x and z
 #ifndef SIMD_M2L
-    swap_x_z(r_local_ci);
-    swap_x_z(r_local_cj);
+    swap_x_z(r_local);
+    swap_x_z(r_localdot);
 #else
-    swap_x_z_two_arrays(r_local_ci, r_local_cj);
+    swap_x_z_two_arrays(r_local, r_localdot);
 #endif
 
     //Step 8:       Final rotation around z - axis by(-alpha_z)
@@ -1244,46 +1326,28 @@ namespace exafmm
 	  {
 	    Re_ei = exp_a_z_re[m];
 	    Im_ei = exp_a_z_im[m];
-	    Im_c = r_local_ci[index_start - m];
-	    Re_c = r_local_ci[index_start + m];
-	    r_local_ci[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
-	    r_local_ci[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
 
-            Re_ei *= oddoreven;
-            Im_ei *= oddoreven;
-	    Im_c = r_local_cj[index_start - m];
-	    Re_c = r_local_cj[index_start + m];
-	    r_local_cj[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
-	    r_local_cj[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
-	    oddoreven *= -1;
+	    Im_c = r_local[index_start - m];
+	    Re_c = r_local[index_start + m];
+	    r_local[index_start - m] = Re_ei * Im_c - Im_ei * Re_c;
+	    r_local[index_start + m] = Re_ei * Re_c + Im_ei * Im_c;
+
+            Im_c = r_localdot[index_start-m];
+            Re_c = r_localdot[index_start+m];
+            r_localdot[index_start-m] = Re_ei*Im_c-Im_ei*Re_c;
+            r_localdot[index_start+m] = Re_ei*Re_c+Im_ei*Im_c;
 	  }
       }
 
     //Now local expansion is expressed consistently with the original coordinates
     // Store the results in real - valued form              
-
-    if(Ci->has_sink)
+    for(int indice = 0; indice < NTERM; indice++)
       {
-	for(int indice = 0; indice < NTERM; indice++)
-	  {
 #pragma omp atomic
-	    Ci->L[indice] += r_local_ci[indice];
-	  }
-	//#pragma omp atomic
-	//	Ci->NM2L += 1;
-      }
-
-    if(Cj->has_sink)
-      {
-	for(int indice = 0; indice < NTERM; indice++)
-	  {
+	Ci->L[indice] += r_local[indice];
 #pragma omp atomic
-	    Cj->L[indice] += r_local_cj[indice];
-	  }
-	//#pragma omp atomic
-	//	Cj->NM2L += 1;
+	Ci->Ldot[indice] += r_localdot[indice];
       }
-
   }
 
   void M2L(Cell * Ci, Cell * Cj)
@@ -1293,23 +1357,29 @@ namespace exafmm
 	for(int d = 0; d < 3; d++)
 	  dX[d] = Ci->X[d] - Cj->X[d];
 
-	real_t r_multipole_Cj[NTERM], r_local[NTERM];
-	complex_t c_Cj[NTERM], c_local[NTERM];
+	real_t r_multipole_Cj[NTERM], r_multipole_Cjdot[NTERM], r_local[NTERM], r_localdot[NTERM];
+	complex_t c_Cj[NTERM], c_Cjdot[NTERM], c_local[NTERM], c_localdot[NTERM];
 
 	for(int index = 0; index < NTERM; index++)
 	  {
 	    c_local[index] = 0;
+	    c_localdot[index] = 0;
 	    r_multipole_Cj[index] = Cj->M[index];
+	    r_multipole_Cjdot[index] = Cj->Mdot[index];
 	  }
 
 	for(int n = 1; n <= P; n++)
 	  {
 	    int index_start = n * n + n;
-	    for(int m = 1; m <= n; m++)
+	    for(int m = 1; m <= n; m++) {
 	      r_multipole_Cj[index_start - m] *= -1;
+	      r_multipole_Cjdot[index_start - m] *= -1;
+	    }
 	  }
 
 	real_2_complex(r_multipole_Cj, c_Cj, P);
+
+	real_2_complex(r_multipole_Cjdot, c_Cjdot, P);
 
 	std::vector < complex_t > Tnm(NTERM, 0);
 
@@ -1326,6 +1396,7 @@ namespace exafmm
 		      {
 			int indice2 = k * k + k + l;
 			c_local[indice] += c_Cj[indice2] * Tnm[(n + k) * (n + k) + (n + k) + (m + l)];
+                        c_localdot[indice] += c_Cjdot[indice2] * Tnm[(n + k) * (n + k) + (n + k) + (m + l)];
 		      }
 		  }
 	      }
@@ -1333,10 +1404,15 @@ namespace exafmm
 
 	complex_2_real(c_local, r_local, P);
 
+	complex_2_real(c_localdot, r_localdot, P);
+
 	for(int indice = 0; indice < NTERM; indice++)
 	  {
 #pragma omp atomic
 	    Ci->L[indice] += r_local[indice];
+
+#pragma omp atomic
+            Ci->Ldot[indice] += r_localdot[indice];
 	  }
       }
   }
