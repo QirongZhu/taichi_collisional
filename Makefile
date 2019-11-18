@@ -5,11 +5,11 @@ OPT += -DOUTPUTACC
 OPT += -DSIMD_P2P
 #OPT += -DDOUBLE_P2P
 #OPT += -DSIMD_M2L
-OPT += -DEXPANSION=14
+OPT += -DEXPANSION=20
 OPT += -DMINIBALL
 OPT += -DDEBUG
 
-CXX = g++ -funroll-loops -Wfatal-errors -O3 -Wno-format -march=native -fopenmp #-mavx -mavx2 -mfma -mavx512f
+CXX = g++ -funroll-loops -Wfatal-errors -O3 -Wno-format -march=native -fopenmp -fcx-limited-range  #-mavx -mavx2 -mfma -mavx512f
 
 #CXX = g++ -funroll-loops -Wfatal-errors -O3 -Wno-format -mavx -march=native -fopenmp -mavx -mavx2 -mfma
 

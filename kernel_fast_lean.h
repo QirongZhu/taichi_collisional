@@ -17,10 +17,10 @@
 #include "miniball.hpp"
 #endif
 
-#include "kernel_rotate.h"
-
 #ifdef SIMD_M2L
 #include "kernel_rotate_two_arrays.h"
+#else
+#include "kernel_rotate.h"
 #endif
 
 double dt_param = 0.025;
@@ -96,7 +96,8 @@ namespace exafmm
 
   real_t oddOrEventable[EXPANSION + 1];
 
-  real_t factorial_table[30], inverse_factorial_table[30];
+  real_t factorial_table[2*EXPANSION+1];
+  real_t inverse_factorial_table[2*EXPANSION+1];
 
   real_t factorial_coef[EXPANSION + 1][EXPANSION + 1];
   real_t factorial_coef_inv[EXPANSION + 1][EXPANSION + 1];
@@ -125,7 +126,7 @@ namespace exafmm
     NTERM = (P + 1) * (P + 1);
     factorial_table[0] = 1.0;
     inverse_factorial_table[0] = 1.0;
-    for(int i = 1; i < 30; i++)
+    for(int i = 1; i < EXPANSION*2; i++)
       {
 	factorial_table[i] = (real_t) i *factorial_table[i - 1];
 	inverse_factorial_table[i] = 1 / factorial_table[i];
@@ -744,12 +745,20 @@ namespace exafmm
 
     complex_t c_multipole[NTERM];
 
+#ifndef MINIBALL
+    max_r2  = 1e-6 * C->R * C->R;
+#endif
+
     for(Body * B = C->BODY; B != C->BODY + C->NBODY; B++)
       {
 	for(int d = 0; d < 3; d++)
 	  {
 	    dX[d] = B->X[d] - C->X[d];
 	  }
+
+#ifndef MINIBALL
+	max_r2 = fmax(max_r2, norm(dX));
+#endif
 
 	min_acc = fmin(B->acc_old, min_acc);
 
@@ -771,6 +780,11 @@ namespace exafmm
       C->M[indice] += r_multipole[indice];
 
     C->min_acc = min_acc;
+
+#ifndef MINIBALL
+    C->R       = sqrt(max_r2);
+#endif
+
   }
 
   void M2M(Cell * Ci)

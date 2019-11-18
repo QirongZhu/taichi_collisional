@@ -1,0 +1,125 @@
+#if EXPANSION > 7
+coeff=1/128.0 ;
+arr[64]=(
++        16 * arrold[65]
++       560 * arrold[67]
++      4368 * arrold[69]
++     11440 * arrold[71]
+)*coeff;
+
+arr[65]=(
++         1 * arrold[64]
++        90 * arrold[66]
++       910 * arrold[68]
++      2002 * arrold[70]
+)*coeff;
+
+arr[66]=(
++        12 * arrold[65]
++       196 * arrold[67]
++       364 * arrold[69]
++      -572 * arrold[71]
+)*coeff;
+
+arr[67]=(
++         1 * arrold[64]
++        42 * arrold[66]
++        78 * arrold[68]
++      -286 * arrold[70]
+)*coeff;
+
+arr[68]=(
++         8 * arrold[65]
++        24 * arrold[67]
++      -120 * arrold[69]
++        88 * arrold[71]
+)*coeff;
+
+arr[69]=(
++         1 * arrold[64]
++        10 * arrold[66]
++       -50 * arrold[68]
++        66 * arrold[70]
+)*coeff;
+
+arr[70]=(
++         4 * arrold[65]
++       -20 * arrold[67]
++        36 * arrold[69]
++       -20 * arrold[71]
+)*coeff;
+
+arr[71]=(
++         1 * arrold[64]
++        -6 * arrold[66]
++        14 * arrold[68]
++       -14 * arrold[70]
+)*coeff;
+
+arr[72]=(
++        35 * arrold[72]
++       -56 * arrold[74]
++        28 * arrold[76]
++        -8 * arrold[78]
++         1 * arrold[80]
+)*coeff;
+
+arr[73]=(
++       -70 * arrold[73]
++        42 * arrold[75]
++       -14 * arrold[77]
++         2 * arrold[79]
+)*coeff;
+
+arr[74]=(
++       -45 * arrold[72]
++        64 * arrold[74]
++       -20 * arrold[76]
++         1 * arrold[80]
+)*coeff;
+
+arr[75]=(
++       110 * arrold[73]
++       -34 * arrold[75]
++       -10 * arrold[77]
++         6 * arrold[79]
+)*coeff;
+
+arr[76]=(
++        99 * arrold[72]
++       -88 * arrold[74]
++       -36 * arrold[76]
++        24 * arrold[78]
++         1 * arrold[80]
+)*coeff;
+
+arr[77]=(
++      -286 * arrold[73]
++       -78 * arrold[75]
++        90 * arrold[77]
++        10 * arrold[79]
+)*coeff;
+
+arr[78]=(
++      -429 * arrold[72]
++       364 * arrold[76]
++        64 * arrold[78]
++         1 * arrold[80]
+)*coeff;
+
+arr[79]=(
++      1430 * arrold[73]
++      1638 * arrold[75]
++       350 * arrold[77]
++        14 * arrold[79]
+)*coeff;
+
+arr[80]=(
++      6435 * arrold[72]
++      8008 * arrold[74]
++      1820 * arrold[76]
++       120 * arrold[78]
++         1 * arrold[80]
+)*coeff;
+
+#endif

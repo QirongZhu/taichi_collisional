@@ -1,0 +1,591 @@
+#if EXPANSION > 20
+      coeff = 1 / 1048576.0;
+
+arr[441]=( +1 * arrold[441]+861 * arrold[443]+111930 * arrold[445]+5245786 * arrold[447]
++118030185 * arrold[449]
++1471442973 * arrold[451]
++11058116888 * arrold[453]
++52860229080 * arrold[455]
++166509721602 * arrold[457]
++353697121050 * arrold[459]
++513791607420 * arrold[461]
+)*coeff;
+
+arr[442]=(
++40 * arrold[442]
++9840 * arrold[444]
++648128 * arrold[446]
++17985552 * arrold[448]
++254795320 * arrold[450]
++2038362560 * arrold[452]
++9721421440 * arrold[454]
++28192122176 * arrold[456]
++48507033744 * arrold[458]
++42550029600 * arrold[460]
+)*coeff;
+
+arr[443]=(
++1 * arrold[441]
++701 * arrold[443]
++72410 * arrold[445]
++2613754 * arrold[447]
++43455945 * arrold[449]
++377687453 * arrold[451]
++1810911128 * arrold[453]
++4727337560 * arrold[455]
++5608341378 * arrold[457]
+-1232394150 * arrold[459]
+-11338026180 * arrold[461]
+)*coeff;
+
+arr[444]=(
++36 * arrold[442]
++7032 * arrold[444]
++355680 * arrold[446]
++7238088 * arrold[448]
++70224076 * arrold[450]
++343041504 * arrold[452]
++782455872 * arrold[454]
++343806368 * arrold[456]
+-1774647576 * arrold[458]
+-2802075120 * arrold[460]
+)*coeff;
+
+arr[445]=(
++1 * arrold[441]
++557 * arrold[443]
++44138 * arrold[445]
++1162762 * arrold[447]
++13052601 * arrold[449]
++66387805 * arrold[451]
++127445464 * arrold[453]
+-85951592 * arrold[455]
+-580173246 * arrold[457]
+-322318470 * arrold[459]
++780349980 * arrold[461]
+)*coeff;
+
+arr[446]=(
++32 * arrold[442]
++4800 * arrold[444]
++176896 * arrold[446]
++2408256 * arrold[448]
++13183840 * arrold[450]
++20450048 * arrold[452]
+-49917440 * arrold[454]
+-144760576 * arrold[456]
++57478464 * arrold[458]
++319324800 * arrold[460]
+)*coeff;
+
+arr[447]=(
++1 * arrold[441]
++429 * arrold[443]
++24810 * arrold[445]
++435850 * arrold[447]
++2692665 * arrold[449]
++3292509 * arrold[451]
+-17450024 * arrold[453]
+-31177320 * arrold[455]
++53643330 * arrold[457]
++81584250 * arrold[459]
+-93046500 * arrold[461]
+)*coeff;
+
+arr[448]=(
++28 * arrold[442]
++3080 * arrold[444]
++75936 * arrold[446]
++563896 * arrold[448]
++568820 * arrold[450]
+-5335008 * arrold[452]
+-5902400 * arrold[454]
++23963744 * arrold[456]
++11629464 * arrold[458]
+-52861200 * arrold[460]
+)*coeff;
+
+arr[449]=(
++1 * arrold[441]
++317 * arrold[443]
++12378 * arrold[445]
++119674 * arrold[447]
++120905 * arrold[449]
+-1554531 * arrold[451]
+-957032 * arrold[453]
++8925272 * arrold[455]
+-2109054 * arrold[457]
+-20685990 * arrold[459]
++16128060 * arrold[461]
+)*coeff;
+
+arr[450]=(
++24 * arrold[442]
++1808 * arrold[444]
++25152 * arrold[446]
++34416 * arrold[448]
+-444280 * arrold[450]
+-129984 * arrold[452]
++3130752 * arrold[454]
+-2704192 * arrold[456]
+-6602256 * arrold[458]
++11651040 * arrold[460]
+)*coeff;
+
+arr[451]=(
++1 * arrold[441]
++221 * arrold[443]
++5050 * arrold[445]
++11738 * arrold[447]
+-124695 * arrold[449]
+-23011 * arrold[451]
++1094424 * arrold[453]
+-1546280 * arrold[455]
+-1763838 * arrold[457]
++6068250 * arrold[459]
+-3721860 * arrold[461]
+)*coeff;
+
+arr[452]=(
++20 * arrold[442]
++920 * arrold[444]
++4064 * arrold[446]
+-33624 * arrold[448]
+-13540 * arrold[450]
++392800 * arrold[452]
+-724160 * arrold[454]
+-373984 * arrold[456]
++2783304 * arrold[458]
+-3236400 * arrold[460]
+)*coeff;
+
+arr[453]=(
++1 * arrold[441]
++141 * arrold[443]
++1290 * arrold[445]
+-8278 * arrold[447]
+-10215 * arrold[449]
++145629 * arrold[451]
+-308136 * arrold[453]
+-52200 * arrold[455]
++1226178 * arrold[457]
+-2074950 * arrold[459]
++1080540 * arrold[461]
+)*coeff;
+
+arr[454]=(
++16 * arrold[442]
++352 * arrold[444]
+-1664 * arrold[446]
+-6240 * arrold[448]
++54704 * arrold[450]
+-121472 * arrold[452]
+-5888 * arrold[454]
++553088 * arrold[456]
+-1194336 * arrold[458]
++1085760 * arrold[460]
+)*coeff;
+
+arr[455]=(
++1 * arrold[441]
++77 * arrold[443]
+-182 * arrold[445]
+-3094 * arrold[447]
++19929 * arrold[449]
+-43043 * arrold[451]
+-10920 * arrold[453]
++268568 * arrold[455]
+-665406 * arrold[457]
++810810 * arrold[459]
+-376740 * arrold[461]
+)*coeff;
+
+arr[456]=(
++12 * arrold[442]
++40 * arrold[444]
+-1248 * arrold[446]
++6552 * arrold[448]
+-12220 * arrold[450]
+-16224 * arrold[452]
++143040 * arrold[454]
+-372256 * arrold[456]
++541944 * arrold[458]
+-421200 * arrold[460]
+)*coeff;
+
+arr[457]=(
++1 * arrold[441]
++29 * arrold[443]
+-390 * arrold[445]
++1690 * arrold[447]
+-1495 * arrold[449]
+-15587 * arrold[451]
++81432 * arrold[453]
+-211240 * arrold[455]
++343810 * arrold[457]
+-347750 * arrold[459]
++149500 * arrold[461]
+)*coeff;
+
+arr[458]=(
++8 * arrold[442]
+-80 * arrold[444]
++192 * arrold[446]
++1232 * arrold[448]
+-11560 * arrold[450]
++46784 * arrold[452]
+-119680 * arrold[454]
++209984 * arrold[456]
+-251056 * arrold[458]
++176800 * arrold[460]
+)*coeff;
+
+arr[459]=(
++1 * arrold[441]
+-3 * arrold[443]
+-102 * arrold[445]
++1210 * arrold[447]
+-6903 * arrold[449]
++25245 * arrold[451]
+-64872 * arrold[453]
++121176 * arrold[455]
+-163710 * arrold[457]
++148954 * arrold[459]
+-60996 * arrold[461]
+)*coeff;
+
+arr[460]=(
++4 * arrold[442]
+-72 * arrold[444]
++608 * arrold[446]
+-3192 * arrold[448]
++11628 * arrold[450]
+-31008 * arrold[452]
++62016 * arrold[454]
+-93024 * arrold[456]
++100776 * arrold[458]
+-67184 * arrold[460]
+)*coeff;
+
+arr[461]=(
++1 * arrold[441]
+-19 * arrold[443]
++170 * arrold[445]
+-950 * arrold[447]
++3705 * arrold[449]
+-10659 * arrold[451]
++23256 * arrold[453]
+-38760 * arrold[455]
++48450 * arrold[457]
+-41990 * arrold[459]
++16796 * arrold[461]
+)*coeff;
+
+arr[462]=(
++352716 * arrold[463]
+-293930 * arrold[465]
++203490 * arrold[467]
+-116280 * arrold[469]
++54264 * arrold[471]
+-20349 * arrold[473]
++5985 * arrold[475]
+-1330 * arrold[477]
++210 * arrold[479]
+-21 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[463]=(
++184756 * arrold[462]
+-335920 * arrold[464]
++251940 * arrold[466]
+-155040 * arrold[468]
++77520 * arrold[470]
+-31008 * arrold[472]
++9690 * arrold[474]
+-2280 * arrold[476]
++380 * arrold[478]
+-40 * arrold[480]
++2 * arrold[482]
+)*coeff;
+
+arr[464]=(
+-386308 * arrold[463]
++310726 * arrold[465]
+-199614 * arrold[467]
++100776 * arrold[469]
+-38760 * arrold[471]
++10659 * arrold[473]
+-1767 * arrold[475]
++38 * arrold[477]
++58 * arrold[479]
+-13 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[465]=(
+-223652 * arrold[462]
++392496 * arrold[464]
+-262548 * arrold[466]
++128928 * arrold[468]
+-41616 * arrold[470]
++4896 * arrold[472]
++2958 * arrold[474]
+-1944 * arrold[476]
++564 * arrold[478]
+-88 * arrold[480]
++6 * arrold[482]
+)*coeff;
+
+arr[466]=(
++508300 * arrold[463]
+-364650 * arrold[465]
++175202 * arrold[467]
+-40120 * arrold[469]
+-13192 * arrold[471]
++16643 * arrold[473]
+-7615 * arrold[475]
++1966 * arrold[477]
+-270 * arrold[479]
++11 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[467]=(
++328900 * arrold[462]
+-535600 * arrold[464]
++267956 * arrold[466]
+-41376 * arrold[468]
+-51440 * arrold[470]
++47840 * arrold[472]
+-20670 * arrold[474]
++4888 * arrold[476]
+-468 * arrold[478]
+-40 * arrold[480]
++10 * arrold[482]
+)*coeff;
+
+arr[468]=(
+-807300 * arrold[463]
++462150 * arrold[465]
+-69822 * arrold[467]
+-119640 * arrold[469]
++113048 * arrold[471]
+-48477 * arrold[473]
++9945 * arrold[475]
+-26 * arrold[477]
+-390 * arrold[479]
++51 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[469]=(
+-592020 * arrold[462]
++851760 * arrold[464]
+-193284 * arrold[466]
+-223328 * arrold[468]
++245168 * arrold[470]
+-107744 * arrold[472]
++17654 * arrold[474]
++3432 * arrold[476]
+-1820 * arrold[478]
++168 * arrold[480]
++14 * arrold[482]
+)*coeff;
+
+arr[470]=(
++1560780 * arrold[463]
+-576810 * arrold[465]
+-335646 * arrold[467]
++507848 * arrold[469]
+-240136 * arrold[471]
++29315 * arrold[473]
++17121 * arrold[475]
+-6578 * arrold[477]
++338 * arrold[479]
++107 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[471]=(
++1320660 * arrold[462]
+-1566000 * arrold[464]
+-303804 * arrold[466]
++1008736 * arrold[468]
+-554160 * arrold[470]
++53472 * arrold[472]
++61610 * arrold[474]
+-21096 * arrold[476]
+-36 * arrold[478]
++600 * arrold[480]
++18 * arrold[482]
+)*coeff;
+
+arr[472]=(
+-3721860 * arrold[463]
++404550 * arrold[465]
++1860930 * arrold[467]
+-1330520 * arrold[469]
++138136 * arrold[471]
++193699 * arrold[473]
+-64935 * arrold[475]
+-4250 * arrold[477]
++2810 * arrold[479]
++179 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[473]=(
+-3721860 * arrold[462]
++3236400 * arrold[464]
++2880396 * arrold[466]
+-3250784 * arrold[468]
++508400 * arrold[470]
++563488 * arrold[472]
+-203170 * arrold[474]
+-26136 * arrold[476]
++11924 * arrold[478]
++1320 * arrold[480]
++22 * arrold[482]
+)*coeff;
+
+arr[474]=(
++11165580 * arrold[463]
++2346390 * arrold[465]
+-7718814 * arrold[467]
++2092872 * arrold[469]
++1527928 * arrold[471]
+-670461 * arrold[473]
+-116415 * arrold[475]
++48814 * arrold[477]
++8178 * arrold[479]
++267 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[475]=(
++13646820 * arrold[462]
+-6688560 * arrold[464]
+-16430124 * arrold[466]
++8313952 * arrold[468]
++3701648 * arrold[470]
+-2354976 * arrold[472]
+-439790 * arrold[474]
++202904 * arrold[476]
++45708 * arrold[478]
++2392 * arrold[480]
++26 * arrold[482]
+)*coeff;
+
+arr[476]=(
+-43421700 * arrold[463]
+-25486650 * arrold[465]
++30168642 * arrold[467]
++6724520 * arrold[469]
+-8647016 * arrold[471]
+-1425501 * arrold[473]
++887705 * arrold[475]
++241318 * arrold[477]
++17850 * arrold[479]
++371 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[477]=(
+-68234100 * arrold[462]
++3236400 * arrold[464]
++95441436 * arrold[466]
+-489056 * arrold[468]
+-31999440 * arrold[470]
+-3468000 * arrold[472]
++4149190 * arrold[474]
++1241064 * arrold[476]
++118596 * arrold[478]
++3880 * arrold[480]
++30 * arrold[482]
+)*coeff;
+
+arr[478]=(
++229514700 * arrold[463]
++234504150 * arrold[465]
+-91606302 * arrold[467]
+-113094200 * arrold[469]
+-467976 * arrold[471]
++20625539 * arrold[473]
++6341985 * arrold[475]
++731342 * arrold[477]
++33490 * arrold[479]
++491 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[479]=(
++504932340 * arrold[462]
++231510480 * arrold[464]
+-614301084 * arrold[466]
+-343806368 * arrold[468]
++77060048 * arrold[470]
++107463392 * arrold[472]
++32578426 * arrold[474]
++4302360 * arrold[476]
++254524 * arrold[478]
++5848 * arrold[480]
++34 * arrold[482]
+)*coeff;
+
+arr[480]=(
+-1790214660 * arrold[463]
+-2711267130 * arrold[465]
+-580173246 * arrold[467]
++773564328 * arrold[469]
++577950360 * arrold[471]
++169190307 * arrold[473]
++24593049 * arrold[475]
++1772966 * arrold[477]
++57018 * arrold[479]
++627 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[481]=(
+-6564120420 * arrold[462]
+-6745736400 * arrold[464]
++3253520556 * arrold[466]
++5844708256 * arrold[468]
++3171317360 * arrold[470]
++889919264 * arrold[472]
++138273070 * arrold[474]
++11624808 * arrold[476]
++485108 * arrold[478]
++8360 * arrold[480]
++38 * arrold[482]
+)*coeff;
+
+arr[482]=(
++24466267020 * arrold[463]
++50528160150 * arrold[465]
++39645171810 * arrold[467]
++17620076360 * arrold[469]
++4739192952 * arrold[471]
++770755843 * arrold[473]
++73066305 * arrold[475]
++3746990 * arrold[477]
++90610 * arrold[479]
++779 * arrold[481]
++1 * arrold[483]
+)*coeff;
+
+arr[483]=(
++269128937220 * arrold[462]
++446775310800 * arrold[464]
++254661927156 * arrold[466]
++98672427616 * arrold[468]
++25518731280 * arrold[470]
++4280561376 * arrold[472]
++445891810 * arrold[474]
++26978328 * arrold[476]
++850668 * arrold[478]
++11480 * arrold[480]
++42 * arrold[482]
+)*coeff;
+#endif

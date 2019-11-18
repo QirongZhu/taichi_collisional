@@ -1,0 +1,85 @@
+#if EXPANSION > 5
+coeff=1/32.0 ;
+arr[36]=(
++        12 * arrold[37]
++       220 * arrold[39]
++       792 * arrold[41]
+)*coeff;
+
+arr[37]=(
++         1 * arrold[36]
++        44 * arrold[38]
++       165 * arrold[40]
+)*coeff;
+
+arr[38]=(
++         8 * arrold[37]
++        40 * arrold[39]
++       -48 * arrold[41]
+)*coeff;
+
+arr[39]=(
++         1 * arrold[36]
++        12 * arrold[38]
++       -27 * arrold[40]
+)*coeff;
+
+arr[40]=(
++         4 * arrold[37]
++       -12 * arrold[39]
++         8 * arrold[41]
+)*coeff;
+
+arr[41]=(
++         1 * arrold[36]
++        -4 * arrold[38]
++         5 * arrold[40]
+)*coeff;
+
+arr[42]=(
++       -10 * arrold[42]
++        15 * arrold[44]
++        -6 * arrold[46]
++         1 * arrold[48]
+)*coeff;
+
+arr[43]=(
++        20 * arrold[43]
++       -10 * arrold[45]
++         2 * arrold[47]
+)*coeff;
+
+arr[44]=(
++        14 * arrold[42]
++       -17 * arrold[44]
++         2 * arrold[46]
++         1 * arrold[48]
+)*coeff;
+
+arr[45]=(
++       -36 * arrold[43]
++         2 * arrold[45]
++         6 * arrold[47]
+)*coeff;
+
+arr[46]=(
++       -42 * arrold[42]
++        15 * arrold[44]
++        26 * arrold[46]
++         1 * arrold[48]
+)*coeff;
+
+arr[47]=(
++       132 * arrold[43]
++       110 * arrold[45]
++        10 * arrold[47]
+)*coeff;
+
+arr[48]=(
++       462 * arrold[42]
++       495 * arrold[44]
++        66 * arrold[46]
++         1 * arrold[48]
+)*coeff;
+
+#endif

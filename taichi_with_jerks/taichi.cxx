@@ -5,6 +5,7 @@
 #include <vector>
 #include <iterator>
 #include <cstring>
+#include <algorithm>
 
 #include "exafmm.h"
 #include "integrator.h"
@@ -27,6 +28,9 @@ struct sys zerosys = { 0, NULL, NULL };
 
 int main(int argc, char **argv)
 {
+
+  srand48((unsigned int) time(NULL));
+
   P = EXPANSION;
 
   long double cmpos[3], cmvel[3];

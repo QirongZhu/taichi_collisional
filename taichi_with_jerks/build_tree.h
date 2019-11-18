@@ -250,6 +250,22 @@ namespace exafmm
       }				// End loop over range of bodies
     for(int d = 0; d < 3; d++)
       X0[d] = (Xmax[d] + Xmin[d]) / 2;	// Calculate center of domain
+
+
+    
+    real_t shift_vector[3]; //apply random walk to the center of the root to decorrelate the force errors
+    real_t boxsize = -1;
+    for(int d=0; d < 3; d++)
+      if(Xmax[d]  -Xmin[d] > boxsize) 
+	boxsize = Xmax[d]  -Xmin[d];
+
+    shift_vector[0] = (drand48() - 0.5) * boxsize / 25;
+    shift_vector[1] = (drand48() - 0.5) * boxsize / 25;    
+    shift_vector[2] = (drand48() - 0.5) * boxsize / 25;    
+
+    for(int d=0; d < 3; d++)
+      X0[d] += shift_vector[d];
+
     R0 = 0;			// Initialize localRadius
     for(int d = 0; d < 3; d++)
       {				// Loop over dimensions

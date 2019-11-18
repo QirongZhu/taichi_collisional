@@ -68,10 +68,10 @@ namespace exafmm
     real_t Rb = Cj->R;
     real_t Ra_p_Rb = (Ra + Rb);
 
-    if(R2 > Ra_p_Rb * Ra_p_Rb)
+    if(R2 * 0.4 > Ra_p_Rb * Ra_p_Rb)
       {
-	real_t R = sqrt(R2);
-	real_t Rp = R2;
+	real_t R  = sqrt(R2);
+	real_t Rp = std::pow(R, -(P+1));
 	real_t power_Ra = 1;
 	real_t power_Rb = 1;
 
@@ -80,25 +80,23 @@ namespace exafmm
 	for(int k = 0; k <= P; k++)
 	  {
 	    real_t fac = combinator_coef[P][k];
-	    Eab += (Ci->Pn[P - k] * power_Rb * fac);
+	    //	    Eab += (Ci->Pn[P - k] * power_Rb * fac);
 	    Eba += (Cj->Pn[P - k] * power_Ra * fac);
 	    power_Ra *= Ra;
-	    power_Rb *= Rb;
-	    Rp *= R;
+	    //	    power_Rb *= Rb;
+	    //	    Rp *= R;
 	  }
 
-	real_t fac = 8 * fmax(Ra, Rb) / Ra_p_Rb / Rp;
-	Eab *= fac;
-	f1 = Eab / (force_accuracy * Cj->min_acc);
+	real_t fac = 8 * fmax(Ra, Rb) * Rp;
+	//	Eab *= fac;
+	//	f1 = Eab / (force_accuracy * Cj->min_acc);
 	Eba *= fac;
 	f2 = Eba / (force_accuracy * Ci->min_acc);
       }
 
     real_t thres = 1;
 
-    //symmetric tree walk, use f2 < thres for unsymmetric walk
-
-    if(f2 < thres && f1 < thres)
+    if(f2 < thres)
       {
 	M2L_rotate(Ci, Cj);
       }
@@ -175,6 +173,7 @@ namespace exafmm
   {
     for(int d = 0; d < 3; d++)
       dX[d] = Ci->X[d] - Cj->X[d];
+
     real_t R2 = norm(dX);
     //use theta=1; notice C->R is the side length of a cell, therefore R should multiply by sqrt(3)
     if(R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R) * 3)

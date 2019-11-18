@@ -1,0 +1,151 @@
+#if EXPANSION > 8
+coeff=1/256.0 ;
+arr[81]=(
++         1 * arrold[81]
++       153 * arrold[83]
++      3060 * arrold[85]
++     18564 * arrold[87]
++     43758 * arrold[89]
+)*coeff;
+
+arr[82]=(
++        16 * arrold[82]
++       544 * arrold[84]
++      3808 * arrold[86]
++      7072 * arrold[88]
+)*coeff;
+
+arr[83]=(
++         1 * arrold[81]
++        89 * arrold[83]
++       820 * arrold[85]
++      1092 * arrold[87]
++     -2002 * arrold[89]
+)*coeff;
+
+arr[84]=(
++        12 * arrold[82]
++       184 * arrold[84]
++       168 * arrold[86]
++      -936 * arrold[88]
+)*coeff;
+
+arr[85]=(
++         1 * arrold[81]
++        41 * arrold[83]
++        36 * arrold[85]
++      -364 * arrold[87]
++       286 * arrold[89]
+)*coeff;
+
+arr[86]=(
++         8 * arrold[82]
++        16 * arrold[84]
++      -144 * arrold[86]
++       208 * arrold[88]
+)*coeff;
+
+arr[87]=(
++         1 * arrold[81]
++         9 * arrold[83]
++       -60 * arrold[85]
++       116 * arrold[87]
++       -66 * arrold[89]
+)*coeff;
+
+arr[88]=(
++         4 * arrold[82]
++       -24 * arrold[84]
++        56 * arrold[86]
++       -56 * arrold[88]
+)*coeff;
+
+arr[89]=(
++         1 * arrold[81]
++        -7 * arrold[83]
++        20 * arrold[85]
++       -28 * arrold[87]
++        14 * arrold[89]
+)*coeff;
+
+arr[90]=(
++       126 * arrold[91]
++       -84 * arrold[93]
++        36 * arrold[95]
++        -9 * arrold[97]
++         1 * arrold[99]
+)*coeff;
+
+arr[91]=(
++        70 * arrold[90]
++      -112 * arrold[92]
++        56 * arrold[94]
++       -16 * arrold[96]
++         2 * arrold[98]
+)*coeff;
+
+arr[92]=(
++      -154 * arrold[91]
++        84 * arrold[93]
++       -20 * arrold[95]
++        -1 * arrold[97]
++         1 * arrold[99]
+)*coeff;
+
+arr[93]=(
++      -110 * arrold[90]
++       144 * arrold[92]
++       -24 * arrold[94]
++       -16 * arrold[96]
++         6 * arrold[98]
+)*coeff;
+
+arr[94]=(
++       286 * arrold[91]
++       -52 * arrold[93]
++       -60 * arrold[95]
++        23 * arrold[97]
++         1 * arrold[99]
+)*coeff;
+
+arr[95]=(
++       286 * arrold[90]
++      -208 * arrold[92]
++      -168 * arrold[94]
++        80 * arrold[96]
++        10 * arrold[98]
+)*coeff;
+
+arr[96]=(
++      -858 * arrold[91]
++      -364 * arrold[93]
++       300 * arrold[95]
++        63 * arrold[97]
++         1 * arrold[99]
+)*coeff;
+
+arr[97]=(
++     -1430 * arrold[90]
++      -208 * arrold[92]
++      1288 * arrold[94]
++       336 * arrold[96]
++        14 * arrold[98]
+)*coeff;
+
+arr[98]=(
++      4862 * arrold[91]
++      6188 * arrold[93]
++      1700 * arrold[95]
++       119 * arrold[97]
++         1 * arrold[99]
+)*coeff;
+
+arr[99]=(
++     24310 * arrold[90]
++     31824 * arrold[92]
++      8568 * arrold[94]
++       816 * arrold[96]
++        18 * arrold[98]
+)*coeff;
+
+#endif

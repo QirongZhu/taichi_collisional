@@ -172,7 +172,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
   real_t *potential = new real_t[bodies.size()];
   real_t *timestep  = new real_t[bodies.size()];
 
-  real_t *acc_old = new real_t[bodies.size()];
+  real_t *acc_old   = new real_t[bodies.size()];
 
   for(size_t b = 0; b < bodies.size(); b++)
     {
@@ -346,11 +346,21 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
       stop("downwardPass");
 #endif
 
+      //reset Forces and Jerks
       for(size_t b = 0; b < bodies.size(); b++)
 	{
+	  real_t acc_old = sqrt(  bodies[b].F[0] * bodies[b].F[0]
+				+ bodies[b].F[1] * bodies[b].F[1]
+				+ bodies[b].F[2] * bodies[b].F[2]);
+
+	  bodies[b].acc_old = acc_old;
+
 	  bodies[b].F[0] = 0;
 	  bodies[b].F[1] = 0;
 	  bodies[b].F[2] = 0;
+	  bodies[b].J[0] = 0;
+	  bodies[b].J[1] = 0;
+	  bodies[b].J[2] = 0;
 	  bodies[b].p = 0;
 	  bodies[b].timestep = HUGE;
 	}
@@ -361,9 +371,10 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
 	    {
 	      cells[i].L[term] = 0;
 	      cells[i].M[term] = 0;
+	    }
+	  
 	      cells[i].min_acc = HUGE;
 	      cells[i].has_sink = false;
-	    }
 	}
 
 #if DEBUG

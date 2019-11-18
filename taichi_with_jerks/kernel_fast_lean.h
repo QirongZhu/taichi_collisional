@@ -17,10 +17,10 @@
 #include "miniball.hpp"
 #endif
 
-#include "kernel_rotate.h"
-
 #ifdef SIMD_M2L
 #include "kernel_rotate_two_arrays.h"
+#else
+#include "kernel_rotate.h"
 #endif
 
 double dt_param = 0.025;
@@ -96,7 +96,8 @@ namespace exafmm
 
   real_t oddOrEventable[EXPANSION + 1];
 
-  real_t factorial_table[30], inverse_factorial_table[30];
+  real_t factorial_table[2*EXPANSION+1];
+  real_t inverse_factorial_table[2*EXPANSION+1];
 
   real_t factorial_coef[EXPANSION + 1][EXPANSION + 1];
   real_t factorial_coef_inv[EXPANSION + 1][EXPANSION + 1];
@@ -125,7 +126,7 @@ namespace exafmm
     NTERM = (P + 1) * (P + 1);
     factorial_table[0] = 1.0;
     inverse_factorial_table[0] = 1.0;
-    for(int i = 1; i < 30; i++)
+    for(int i = 1; i < 2 * EXPANSION; i++)
       {
 	factorial_table[i] = (real_t) i *factorial_table[i - 1];
 	inverse_factorial_table[i] = 1 / factorial_table[i];
@@ -280,16 +281,26 @@ namespace exafmm
             
       int index_start_lower = (n-1)*(n-1)+(n-1);
 
-      for (int m = -n;  m <= n-2; m++)
+      //      for (int m = -n;  m <= n-2; m++)
+      for (int m = 0;  m <= n-2; m++)
 	Gnmdot[index_start + m] += Gnm[index_start_lower + (m+1)] * etadot;
             
-      for (int m = -n+1; m <= n-1; m++)
+	//      for (int m = -n+1; m <= n-1; m++)
+      for (int m = 0; m <= n-1; m++)
 	Gnmdot[index_start + m] += Gnm[index_start_lower + m]     * zdot;
             
-      for (int m = -n+2; m <= n;  m++)
-	Gnmdot[index_start + m] += Gnm[index_start_lower + (m-1)] * ksidot;
-            
+	//      for (int m = -n+2; m <= n;  m++)
+      for (int m = 0; m <= n;  m++)
+	Gnmdot[index_start + m] += Gnm[index_start_lower + (m-1)] * ksidot;   
+
+      real_t oddoreven = -1;
+      for(int m = 1; m <= n; m++)
+	{
+	  Gnmdot[index_start - m] = std::conj(Gnmdot[index_start + m] * oddoreven);
+	  oddoreven *= -1;
+	}
     }
+
   }
 
   void P2P_simple(Cell * Ci, Cell * Cj)
@@ -308,13 +319,13 @@ namespace exafmm
 	    int nii = (ni + NSIMD - 1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
-	    float Xi[nii] __attribute__ ((aligned(64)));
-	    float Yi[nii] __attribute__ ((aligned(64)));
-	    float Zi[nii] __attribute__ ((aligned(64)));
+	    float Xi[nii] __attribute__ ((aligned(32)));
+	    float Yi[nii] __attribute__ ((aligned(32)));
+	    float Zi[nii] __attribute__ ((aligned(32)));
 #else
-	    double Xi[nii] __attribute__ ((aligned(64)));
-	    double Yi[nii] __attribute__ ((aligned(64)));
-	    double Zi[nii] __attribute__ ((aligned(64)));
+	    double Xi[nii] __attribute__ ((aligned(32)));
+	    double Yi[nii] __attribute__ ((aligned(32)));
+	    double Zi[nii] __attribute__ ((aligned(32)));
 #endif
 	    for(int k = 0; k < ni; k++)
 	      {
@@ -551,7 +562,6 @@ namespace exafmm
 	    ax = 0, ay = 0, az = 0, pot = 0;
 	    jx = 0, jy = 0, jz = 0;
 
-
 	    for(int j = 0; j < nj; j++)
 	      {
 		if(!Bj[j].issource)
@@ -692,7 +702,6 @@ namespace exafmm
   {
     real_t min_acc = 1e30;
 
-
     if(1) {
 
 #ifndef MINIBALL
@@ -747,7 +756,6 @@ namespace exafmm
 	C->X[1] = center[1];
 	C->X[2] = center[2];
 	C->R = rminball + 1e-6;
-
       }
     else
       {
@@ -765,6 +773,10 @@ namespace exafmm
       c_multipoledot[i] = 0;
     }
 
+#ifndef MINIBALL
+    real_t max_r2 = 1e-6 * C->R * C->R;
+#endif
+
     for(Body * B = C->BODY; B != C->BODY + C->NBODY; B++)
       {
 	for(int d = 0; d < 3; d++)
@@ -773,6 +785,9 @@ namespace exafmm
 	    dV[d] = B->V[d];
 	  }
 
+#ifndef MINIBALL	
+	max_r2  = fmax(max_r2, norm(dX));
+#endif
 	min_acc = fmin(B->acc_old, min_acc);
 
 	if(B->issink)
@@ -801,6 +816,11 @@ namespace exafmm
       C->Mdot[indice] += r_multipoledot[indice];
 
     C->min_acc = min_acc;
+
+#ifndef MINIBALL
+    C->R  = sqrt(max_r2);
+#endif
+
   }
 
   void M2M(Cell * Ci)
@@ -1553,72 +1573,116 @@ namespace exafmm
     int nj = Cj->NBODY;
 
 #if SIMD_P2P
-    int nii = (ni + NSIMD - 1) & (-NSIMD);
+    int nii = (ni + 16 - 1) & (-16);
 
-#ifndef DOUBLE_P2P
-    float Xi[nii] __attribute__ ((aligned(64)));
-    float Yi[nii] __attribute__ ((aligned(64)));
-    float Zi[nii] __attribute__ ((aligned(64)));
-#else
-    double Xi[nii] __attribute__ ((aligned(64)));
-    double Yi[nii] __attribute__ ((aligned(64)));
-    double Zi[nii] __attribute__ ((aligned(64)));
-#endif
+    //#ifndef DOUBLE_P2P
+    float Xi[nii] __attribute__ ((aligned(32)));
+    float Yi[nii] __attribute__ ((aligned(32)));
+    float Zi[nii] __attribute__ ((aligned(32)));
+    //#else
+    //    double Xi[nii] __attribute__ ((aligned(32)));
+    //    double Yi[nii] __attribute__ ((aligned(32)));
+    //    double Zi[nii] __attribute__ ((aligned(32)));
+    //#endif
 
     for(int k = 0; k < ni; k++)
       {
-	Xi[k] = Bi[k].X[0];
-	Yi[k] = Bi[k].X[1];
-	Zi[k] = Bi[k].X[2];
+	Xi[k] = -Bi[k].X[0];
+	Yi[k] = -Bi[k].X[1];
+	Zi[k] = -Bi[k].X[2];
       }
 
-#ifndef DOUBLE_P2P
-    Vec16f xi, yi, zi, r, mj, factor1, dx, dy, dz, r2;
-#else
-    Vec8d xi, yi, zi, r, mj, factor1, dx, dy, dz, r2;
-#endif
+    //#ifndef DOUBLE_P2P
+    Vec16f xi, yi, zi, r, mj, factor1, dx, dy, dz, r2, invR, ax, ay, az;
+    //#else
+    //    Vec8d xi, yi, zi, r, mj, factor1, dx, dy, dz, r2, invR, ax, ay, az;
+    //#endif
 
-    for(int i = 0; i < nii; i = i + NSIMD)
+    for(int i = 0; i < nii; i = i + 16)
       {
 	xi.load(Xi + i);
 	yi.load(Yi + i);
 	zi.load(Zi + i);
+
+	ax = 0;
+	ay = 0;
+	az = 0;
+
 	for(int j = 0; j < nj; j++)
 	  {
 	    mj = Bj[j].q;
-	    dx = xi - Bj[j].X[0];
-	    dy = yi - Bj[j].X[1];
-	    dz = zi - Bj[j].X[2];
+
+	    dx = xi + Bj[j].X[0];
+	    dy = yi + Bj[j].X[1];
+	    dz = zi + Bj[j].X[2];
+
 	    r2 = dx * dx + dy * dy + dz * dz;
 	    mj = select(r2 > 0, mj, 0);
 	    r2 = select(r2 > 0, r2, HUGE);
-	    factor1 = mj / r2;
+
+	    r  = sqrt(r2);
+	    invR= 1/r;
+	    mj *= invR;
+
+	    factor1 = mj * invR * invR;
+
+	    ax += dx * factor1;
+	    ay += dy * factor1;
+	    az += dz * factor1;
 	  }
 
-	for(int k = 0; (k < NSIMD) && (i + k < ni); k++)
+	for(int k = 0; (k < 16) && (i + k < ni); k++)
 	  {
 #pragma omp atomic
-	    Bi[i + k].acc_old += (real_t) factor1[k];
+	    Bi[i+k].F[0] += (real_t) ax[k];
+
+#pragma omp atomic
+	    Bi[i+k].F[1] += (real_t) ay[k];
+
+#pragma omp atomic
+	    Bi[i+k].F[2] += (real_t) az[k];
 	  }
       }
 #else
     for(int i = 0; i < ni; i++)
       {
-	real_t invR2 = 0;
+	real_t ax = 0;
+	real_t ay = 0;
+	real_t az = 0;
 
 	for(int j = 0; j < nj; j++)
 	  {
 	    for(int d = 0; d < 3; d++)
-	      dX[d] = Bi[i].X[d] - Bj[j].X[d];
+	      dX[d] = Bj[j].X[d] - Bi[i].X[d];
 
 	    real_t R2 = norm(dX);
 
-	    if(R2 > 0)
-	      invR2 = Bj[j].q / R2;
+	    if(R2 > 0) {
+	      real_t R     = sqrt(R2);
+
+	      real_t invR2 = 1 / R2;
+
+	      real_t invR  = 1 / R;
+
+	      invR *= Bj[j].q * sqrt(invR2);
+
+	      for(int d=0; d<3; d++)
+		dX[d] *= invR2 * invR;
+
+	      ax += dX[0];
+	      ay += dX[1];
+	      az += dX[2];
+	    }
+
 	  }
+#pragma omp atomic
+	Bi[i].F[0] += (real_t) ax;
 
 #pragma omp atomic
-	Bi[i].acc_old += invR2;
+	Bi[i].F[1] += (real_t) ay;
+
+#pragma omp atomic
+	Bi[i].F[2] += (real_t) az;
       }
 #endif
   }
@@ -1709,8 +1773,9 @@ namespace exafmm
 	      }
 	  }
 
-	B->acc_old += sqrt(std::real(Phi[3]) * std::real(Phi[3]) +
-			   std::imag(Phi[3]) * std::imag(Phi[3]) + std::real(Phi[2]) * std::real(Phi[2]));
+	B->F[0] -= std::real(Phi[3]);
+	B->F[1] -= std::imag(Phi[3]);
+	B->F[2] -= std::real(Phi[2]);
       }
   }
 }
