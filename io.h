@@ -117,8 +117,8 @@ namespace exafmm
 
     hid_t hdf5_dataspace, hdf5_attribute;
 
-    printf("Writing %d particles at t=%g \n", numBodies, t_now);
-    fflush(stdout);
+    //    printf("Writing %d particles at t=%g \n", numBodies, t_now);
+    //    fflush(stdout);
 
     hdf5_dataspace = H5Screate(H5S_SCALAR);
     hdf5_attribute = H5Acreate(handle, "NumPartTotal", H5T_NATIVE_UINT, hdf5_dataspace, H5P_DEFAULT);

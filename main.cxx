@@ -35,7 +35,7 @@ int main(int argc, char **argv)
   init_code();
 
   printf("\n");
-  printf("This is Taichi_cosmo v0.5. Taichi_cosmo is a FMM based N-body code with individual timesteps.\n");
+  printf("This is Taichi_collisional v0.5. Taichi_collisional is a FMM based N-body code with individual timesteps.\n");
   printf("Author: Qirong Zhu.\n");
   printf("    ;:::      \n");
   printf("   #+    :   \n");
@@ -54,12 +54,12 @@ int main(int argc, char **argv)
   printf("\n");
   fflush(stdout);
 
-  if(argc != 5)
+  if(argc != 6)
     {
       printf("\nwrong number of arguments\n");
       printf
-	("call with:\n\n ./Taichi 0 <initial_condition_name> <t_end> <output_interval> for Gadget  snapshot or \n");
-      printf("               ./Taichi 1 <snapshot_name> <t_end> <output_interval> for restart snapshot \n\n");
+	("call with:\n\n ./Taichi 0 <initial_condition_name> <t_end> <output_interval> <eta> for Gadget  snapshot or \n");
+      printf("               ./Taichi 1 <snapshot_name> <t_end> <output_interval> <eta> for restart snapshot \n\n");
       printf("number of arguments %d\n", argc);
       fflush(stdout);
 
@@ -71,6 +71,8 @@ int main(int argc, char **argv)
   double t_end = std::stof(argv[3]);
   interval = std::stof(argv[4]);
   double dt = interval;
+
+  dt_param  = std::stof(argv[5]);
 
   if(std::stoi(argv[1]) == 0)
     {
@@ -157,11 +159,10 @@ int main(int argc, char **argv)
     {
       while(t_end > t_now)
 	{
-	  start("Dummy Poisson test");
+	  //	  start("Dummy Poisson test");
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
-	  stop("Dummy Poisson test");
-	  fflush(stdout);
-
+	  //	  stop("Dummy Poisson test");
+	  //	  fflush(stdout);
 	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
 

@@ -23,8 +23,6 @@
 #include "kernel_rotate.h"
 #endif
 
-double dt_param = 0.025;
-
 namespace exafmm
 {
   real_t t_design[64 * 3] = {
@@ -457,10 +455,6 @@ namespace exafmm
 	  }
 #endif
 
-
-	//#pragma omp atomic
-	//	Ci->NP2P += 1;
-
       }
   }
 
@@ -530,8 +524,7 @@ namespace exafmm
 
 	    ax = 0, ay = 0, az = 0, pot = 0, timestep = 1e38;
 
-	    for(int j = 0; j < nj; j++)
-	      {
+	    for(int j = 0; j < nj; j++){
 		mj = Bj[j].q;
 		dx = xi + Bj[j].X[0];
 		dy = yi + Bj[j].X[1];
@@ -574,7 +567,11 @@ namespace exafmm
 		    ay += dy * factor1;
 		    az += dz * factor1;
 		  }
-	      }
+	    }
+
+		timestep *= timestep;
+		timestep *= timestep;
+		timestep  = (real_t) 1 / timestep; 
 
 	    for(int k = 0; (k < NSIMD) && (i + k < ni); k++)
 	      {
@@ -588,10 +585,8 @@ namespace exafmm
 		    Bi[i + k].F[1] += (real_t) ay[k];
 #pragma omp atomic
 		    Bi[i + k].F[2] += (real_t) az[k];
-
-		    if(Bi[i + k].timestep > (real_t) timestep[k])
-		      Bi[i + k].timestep = (real_t) timestep[k];
-
+#pragma omp atomic
+		    Bi[i + k].timestep  += (real_t) timestep[k];
 		  }
 	      }
 	  }
@@ -656,6 +651,10 @@ namespace exafmm
 		  }
 	      }
 
+		timestep *= timestep;  
+		timestep *= timestep;  
+		timestep  = (real_t)1 / timestep; 
+
 	    if(Bi[i].issink)
 	      {
 #pragma omp atomic
@@ -666,16 +665,11 @@ namespace exafmm
 		Bi[i].F[1] += ay;
 #pragma omp atomic
 		Bi[i].F[2] += az;
-
-		if(Bi[i].timestep > timestep)
-		  Bi[i].timestep = timestep;
-
+#pragma omp atomic
+		Bi[i].timestep += timestep;
 	      }
 	  }
 #endif
-
-	//#pragma omp atomic
-	//	Ci->NP2P += 1;
       }
   }
 

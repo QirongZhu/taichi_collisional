@@ -16,7 +16,7 @@ namespace exafmm
 #pragma omp taskwait		// Synchronize OpenMP tasks
 
     Ci->has_sink = false;
-    Ci->NP2P = 0, Ci->NM2L = 0;
+
     Ci->R = 1.732 * Ci->R;
 
     if(Ci->NCHILD == 0)

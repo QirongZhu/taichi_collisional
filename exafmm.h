@@ -106,6 +106,8 @@ namespace exafmm
 
   struct sys mainsys;
 
+  double dt_param = 0.025;
+
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
   int ncrit = 300;		//!< Number of bodies per leaf cell

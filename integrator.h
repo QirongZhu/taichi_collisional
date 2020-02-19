@@ -119,7 +119,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
       bodies[i].q = sinks.part[i].mass;
       bodies[i].issink = true;
       bodies[i].issource = true;
-      bodies[i].timestep = HUGE;
+      bodies[i].timestep = 0;
     }
 
   if(sources1.n > 0)
@@ -178,8 +178,8 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
       force[3 * i + 1] = bodies[b].F[1];
       force[3 * i + 2] = bodies[b].F[2];
       potential[i] = bodies[b].p;
-      timestep[i] = bodies[b].timestep;
-      acc_old[i] = bodies[b].acc_old;
+      timestep[i]  = (real_t)1/sqrt(sqrt(bodies[b].timestep));
+      acc_old[i]   = bodies[b].acc_old;
     }
 
   if(update_timestep)
@@ -240,7 +240,7 @@ void kick(int clevel, struct sys sinks, struct sys sources,
       bodies[i].F[0] = 0;
       bodies[i].F[1] = 0;
       bodies[i].F[2] = 0;
-      //bodies[i].timestep   = HUGE;
+      //bodies[i].timestep   = 0;
     }
 
   for(size_t i = sinks.n; i < sinks.n + sources.n; i++)
@@ -258,7 +258,7 @@ void kick(int clevel, struct sys sinks, struct sys sources,
       bodies[i].F[0] = 0;
       bodies[i].F[1] = 0;
       bodies[i].F[2] = 0;
-      //  bodies[i].timestep = HUGE;
+      //  bodies[i].timestep = 0;
     }
 
   get_force_and_potential(bodies, false);
@@ -343,7 +343,7 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
 	  bodies[b].F[1] = 0;
 	  bodies[b].F[2] = 0;
 	  bodies[b].p = 0;
-	  bodies[b].timestep = HUGE;
+	  bodies[b].timestep = 0;
 	}
 
       for(size_t i = 0; i < cells.size(); i++)
@@ -392,17 +392,6 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
       stop("downwardPass");
 #endif
 
-      int NM2L = 0, NP2P = 0;
-      for(size_t i = 0; i < cells.size(); i++)
-	{
-	  NM2L += cells[i].NM2L;
-	  NP2P += cells[i].NP2P;
-	}
-
-#if DEBUG
-      printf("horizontal pass: %d P2P, %d M2L\n", NP2P, NM2L);
-      fflush(stdout);
-#endif
     }
 
 #else // if FMM not defined, use direct summation instead
@@ -567,8 +556,7 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
 {
   struct sys slow = zerosys, fast = zerosys;
 
-  if(calc_timestep){
-    
+  if(calc_timestep){    
     kick_naive(clevel, s, zerosys, zerosys, 0, true);
   }
 
@@ -638,7 +626,8 @@ double system_kinetic_energy(struct sys s)
   long double e = 0.;
   for(i = 0; i < s.n; i++)
     e += s.part[i].mass / G * (s.part[i].vel[0] * s.part[i].vel[0] +
-			       s.part[i].vel[1] * s.part[i].vel[1] + s.part[i].vel[2] * s.part[i].vel[2]) / 2;
+			       s.part[i].vel[1] * s.part[i].vel[1] + 
+			       s.part[i].vel[2] * s.part[i].vel[2]) / 2;
   return (double) e;
 }
 
