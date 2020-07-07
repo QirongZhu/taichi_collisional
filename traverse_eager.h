@@ -350,10 +350,12 @@ namespace exafmm
   {
     Cells cells = buildTree(bodies);
     Cells jcells = buildTree(jbodies);
-    for(size_t b = 0; b < cells.size(); b++)
-      {
-	cells[b].has_sink = true;
-      }
+//    for(size_t b = 0; b < cells.size(); b++)
+//      {
+//	cells[b].has_sink = true;
+//      }
+    upwardPass(cells);
+    upwardPass(jcells);
     directPass(cells, jcells, get_steps);
 
     //Cells cells(2);                                             // Define a pair of cells to pass to P2P kernel
