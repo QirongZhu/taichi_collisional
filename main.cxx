@@ -159,13 +159,22 @@ int main(int argc, char **argv)
     {
       while(t_end > t_now)
 	{
-	  //	  start("Dummy Poisson test");
+	  start("Dummy Poisson test");
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
-	  //	  stop("Dummy Poisson test");
-	  //	  fflush(stdout);
+	  stop("Dummy Poisson test");
+      fflush(stdout);
+      
+    //temporarily use a high force accuracy for the
+    //calculation of potential energies in the snapshots
+      real_t temp_force_accuracy = force_accuracy;
+      force_accuracy = 1e-8;
+        
 	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
 
+    //restore the original value of force_accuracy
+      force_accuracy = temp_force_accuracy;
+        
 	  real_t kinetic = system_kinetic_energy(mainsys);
 	  real_t pot = system_potential_energy(mainsys);
 	  system_center_of_mass(mainsys, cmpos, cmvel);
