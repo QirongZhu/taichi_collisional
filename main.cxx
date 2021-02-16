@@ -54,12 +54,12 @@ int main(int argc, char **argv)
   printf("\n");
   fflush(stdout);
 
-  if(argc != 6)
+  if(argc != 7)
     {
       printf("\nwrong number of arguments\n");
       printf
-	("call with:\n\n ./Taichi 0 <initial_condition_name> <t_end> <output_interval> <eta> for Gadget  snapshot or \n");
-      printf("               ./Taichi 1 <snapshot_name> <t_end> <output_interval> <eta> for restart snapshot \n\n");
+	("call with:\n\n ./Taichi 0 <initial_condition_name> <t_end> <output_interval> <eta> <eps> for Gadget  snapshot or \n");
+      printf("               ./Taichi 1 <snapshot_name> <t_end> <output_interval> <eta> <eps> for restart snapshot \n\n");
       printf("number of arguments %d\n", argc);
       fflush(stdout);
 
