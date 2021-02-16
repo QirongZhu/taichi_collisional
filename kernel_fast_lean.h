@@ -328,7 +328,8 @@ namespace exafmm
 		    mj = select(r2 > 0, mj, 0);
 		    r2 = select(r2 > 0, r2, 1e38);
 
-		    r = sqrt(r2);
+		    r = sqrt(r2 + eps2);
+              
 		    invR = 1 / r;
 		    mj *= invR;
 
@@ -344,7 +345,7 @@ namespace exafmm
 		    if(Bi[i + k].issink)
 		      {
 #pragma omp atomic
-			Bi[i + k].p += (real_t) pot[k];
+			Bi[i + k].p    += (real_t) pot[k];
 #pragma omp atomic
 			Bi[i + k].F[0] += (real_t) ax[k];
 #pragma omp atomic
@@ -382,7 +383,7 @@ namespace exafmm
 
 		    if(R2 > 0)
 		      {
-			real_t R = sqrt(R2);
+			real_t R = sqrt(R2 + eps2);
 
 			real_t invR2 = 1 / R2;
 			real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
@@ -391,6 +392,7 @@ namespace exafmm
 
 			for(int d = 0; d < 3; d++)
 			  dX[d] *= invR2 * invR;
+                  
 			ax += dX[0];
 			ay += dX[1];
 			az += dX[2];
@@ -425,7 +427,7 @@ namespace exafmm
 
 		if(R2 > 0)
 		  {
-		    real_t R = sqrt(R2);
+		    real_t R = sqrt(R2 + eps2);
 
 		    real_t invR2 = 1.0 / R2;
 		    real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
@@ -542,19 +544,20 @@ namespace exafmm
 
 		vdotdr2 = (dx * dvx + dy * dvy + dz * dvz) / r2;
 
-		r = sqrt(r2);
+		r = sqrt(r2 + eps2);
+            
 		invR = 1 / r;
 
 		tau = dt_param / M_SQRT2 * r * sqrt(r / mi);
 		dtau = 3 * tau * vdotdr2 / 2;
 		dtau = select(dtau < 1, dtau, 1);
-		//		tau /= (1 - dtau / 2);
+        tau /= (1 - dtau / 2);
 		timestep = min(tau, timestep);
 
 		tau = dt_param * r / sqrt(v2);
 		dtau = tau * vdotdr2 * (1 + mi / (v2 * r));
 		dtau = select(dtau < 1, dtau, 1);
-		//		tau /= (1 - dtau / 2);
+        tau /= (1 - dtau / 2);
 		timestep = min(tau, timestep);
 
 		mj *= invR;
@@ -612,7 +615,7 @@ namespace exafmm
 
 		if(R2 > 0)
 		  {
-		    real_t R = sqrt(R2);
+		    real_t R = sqrt(R2 + eps2);
 		    real_t vdotdr2;
 		    real_t v2 = norm(dV);
 
@@ -622,7 +625,7 @@ namespace exafmm
 		    real_t dtau = 3 * tau * vdotdr2 / 2;
 		    if(dtau > 1)
 		      dtau = 1;
-		    //		    tau /= (1 - dtau / 2);
+            tau /= (1 - dtau / 2);
 		    if(tau < timestep)
 		      timestep = tau;
 
@@ -632,7 +635,8 @@ namespace exafmm
 			dtau = tau * vdotdr2 * (1 + (Bi[i].q + Bj[j].q) / (v2 * R));
 			if(dtau > 1)
 			  dtau = 1;
-			//			tau /= (1 - dtau / 2);
+            tau /= (1 - dtau / 2);
+                  
 			if(tau < timestep)
 			  timestep = tau;
 		      }
@@ -1524,7 +1528,7 @@ namespace exafmm
 	    r2 = dx * dx + dy * dy + dz * dz;
 	    mj = select(r2 > 0, mj, 0);
 	    r2 = select(r2 > 0, r2, HUGE);
-	    factor1 = mj / r2;
+	    factor1 = mj / (r2+eps2);
 	  }
 
 	for(int k = 0; (k < NSIMD) && (i + k < ni); k++)
@@ -1546,7 +1550,7 @@ namespace exafmm
 	    real_t R2 = norm(dX);
 
 	    if(R2 > 0)
-	      invR2 = Bj[j].q / R2;
+	      invR2 = Bj[j].q / (R2+eps2);
 	  }
 
 #pragma omp atomic

@@ -82,6 +82,8 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt)
 	  dr2 = dx[0] * dx[0] + dx[1] * dx[1] + dx[2] * dx[2];
 	  if(dr2 > 0)
 	    {
+          dr2 = dr2 + eps2;
+            
 	      dr = sqrt(dr2);
 	      dr3 = dr * dr2;
 	      acci = s2.part[j].mass / dr3;
@@ -131,6 +133,7 @@ void kick_cpu_with_steps(int clevel, struct sys sink, struct sys totalsys,
 
         if(dr2 > 0)
         {
+          dr2 += eps2;
           dr = sqrt(dr2);
           dr3 = dr * dr2;
           acci = totalsys.part[j].mass / dr3;

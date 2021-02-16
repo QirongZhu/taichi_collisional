@@ -73,7 +73,10 @@ int main(int argc, char **argv)
   double dt = interval;
 
   dt_param  = std::stof(argv[5]);
-
+    
+  eps       = std::stof(argv[6]);
+  eps2      = eps * eps;
+    
   if(std::stoi(argv[1]) == 0)
     {
       snapnum = 0;
@@ -114,10 +117,11 @@ int main(int argc, char **argv)
 
       if(!gadget_file)
 	{
+#pragma omp parallel for
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
-	      mainsys.part[b].id = b;
-	      mainsys.part[b].mass = array[b * 7 + 0];
+	      mainsys.part[b].id     = b;
+	      mainsys.part[b].mass   = array[b * 7 + 0];
 	      mainsys.part[b].pos[0] = array[b * 7 + 1];
 	      mainsys.part[b].pos[1] = array[b * 7 + 2];
 	      mainsys.part[b].pos[2] = array[b * 7 + 3];
@@ -128,6 +132,7 @@ int main(int argc, char **argv)
 	}
       else
 	{
+#pragma omp parallel for
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
 	      mainsys.part[b].pos[0] = PPP[b + 1].Pos[0];

@@ -110,6 +110,8 @@ namespace exafmm
   struct sys mainsys;
 
   double dt_param = 0.025;
+  double eps      = 0.00;
+  double eps2;
 
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
