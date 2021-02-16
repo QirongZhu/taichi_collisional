@@ -328,7 +328,9 @@ namespace exafmm
 		    mj = select(r2 > 0, mj, 0);
 		    r2 = select(r2 > 0, r2, 1e38);
 
-		    r = sqrt(r2 + eps2);
+            r2 = r2  + eps2;
+              
+		    r = sqrt(r2);
               
 		    invR = 1 / r;
 		    mj *= invR;
@@ -383,7 +385,9 @@ namespace exafmm
 
 		    if(R2 > 0)
 		      {
-			real_t R = sqrt(R2 + eps2);
+            R2       = R2 + eps2;
+                  
+			real_t R = sqrt(R2);
 
 			real_t invR2 = 1 / R2;
 			real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
@@ -427,7 +431,8 @@ namespace exafmm
 
 		if(R2 > 0)
 		  {
-		    real_t R = sqrt(R2 + eps2);
+            R2       = R2 +  eps2;
+		    real_t R = sqrt(R2);
 
 		    real_t invR2 = 1.0 / R2;
 		    real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
@@ -541,10 +546,11 @@ namespace exafmm
 		mj = select(r2 > 0, mj, 0);
 		mi += mj;
 		r2 = select(r2 > 0, r2, 1e38);
+        r2 = r2  + eps2;
 
 		vdotdr2 = (dx * dvx + dy * dvy + dz * dvz) / r2;
-
-		r = sqrt(r2 + eps2);
+            
+		r = sqrt(r2);
             
 		invR = 1 / r;
 
@@ -615,7 +621,8 @@ namespace exafmm
 
 		if(R2 > 0)
 		  {
-		    real_t R = sqrt(R2 + eps2);
+            R2       = R2  + eps2;
+		    real_t R = sqrt(R2);
 		    real_t vdotdr2;
 		    real_t v2 = norm(dV);
 
