@@ -814,6 +814,17 @@ void evolve_split_omelyan(int clevel, struct sys s, double stime, double etime, 
 void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime, double dt,
 			   bool calc_timestep)
 {
+  bool inner_higher_accuracy = false;
+  
+  //for the most active subsystems, use a force-gradient integrator
+  // with shared timesteps
+  if(s.n < ncrit) 
+    inner_higher_accuracy = true;  
+  
+  if (inner_higher_accuracy) {
+    evolve_split_omelyan(clevel, s, stime, etime, dt, true);
+  }
+  else{
   struct sys slow = zerosys, fast = zerosys;
 
   if(calc_timestep){    
@@ -859,6 +870,7 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
 
   if(fast.n > 0)
     evolve_split_hold_dkd(clevel + 1, fast, stime + dt / 2, etime, dt / 2, true);
+  }
 }
 
 void do_evolve(struct sys s, double dt)

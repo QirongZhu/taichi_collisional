@@ -548,13 +548,13 @@ namespace exafmm
 		tau = dt_param / M_SQRT2 * r * sqrt(r / mi);
 		dtau = 3 * tau * vdotdr2 / 2;
 		dtau = select(dtau < 1, dtau, 1);
-		tau /= (1 - dtau / 2);
+		//		tau /= (1 - dtau / 2);
 		timestep = min(tau, timestep);
 
 		tau = dt_param * r / sqrt(v2);
 		dtau = tau * vdotdr2 * (1 + mi / (v2 * r));
 		dtau = select(dtau < 1, dtau, 1);
-		tau /= (1 - dtau / 2);
+		//		tau /= (1 - dtau / 2);
 		timestep = min(tau, timestep);
 
 		mj *= invR;
@@ -622,7 +622,7 @@ namespace exafmm
 		    real_t dtau = 3 * tau * vdotdr2 / 2;
 		    if(dtau > 1)
 		      dtau = 1;
-		    tau /= (1 - dtau / 2);
+		    //		    tau /= (1 - dtau / 2);
 		    if(tau < timestep)
 		      timestep = tau;
 
@@ -632,7 +632,7 @@ namespace exafmm
 			dtau = tau * vdotdr2 * (1 + (Bi[i].q + Bj[j].q) / (v2 * R));
 			if(dtau > 1)
 			  dtau = 1;
-			tau /= (1 - dtau / 2);
+			//			tau /= (1 - dtau / 2);
 			if(tau < timestep)
 			  timestep = tau;
 		      }

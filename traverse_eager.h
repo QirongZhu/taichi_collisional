@@ -15,6 +15,11 @@ namespace exafmm
       }				// End loop over child cells
 #pragma omp taskwait		// Synchronize OpenMP tasks
 
+
+    Ci->M.resize(NTERM, 0.0);
+    Ci->L.resize(NTERM, 0.0);
+    Ci->Pn.resize(P+1,  0.0);
+    
     Ci->has_sink = false;
 
     Ci->R = 1.732 * Ci->R;
@@ -44,6 +49,10 @@ namespace exafmm
 
     Ci->has_sink = true;
 
+    Ci->M.resize(NTERM, 0.0);
+    Ci->L.resize(NTERM, 0.0);
+    Ci->Pn.resize(P+1,  0.0);
+    
     if(Ci->NCHILD == 0)
       P2M_low(Ci);
     else

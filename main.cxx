@@ -159,10 +159,10 @@ int main(int argc, char **argv)
     {
       while(t_end > t_now)
 	{
-	  start("Dummy Poisson test");
+	  //	  start("Dummy Poisson test");
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
-	  stop("Dummy Poisson test");
-      fflush(stdout);
+	  //	  stop("Dummy Poisson test");
+	  //      fflush(stdout);
       
     //temporarily use a high force accuracy for the
     //calculation of potential energies in the snapshots

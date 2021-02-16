@@ -1,17 +1,25 @@
 #OPT += -DBLOCK
-OPT += -DGRADIENT
+#OPT += -DGRADIENT
 #OPT += -DHOLD
 #OPT += -DFMM
+#OPT += -DOUTPUTPOT
+#OPT += -DOUTPUTACC
+#OPT += -DSIMD_P2P
+#OPT += -DDOUBLE_P2P
+#OPT += -DSIMD_M2L
+OPT += -DEXPANSION=10
+#OPT += -DMINIBALL
+OPT += -DDEBUG
+
+OPT += -DHOLD
 OPT += -DOUTPUTPOT
 OPT += -DOUTPUTACC
 OPT += -DSIMD_P2P
 OPT += -DDOUBLE_P2P
-#OPT += -DSIMD_M2L
-OPT += -DEXPANSION=20
 OPT += -DMINIBALL
-OPT += -DDEBUG
 
-CXX = g++-9 -funroll-loops -Wfatal-errors -O3 -Wno-format -march=native -fopenmp -fcx-limited-range  #-mavx -mavx2 -mfma -mavx512f
+CXX = g++-10 -funroll-loops -Wfatal-errors -O3 -Wno-format -mavx -march=native -fopenmp
+#CXX = g++-10 -funroll-loops -Wfatal-errors -O3 -Wno-format -march=native -fopenmp -fcx-limited-range  #-mavx -mavx2 -mfma -mavx512f
 
 #CXX = g++ -funroll-loops -Wfatal-errors -O3 -Wno-format -mavx -march=native -fopenmp -mavx -mavx2 -mfma
 

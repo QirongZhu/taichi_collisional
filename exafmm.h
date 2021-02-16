@@ -49,9 +49,9 @@ namespace exafmm
   //! Structure of cells
   struct Cell
   {
-    real_t M[(EXPANSION + 1) * (EXPANSION + 1)];
-    real_t L[(EXPANSION + 1) * (EXPANSION + 1)];
-    real_t Pn[(EXPANSION + 1)];
+    //    real_t M[(EXPANSION + 1) * (EXPANSION + 1)];
+    //    real_t L[(EXPANSION + 1) * (EXPANSION + 1)];
+    //real_t Pn[(EXPANSION + 1)];
     int NCHILD;			//!< Number of child cells
     int NBODY;			//!< Number of descendant bodies
     //    int NP2P;
@@ -68,6 +68,9 @@ namespace exafmm
       std::vector < Cell * >listM2L;	//!< M2L interaction list
       std::vector < Cell * >listP2P;	//!< P2P interaction list
 #endif
+    std::vector < real_t> M;
+    std::vector < real_t> L;
+    std::vector < real_t> Pn;
   };
   typedef std::vector < Cell > Cells;	//!< Vector of cells
 
