@@ -61,7 +61,6 @@ void evolve_split_naive(int clevel, struct sys sys1, struct sys sys2,
 void evolve_split_hold_dkd(int clevel, struct sys s, double stime,
 			   double etime, double dt, int calc_timestep);
 
-
 void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt)
 {
   unsigned int i, j;
@@ -148,6 +147,11 @@ void kick_cpu_with_steps(int clevel, struct sys sink, struct sys totalsys,
             real_t dtau = 3 * tau * vdotdr2 / 2;
             if(dtau > 1)
               dtau = 1;
+                                
+#ifdef NOSYMMETRYSTEP
+            dtau = 0;
+#endif
+                
             tau /= (1 - dtau / 2);
             if(tau < timestep)
               timestep = tau;
@@ -158,6 +162,10 @@ void kick_cpu_with_steps(int clevel, struct sys sink, struct sys totalsys,
             dtau = tau * vdotdr2 * (1 + (sink.part[i].mass + totalsys.part[j].mass) / (v2 * dr));
             if(dtau > 1)
               dtau = 1;
+                  
+#ifdef NOSYMMETRYSTEP
+            dtau = 0;
+#endif
             tau /= (1 - dtau / 2);
             if(tau < timestep)
               timestep = tau;
@@ -821,8 +829,8 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
   
   //for the most active subsystems, use a force-gradient integrator
   // with shared timesteps
-  if(s.n < ncrit) 
-    inner_higher_accuracy = true;  
+  //if(s.n < ncrit)
+  //  inner_higher_accuracy = true;
   
   if (inner_higher_accuracy) {
     evolve_split_omelyan(clevel, s, stime, etime, dt, true);

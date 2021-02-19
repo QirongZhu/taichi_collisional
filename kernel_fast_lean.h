@@ -476,8 +476,6 @@ namespace exafmm
 	int ni = Ci->NBODY;
 	int nj = Cj->NBODY;
 
-	real_t delta_t;
-
 #if SIMD_P2P
 	int nii = (ni + NSIMD - 1) & (-NSIMD);
 
@@ -514,11 +512,14 @@ namespace exafmm
 	Vec16f mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
 	Vec16f invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
 	Vec16f ax, ay, az, pot, timestep, tau, dtau;
+    Vec16f vratio;
 #else
 	Vec8d mi, xi, yi, zi, vxi, vyi, vzi, r2, v2, vdotdr2, r, mj;
 	Vec8d invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
 	Vec8d ax, ay, az, pot, timestep, tau, dtau;
+    Vec8d vratio;
 #endif
+          
 	for(int i = 0; i < nii; i = i + NSIMD)
 	  {
 	    mi.load(Mi + i);
@@ -546,23 +547,38 @@ namespace exafmm
 		mj = select(r2 > 0, mj, 0);
 		mi += mj;
 		r2 = select(r2 > 0, r2, 1e38);
-        r2 = r2  + eps2;
+            
+        vratio = sqrt(r2);
+            
+        r2 = r2 + eps2;
 
 		vdotdr2 = (dx * dvx + dy * dvy + dz * dvz) / r2;
             
 		r = sqrt(r2);
             
 		invR = 1 / r;
+            
+        vratio = vratio * invR;
 
 		tau = dt_param / M_SQRT2 * r * sqrt(r / mi);
 		dtau = 3 * tau * vdotdr2 / 2;
 		dtau = select(dtau < 1, dtau, 1);
+          
+#ifdef NOSYMMETRYSTEP
+        dtau = 0;
+#endif
+            
         tau /= (1 - dtau / 2);
 		timestep = min(tau, timestep);
 
 		tau = dt_param * r / sqrt(v2);
 		dtau = tau * vdotdr2 * (1 + mi / (v2 * r));
 		dtau = select(dtau < 1, dtau, 1);
+            
+#ifdef NOSYMMETRYSTEP
+        dtau = 0;
+#endif
+            
         tau /= (1 - dtau / 2);
 		timestep = min(tau, timestep);
 
@@ -570,7 +586,11 @@ namespace exafmm
 
 		if(Bj[j].issource)
 		  {
-		    pot += mj;
+#ifdef MODIFIEDVIRIAL
+		    pot    += mj * vratio;
+#else
+            pot    += mj;
+#endif
 		    factor1 = mj * (invR * invR);
 		    ax += dx * factor1;
 		    ay += dy * factor1;
@@ -606,8 +626,8 @@ namespace exafmm
 	    real_t ay = 0;
 	    real_t az = 0;
 	    real_t pot = 0;
-
 	    real_t timestep = 1e38;
+        real_t vratio = 0;
 
 	    for(int j = 0; j < nj; j++)
 	      {
@@ -619,10 +639,15 @@ namespace exafmm
 
 		real_t R2 = norm(dX);
 
+        vratio    = sqrt(R2);
+              
 		if(R2 > 0)
 		  {
             R2       = R2  + eps2;
 		    real_t R = sqrt(R2);
+              
+            vratio   = vratio / R;
+              
 		    real_t vdotdr2;
 		    real_t v2 = norm(dV);
 
@@ -631,7 +656,12 @@ namespace exafmm
 		    real_t tau = dt_param / M_SQRT2 * sqrt(R * R2 / (Bi[i].q + Bj[j].q));
 		    real_t dtau = 3 * tau * vdotdr2 / 2;
 		    if(dtau > 1)
-		      dtau = 1;
+		      dtau = 1;              
+              
+#ifdef NOSYMMETRYSTEP
+            dtau = 0;
+#endif
+              
             tau /= (1 - dtau / 2);
 		    if(tau < timestep)
 		      timestep = tau;
@@ -642,6 +672,11 @@ namespace exafmm
 			dtau = tau * vdotdr2 * (1 + (Bi[i].q + Bj[j].q) / (v2 * R));
 			if(dtau > 1)
 			  dtau = 1;
+                  
+#ifdef NOSYMMETRYSTEP
+                dtau = 0;
+#endif
+                  
             tau /= (1 - dtau / 2);
                   
 			if(tau < timestep)
@@ -651,8 +686,11 @@ namespace exafmm
 		    real_t invR2 = 1.0 / R2;
 		    real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
 
+#ifdef MODIFIEDVIRIAL
+            pot += invR * vratio;
+#else
 		    pot += invR;
-
+#endif
 		    for(int d = 0; d < 3; d++)
 		      dX[d] *= invR2 * invR;
 
@@ -669,7 +707,7 @@ namespace exafmm
 	    if(Bi[i].issink)
 	      {
 #pragma omp atomic
-		Bi[i].p += pot;
+		Bi[i].p    += pot;
 #pragma omp atomic
 		Bi[i].F[0] += ax;
 #pragma omp atomic
