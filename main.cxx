@@ -117,27 +117,19 @@ int main(int argc, char **argv)
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
 	      mainsys.part[b].id = b;
-	      mainsys.part[b].mass = array[b * 7 + 0];
-	      mainsys.part[b].pos[0] = array[b * 7 + 1];
-	      mainsys.part[b].pos[1] = array[b * 7 + 2];
-	      mainsys.part[b].pos[2] = array[b * 7 + 3];
-	      mainsys.part[b].vel[0] = array[b * 7 + 4];
-	      mainsys.part[b].vel[1] = array[b * 7 + 5];
-	      mainsys.part[b].vel[2] = array[b * 7 + 6];
+	      mainsys.part[b].mass = array[b * 7+0];
+          mainsys.part[b].pos = Vec3d(array[b * 7+1], array[b * 7+2], array[b * 7+3]);
+          mainsys.part[b].vel = Vec3d(array[b * 7+4], array[b * 7+5], array[b * 7+6]);
 	    }
 	}
       else
 	{
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
-	      mainsys.part[b].pos[0] = PPP[b + 1].Pos[0];
-	      mainsys.part[b].pos[1] = PPP[b + 1].Pos[1];
-	      mainsys.part[b].pos[2] = PPP[b + 1].Pos[2];
-	      mainsys.part[b].vel[0] = PPP[b + 1].Vel[0];
-	      mainsys.part[b].vel[1] = PPP[b + 1].Vel[1];
-	      mainsys.part[b].vel[2] = PPP[b + 1].Vel[2];
-	      mainsys.part[b].mass = PPP[b + 1].Mass;
-	      mainsys.part[b].id = PPP[b + 1].Id;
+        mainsys.part[b].pos = Vec3d(PPP[b+1].Pos[0], PPP[b+1].Pos[1], PPP[b+1].Pos[2]);
+        mainsys.part[b].vel = Vec3d(PPP[b+1].Vel[0], PPP[b+1].Vel[1], PPP[b+1].Vel[2]);
+        mainsys.part[b].mass = PPP[b+1].Mass;
+        mainsys.part[b].id = PPP[b+1].Id;
 	    }
 	}
     }
@@ -148,9 +140,7 @@ int main(int argc, char **argv)
 
   for(unsigned int b = 0; b < mainsys.n; b++)
     {
-      mainsys.part[b].pos_e[0] = 0;
-      mainsys.part[b].pos_e[1] = 0;
-      mainsys.part[b].pos_e[2] = 0;
+      mainsys.part[b].pos_e = Vec3d(0,0,0);
     }
 
   start("Intergration");
@@ -178,7 +168,7 @@ int main(int argc, char **argv)
 	  real_t kinetic = system_kinetic_energy(mainsys);
 	  real_t pot = system_potential_energy(mainsys);
 	  system_center_of_mass(mainsys, cmpos, cmvel);
-	  printf("pot=%18.12f kin=%18.12f tot=%18.12f \n", pot, kinetic, -pot + kinetic);
+	  printf("pot=%18.12f kin=%18.12f tot=%18.12f \n", pot, kinetic, -pot+kinetic);
 	  fflush(stdout);
 
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);

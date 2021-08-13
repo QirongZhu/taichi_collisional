@@ -6,6 +6,8 @@
 #include <vector>
 #include <omp.h>
 
+#include "vectorclass/special/vector3d.h"
+
 #define ENDRUN(fmt, ...) { \
   printf("ENDRUN at %s:%d ", __FILE__, __LINE__);\
   printf(fmt, ## __VA_ARGS__);\
@@ -22,11 +24,11 @@ namespace exafmm
   //! Structure of bodies
   struct Body
   {
-    real_t X[3];		//!< Position
+    Vec3d X;	     	//!< Position
     real_t q;			//!< Charge
     real_t F[3];		//!< Force
     real_t p;			//!< Potential
-    real_t V[3];
+    Vec3d V;
     real_t acc_old;
     unsigned int Morton[3];     //!< Morton IDs for tree build
     bool operator<(const Body &rhs) const {
@@ -60,27 +62,26 @@ namespace exafmm
     real_t X[3];		//!< Cell center
     real_t R;			//!< Cell radius
     real_t min_acc;
-    real_t cell_mass;
-    bool has_sink;
+    //real_t cell_mass;
 #if EXAFMM_LAZY
     std::vector<Cell*>listM2L;	//!< M2L interaction list
     std::vector<Cell*>listP2P;	//!< P2P interaction list
 #endif
     omp_lock_t *p2p_lock;
     omp_lock_t *m2l_lock;
+    bool has_sink;
   };
   typedef std::vector < Cell > Cells;	//!< Vector of cells
 
   struct particle
   {
-    real_t pos[3];
-    real_t pos_e[3];
+    Vec3d pos;
+    Vec3d pos_e;
     real_t mass;
-    real_t vel[3];
+    Vec3d vel;
     real_t timestep;
-    real_t acc[3];
+    Vec3d acc;
     real_t pot;
-    real_t jerk[3];
     real_t postime;
     real_t acc_old;
     unsigned int id;

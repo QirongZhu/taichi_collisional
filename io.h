@@ -42,37 +42,37 @@ namespace exafmm
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
       status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].pos[0] = data[b];
+        mainsys.part[b].pos += Vec3d(data[b], 0.0, 0.0);
 
       dataset = H5Dopen(file_id, "/Posy/");
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
       status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].pos[1] = data[b];
+        mainsys.part[b].pos += Vec3d(0.0, data[b], 0.0);
 
       dataset = H5Dopen(file_id, "/Posz/");
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
       status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].pos[2] = data[b];
+        mainsys.part[b].pos += Vec3d(0.0, 0.0, data[b]);
 
       dataset = H5Dopen(file_id, "/Velx/");
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
       status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].vel[0] = data[b];
+        mainsys.part[b].vel += Vec3d(data[b], 0.0, 0.0);
 
       dataset = H5Dopen(file_id, "/Vely/");
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
       status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].vel[1] = data[b];
+        mainsys.part[b].vel += Vec3d(0.0, data[b], 0.0);
 
       dataset = H5Dopen(file_id, "/Velz/");
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
       status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].vel[2] = data[b];
+        mainsys.part[b].vel += Vec3d(0.0, 0.0, data[b]);
 
       dataset = H5Dopen(file_id, "/Mass/");
       status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);

@@ -366,10 +366,10 @@ namespace exafmm
 	      {
 		if(!Bi[i].issink)
 		  continue;
+        
+        Vec3d acc(0.0,0.0,0.0);
+        Vec3d dx(0.0,0.0,0.0);
 
-		real_t ax = 0;
-		real_t ay = 0;
-		real_t az = 0;
 		real_t pot = 0;
 
 		for(int j = 0; j < nj; j++)
@@ -377,82 +377,68 @@ namespace exafmm
 		    if(!Bj[j].issource)
 		      continue;
 
-		    for(int d = 0; d < 3; d++)
-		      {
-			dX[d] = Bj[j].X[d] - Bi[i].X[d];
-		      }
+			dx = Bj[j].X - Bi[i].X;
 
-		    real_t R2 = norm(dX);
+		    real_t R2 = (dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
 
 		    if(R2 > 0)
 		      {
 			real_t R = sqrt(R2);
-
 			real_t invR2 = 1 / R2;
-			real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
-
+			real_t invR = Bj[j].q * sqrt(invR2);
 			pot += invR;
-
-			for(int d = 0; d < 3; d++)
-			  dX[d] *= invR2 * invR;
-			ax += dX[0];
-			ay += dX[1];
-			az += dX[2];
+            dx *= invR2 * invR;
+            acc+= dx;
 		      }
 		  }
 #pragma omp atomic
 		Bi[i].p += (real_t) pot;
 #pragma omp atomic
-		Bi[i].F[0] += (real_t) ax;
+		Bi[i].F[0] += (real_t) acc[0];
 #pragma omp atomic
-		Bi[i].F[1] += (real_t) ay;
+		Bi[i].F[1] += (real_t) acc[1];
 #pragma omp atomic
-		Bi[i].F[2] += (real_t) az;
+		Bi[i].F[2] += (real_t) acc[2];
 	      }
 	  }
 #else
 	// do not use vectorized version if n1*n2 too small
 	for(int i = 0; i < ni; i++)
 	  {
-	    real_t ax = 0;
-	    real_t ay = 0;
-	    real_t az = 0;
+        Vec3d acc(0.0,0.0,0.0);
+        Vec3d dx(0.0,0.0,0.0);
+          
 	    real_t pot = 0;
 
 	    for(int j = 0; j < nj; j++)
 	      {
-		for(int d = 0; d < 3; d++)
-		  dX[d] = Bi[i].X[d] - Bj[j].X[d];
+        if(!Bj[j].issource)
+            continue;
+              
+        dx = Bi[i].X - Bj[j].X;
 
 		real_t R2 = norm(dX);
 
 		if(R2 > 0)
 		  {
-		    real_t R = sqrt(R2);
-
+		    real_t R = sqrt(dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
 		    real_t invR2 = 1.0 / R2;
-		    real_t invR = Bj[j].q * sqrt(invR2) * Bj[j].issource;
-
+		    real_t invR = Bj[j].q * sqrt(invR2) ;
 		    pot += invR;
-
-		    for(int d = 0; d < 3; d++)
-		      dX[d] *= invR2 * invR;
-
-		    ax += dX[0];
-		    ay += dX[1];
-		    az += dX[2];
+            dx *= invR2 * invR;
+		    acc += dx;
 		  }
-	      }
+        }
 
 	    if(Bi[i].issink) {
 #pragma omp atomic
 		Bi[i].p += pot;
 #pragma omp atomic
-		Bi[i].F[0] -= ax;
+		Bi[i].F[0] -= acc[0];
 #pragma omp atomic
-		Bi[i].F[1] -= ay;
+		Bi[i].F[1] -= acc[1];
 #pragma omp atomic
-		Bi[i].F[2] -= az;
+		Bi[i].F[2] -= acc[2];
 	      }
 	  }
 #endif
