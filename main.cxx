@@ -126,10 +126,10 @@ int main(int argc, char **argv)
 	{
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
-        mainsys.part[b].pos = Vec3d(PPP[b+1].Pos[0], PPP[b+1].Pos[1], PPP[b+1].Pos[2]);
-        mainsys.part[b].vel = Vec3d(PPP[b+1].Vel[0], PPP[b+1].Vel[1], PPP[b+1].Vel[2]);
-        mainsys.part[b].mass = PPP[b+1].Mass;
-        mainsys.part[b].id = PPP[b+1].Id;
+        mainsys.part[b].pos = Vec3d(PPP[b].Pos[0], PPP[b].Pos[1], PPP[b].Pos[2]);
+        mainsys.part[b].vel = Vec3d(PPP[b].Vel[0], PPP[b].Vel[1], PPP[b].Vel[2]);
+        mainsys.part[b].mass = PPP[b].Mass;
+        mainsys.part[b].id = PPP[b].Id;
 	    }
 	}
     }

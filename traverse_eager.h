@@ -348,7 +348,16 @@ namespace exafmm
   //! Direct summation
   void direct(Bodies & bodies, bool get_steps)
   {
-    Cells cells = buildTree(bodies);
+      Cells cells;
+
+      if(bodies.size() > ncrit) {
+          cells = buildTree(bodies);
+      }else{
+          cells.resize(1);
+          Cell * C = &cells[0];
+          C->BODY = &bodies[0];
+          C->NBODY = bodies.size();
+      }
       
 //    std::vector<omp_lock_t> lock;
 //    lock.resize(cells.size());
@@ -359,17 +368,7 @@ namespace exafmm
         cells[i].has_sink = true;
     }
       
-    directPass(cells, cells, get_steps);
-
-    //Cells cells(2);                                             // Define a pair of cells to pass to P2P kernel
-    //Cell * Ci = &cells[0];                                      // Allocate single target
-    //Cell * Cj = &cells[1];                                      // Allocate single source
-    //Ci->BODY = &bodies[0];                                      // Iterator of first target body
-    //Ci->NBODY = bodies.size();                                  // Number of target bodies
-    //Cj->BODY = &jbodies[0];                                     // Iterator of first source body
-    //Cj->NBODY = jbodies.size();                                 // Number of source bodies
-    //Ci->has_sink = true;
-    //P2P_OMP(Ci, Cj);                                                // Evaluate P2P kenrel
+    directPass(cells, cells, get_steps);// Evaluate P2P kenrel
   }
 }
 #endif

@@ -461,7 +461,7 @@ namespace exafmm
 
 #if SIMD_P2P
 	int nii = (ni + NSIMD - 1) & (-NSIMD);
-
+          
 #ifndef DOUBLE_P2P
 	float Mi[nii] __attribute__ ((aligned(64)));
 	float Xi[nii] __attribute__ ((aligned(64)));
@@ -500,6 +500,7 @@ namespace exafmm
 	Vec8d invR, factor1, fac1, dx, dy, dz, dvx, dvy, dvz;
 	Vec8d ax, ay, az, pot, timestep, tau, dtau;
 #endif
+          
 	for(int i = 0; i < nii; i = i + NSIMD)
 	  {
 	    mi.load(Mi + i);
@@ -546,42 +547,25 @@ namespace exafmm
 		timestep = min(tau, timestep);
 
 		mj *= invR;
-
-		if(Bj[j].issource)
-		  {
-		    pot += mj;
-		    factor1 = mj * (invR * invR);
-		    ax += dx * factor1;
-		    ay += dy * factor1;
-		    az += dz * factor1;
-		  }
+        pot += mj * Bj[j].issource;
 	    }
 
 		timestep *= timestep;
 		timestep *= timestep;
 		timestep  = (real_t) 1.0 / timestep;
-       
-        ax.store(Xi+i);
-        ay.store(Yi+i);
-        az.store(Zi+i);
+
         pot.store(Mi+i);
-        timestep.store(VXi+i);
+        timestep.store(Xi+i);
 	  }
           
         for(int i = 0; i < ni; i++)
         {
           if(Bi[i].issink)
             {
-  #pragma omp atomic
+#pragma omp atomic
               Bi[i].p += (real_t) Mi[i];
-  #pragma omp atomic
-              Bi[i].F[0] += (real_t) Xi[i];
-  #pragma omp atomic
-              Bi[i].F[1] += (real_t) Yi[i];
-  #pragma omp atomic
-              Bi[i].F[2] += (real_t) Zi[i];
-  #pragma omp atomic
-              Bi[i].timestep += (real_t) VXi[i];
+#pragma omp atomic
+              Bi[i].timestep += (real_t) Xi[i];
             }
         }
           
@@ -637,12 +621,6 @@ namespace exafmm
 
 		    pot += invR;
 
-		    for(int d = 0; d < 3; d++)
-		      dX[d] *= invR2 * invR;
-
-		    ax += dX[0];
-		    ay += dX[1];
-		    az += dX[2];
 		  }
 	      }
 
@@ -650,19 +628,13 @@ namespace exafmm
 		timestep *= timestep;  
 		timestep  = (real_t)1 / timestep; 
 
-	    if(Bi[i].issink)
-	      {
+	    if(Bi[i].issink) {
 #pragma omp atomic
 		Bi[i].p += pot;
 #pragma omp atomic
-		Bi[i].F[0] += ax;
-#pragma omp atomic
-		Bi[i].F[1] += ay;
-#pragma omp atomic
-		Bi[i].F[2] += az;
-#pragma omp atomic
 		Bi[i].timestep += timestep;
-	      }
+        }
+          
 	  }
 #endif
       }

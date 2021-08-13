@@ -764,15 +764,15 @@ void evolve_split_hold_dkd(int clevel, struct sys s, double stime, double etime,
   if(calc_timestep){    
     kick_naive(clevel, s, zerosys, zerosys, 0, true);
   }
-
+    
   split(dt, s, &slow, &fast);
 
   if(fast.n == 0)
     {
       diag->simtime += dt;
-//#if DEBUG
+#if DEBUG
       printf("t=%g s=%d \n", diag->simtime, s.n);
-//#endif
+#endif
     }
 
   fflush(stdout);

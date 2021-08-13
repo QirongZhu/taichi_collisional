@@ -52,7 +52,7 @@ void load_snapshot(char *fname, int files)
 
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
-  for(i = 0, pc = 1; i < files; i++, pc = pc_new)
+  for(i = 0, pc = 0; i < files; i++, pc = pc_new)
     {
       if(files > 1)
 	sprintf(buf, "%s.%d", fname, i);
@@ -164,13 +164,11 @@ void allocate_gadget_memory(void)
       fprintf(stderr, "failed to allocate memory.\n");
       exit(0);
     }
-  PPP--;			/* start with offset 1 */
 //  printf("allocating memory...done\n");
 }
 
 void free_gadget_memory(void)
 {
-  PPP++;
   free(PPP);
 //  printf("freeing memory...done\n");
 }
