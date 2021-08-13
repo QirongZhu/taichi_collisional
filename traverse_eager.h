@@ -348,17 +348,7 @@ namespace exafmm
   //! Direct summation
   void direct(Bodies & bodies, bool get_steps)
   {
-      Cells cells;
-
-      if(bodies.size() > ncrit) {
-          cells = buildTree(bodies);
-      }else{
-          cells.resize(1);
-          Cell * C = &cells[0];
-          C->BODY = &bodies[0];
-          C->NBODY = bodies.size();
-      }
-      
+      Cells cells = buildTree(bodies);      
 //    std::vector<omp_lock_t> lock;
 //    lock.resize(cells.size());
       
