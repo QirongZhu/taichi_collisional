@@ -327,10 +327,10 @@ namespace exafmm
 		    dz = Bj[j].X[2] + zi;
             r2 = dx * dx + dy * dy + dz * dz;
 
-            r = sqrt(r2);
+            r    = sqrt(r2);
             invR = 1 / r;
             invR = select(r2 > 0, invR, 0);
-            mj *= invR;
+            mj   *= invR;
               
 		    pot += mj;
 		    mj = mj * (invR * invR);
@@ -342,7 +342,7 @@ namespace exafmm
             pot.store(Poti+i);
             ax.store(Xi+i);
             ay.store(Yi+i);
-            ax.store(Zi+i);
+            az.store(Zi+i);
 	      }
           
           for(int i = 0; i < ni; i++) {
@@ -573,7 +573,7 @@ namespace exafmm
 
 		timestep *= timestep;
 		timestep *= timestep;
-		timestep  = (real_t) 1 / timestep;
+		timestep  = (real_t) 1.0 / timestep;
        
         ax.store(Xi+i);
         ay.store(Yi+i);
@@ -582,8 +582,8 @@ namespace exafmm
         timestep.store(VXi+i);
 	  }
           
-          for(int i = 0; i < ni; i++)
-            {
+        for(int i = 0; i < ni; i++)
+        {
           if(Bi[i].issink)
             {
   #pragma omp atomic
@@ -597,7 +597,7 @@ namespace exafmm
   #pragma omp atomic
               Bi[i].timestep += (real_t) VXi[i];
             }
-            }
+        }
           
 #else
 	for(int i = 0; i < ni; i++)
