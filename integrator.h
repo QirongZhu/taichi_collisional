@@ -453,7 +453,6 @@ void kick(int clevel, struct sys sinks, struct sys sources,
 
   delete[]force;
   delete[]potential;
-  // delete[] timestep;
 }
 
 void get_force_and_potential(Bodies & bodies, bool get_steps)
@@ -461,7 +460,7 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
 #ifdef FMM
   if(bodies.size() < ncrit)
     {
-      direct(bodies, bodies, get_steps);
+      direct(bodies, get_steps);
     }
   else
     {
@@ -470,6 +469,22 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
 #endif
       Cells cells = buildTree(bodies);
 
+    //allocate memory for multipoles and local expansions
+    std::vector<std::vector<real_t> > Multipoles((int)cells.size(),
+                                                std::vector<real_t>(NTERM, 0) );
+
+    std::vector<std::vector<real_t>> Locals((int)cells.size(),
+                                                std::vector<real_t>(NTERM, 0) );
+        
+    std::vector<std::vector<real_t>> Pns((int)cells.size(),
+                                          std::vector<real_t>((EXPANSION+1), 0));
+                
+    for(size_t i=0; i<cells.size(); i++){
+        cells[i].M = &Multipoles[i][0];
+        cells[i].L = &Locals[i][0];
+        cells[i].Pn= &Pns[i][0];
+    }
+        
 #if DEBUG
       stop("buildTree");
 #endif
@@ -556,7 +571,7 @@ void get_force_and_potential(Bodies & bodies, bool get_steps)
 
 #else // if FMM not defined, use direct summation instead
 
-  direct(bodies, bodies, get_steps);
+  direct(bodies, get_steps);
 
 #endif
 }

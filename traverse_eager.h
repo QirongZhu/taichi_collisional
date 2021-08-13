@@ -262,7 +262,7 @@ namespace exafmm
   void directPass(Cell * Ci, Cell * Cj, bool get_steps)
   {
     if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
-      {				// Else if both cells are leafs
+      {// Else if both cells are leafs
 	if(get_steps)
 	  {
 	    P2P(Ci, Cj);
@@ -346,17 +346,20 @@ namespace exafmm
   }
 
   //! Direct summation
-  void direct(Bodies & bodies, Bodies & jbodies, bool get_steps)
+  void direct(Bodies & bodies, bool get_steps)
   {
     Cells cells = buildTree(bodies);
-    Cells jcells = buildTree(jbodies);
-//    for(size_t b = 0; b < cells.size(); b++)
-//      {
-//	cells[b].has_sink = true;
-//      }
-    upwardPass(cells);
-    upwardPass(jcells);
-    directPass(cells, jcells, get_steps);
+      
+//    std::vector<omp_lock_t> lock;
+//    lock.resize(cells.size());
+      
+    for (size_t i=0; i<cells.size(); i++) {
+        //omp_init_lock(&lock[i]);
+        //cells[i].p2p_lock = &(lock[i]);
+        cells[i].has_sink = true;
+    }
+      
+    directPass(cells, cells, get_steps);
 
     //Cells cells(2);                                             // Define a pair of cells to pass to P2P kernel
     //Cell * Ci = &cells[0];                                      // Allocate single target

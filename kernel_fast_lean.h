@@ -284,25 +284,28 @@ namespace exafmm
 	    float Xi[nii] __attribute__ ((aligned(64)));
 	    float Yi[nii] __attribute__ ((aligned(64)));
 	    float Zi[nii] __attribute__ ((aligned(64)));
+        float Poti[nii] __attribute__ ((aligned(64)));
 #else
 	    double Xi[nii] __attribute__ ((aligned(64)));
 	    double Yi[nii] __attribute__ ((aligned(64)));
 	    double Zi[nii] __attribute__ ((aligned(64)));
+        double Poti[nii] __attribute__ ((aligned(64)));
 #endif
 	    for(int k = 0; k < ni; k++)
 	      {
-		Xi[k] = -Bi[k].X[0];
-		Yi[k] = -Bi[k].X[1];
-		Zi[k] = -Bi[k].X[2];
+		Xi[k]  = -Bi[k].X[0];
+		Yi[k]  = -Bi[k].X[1];
+		Zi[k]  = -Bi[k].X[2];
+        Poti[k] = 0;
 	      }
 
 #ifndef DOUBLE_P2P
 	    Vec16f xi, yi, zi, r, mj;
-	    Vec16f invR, factor1, fac1, dx, dy, dz, r2;
+	    Vec16f invR, dx, dy, dz, r2;
 	    Vec16f ax, ay, az, pot;
 #else
 	    Vec8d xi, yi, zi, r, mj;
-	    Vec8d invR, factor1, fac1, dx, dy, dz, r2;
+	    Vec8d invR, dx, dy, dz, r2;
 	    Vec8d ax, ay, az, pot;
 #endif
 	    for(int i = 0; i < nii; i = i + NSIMD)
@@ -322,38 +325,39 @@ namespace exafmm
 		    dx = Bj[j].X[0] + xi;
 		    dy = Bj[j].X[1] + yi;
 		    dz = Bj[j].X[2] + zi;
+            r2 = dx * dx + dy * dy + dz * dz;
 
-		    r2 = dx * dx + dy * dy + dz * dz;
-
-		    mj = select(r2 > 0, mj, 0);
-		    r2 = select(r2 > 0, r2, 1e38);
-
-		    r = sqrt(r2);
-		    invR = 1 / r;
-		    mj *= invR;
-
+            r = sqrt(r2);
+            invR = 1 / r;
+            invR = select(r2 > 0, invR, 0);
+            mj *= invR;
+              
 		    pot += mj;
-		    factor1 = mj * (invR * invR);
-		    ax += dx * factor1;
-		    ay += dy * factor1;
-		    az += dz * factor1;
+		    mj = mj * (invR * invR);
+		    ax += dx * mj;
+		    ay += dy * mj;
+		    az += dz * mj;
 		  }
 
-		for(int k = 0; (k < NSIMD) && (i + k < ni); k++)
-		  {
-		    if(Bi[i + k].issink)
-		      {
-#pragma omp atomic
-			Bi[i + k].p += (real_t) pot[k];
-#pragma omp atomic
-			Bi[i + k].F[0] += (real_t) ax[k];
-#pragma omp atomic
-			Bi[i + k].F[1] += (real_t) ay[k];
-#pragma omp atomic
-			Bi[i + k].F[2] += (real_t) az[k];
-		      }
-		  }
+            pot.store(Poti+i);
+            ax.store(Xi+i);
+            ay.store(Yi+i);
+            ax.store(Zi+i);
 	      }
+          
+          for(int i = 0; i < ni; i++) {
+              if(Bi[i].issink) {
+#pragma omp atomic
+              Bi[i].p    += (real_t) Poti[i];
+#pragma omp atomic
+              Bi[i].F[0] += (real_t) Xi[i];
+#pragma omp atomic
+              Bi[i].F[1] += (real_t) Yi[i];
+#pragma omp atomic
+              Bi[i].F[2] += (real_t) Zi[i];
+                }
+            }
+          
 	  }
 	else
 	  {
@@ -396,7 +400,6 @@ namespace exafmm
 			az += dX[2];
 		      }
 		  }
-
 #pragma omp atomic
 		Bi[i].p += (real_t) pot;
 #pragma omp atomic
@@ -441,8 +444,7 @@ namespace exafmm
 		  }
 	      }
 
-	    if(Bi[i].issink)
-	      {
+	    if(Bi[i].issink) {
 #pragma omp atomic
 		Bi[i].p += pot;
 #pragma omp atomic
@@ -571,25 +573,32 @@ namespace exafmm
 
 		timestep *= timestep;
 		timestep *= timestep;
-		timestep  = (real_t) 1 / timestep; 
-
-	    for(int k = 0; (k < NSIMD) && (i + k < ni); k++)
-	      {
-		if(Bi[i + k].issink)
-		  {
-#pragma omp atomic
-		    Bi[i + k].p += (real_t) pot[k];
-#pragma omp atomic
-		    Bi[i + k].F[0] += (real_t) ax[k];
-#pragma omp atomic
-		    Bi[i + k].F[1] += (real_t) ay[k];
-#pragma omp atomic
-		    Bi[i + k].F[2] += (real_t) az[k];
-#pragma omp atomic
-		    Bi[i + k].timestep  += (real_t) timestep[k];
-		  }
-	      }
+		timestep  = (real_t) 1 / timestep;
+       
+        ax.store(Xi+i);
+        ay.store(Yi+i);
+        az.store(Zi+i);
+        pot.store(Mi+i);
+        timestep.store(VXi+i);
 	  }
+          
+          for(int i = 0; i < ni; i++)
+            {
+          if(Bi[i].issink)
+            {
+  #pragma omp atomic
+              Bi[i].p += (real_t) Mi[i];
+  #pragma omp atomic
+              Bi[i].F[0] += (real_t) Xi[i];
+  #pragma omp atomic
+              Bi[i].F[1] += (real_t) Yi[i];
+  #pragma omp atomic
+              Bi[i].F[2] += (real_t) Zi[i];
+  #pragma omp atomic
+              Bi[i].timestep += (real_t) VXi[i];
+            }
+            }
+          
 #else
 	for(int i = 0; i < ni; i++)
 	  {

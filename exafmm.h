@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <vector>
+#include <omp.h>
 
 #define ENDRUN(fmt, ...) { \
   printf("ENDRUN at %s:%d ", __FILE__, __LINE__);\
@@ -49,14 +50,11 @@ namespace exafmm
   //! Structure of cells
   struct Cell
   {
-    real_t M[(EXPANSION + 1) * (EXPANSION + 1)];
-    real_t L[(EXPANSION + 1) * (EXPANSION + 1)];
-    real_t Pn[(EXPANSION + 1)];
+    real_t *M;
+    real_t *L;
+    real_t *Pn;
     int NCHILD;			//!< Number of child cells
     int NBODY;			//!< Number of descendant bodies
-    //    int NP2P;
-    //    int NM2L;
-    //    int index;
     Cell *CHILD;		//!< Pointer of first child cell
     Body *BODY;			//!< Pointer of first body
     real_t X[3];		//!< Cell center
@@ -65,9 +63,11 @@ namespace exafmm
     real_t cell_mass;
     bool has_sink;
 #if EXAFMM_LAZY
-      std::vector < Cell * >listM2L;	//!< M2L interaction list
-      std::vector < Cell * >listP2P;	//!< P2P interaction list
+    std::vector<Cell*>listM2L;	//!< M2L interaction list
+    std::vector<Cell*>listP2P;	//!< P2P interaction list
 #endif
+    omp_lock_t *p2p_lock;
+    omp_lock_t *m2l_lock;
   };
   typedef std::vector < Cell > Cells;	//!< Vector of cells
 
