@@ -205,13 +205,12 @@ namespace exafmm
 
 	if(n > 0)
 	  {
-	    int m, m2, indexstart = n2 - n, indexnew = n2 + n;
+	    int m, indexstart = n2 - n, indexnew = n2 + n;
 
 	    if(n > 1)
 	      {
 		for(m = 0; m < n - 1; m++)
 		  {
-		    m2 = m * m;
 		    Tnm[indexnew + m] =
 		      invr2 * (2 * n - 1.) * dX[2] * Tnm[indexstart + m] -
 		      invr2 * ((n - 1) * (n - 1) * (n > 1) - m * m) * Tnm[n2 - 3 * n + 2 + m];
@@ -269,51 +268,44 @@ namespace exafmm
   {
     if(Ci->has_sink)
       {
-	Body *Bi = Ci->BODY;
+    Body *Bi = Ci->BODY;
 	Body *Bj = Cj->BODY;
 
 	int ni = Ci->NBODY;
 	int nj = Cj->NBODY;
 
 #if SIMD_P2P
-	if(ni > NSIMD)
+	if(ni > NSIMD*2)
 	  {
 	    int nii = (ni + NSIMD - 1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
-	    float Xi[nii] __attribute__ ((aligned(64)));
-	    float Yi[nii] __attribute__ ((aligned(64)));
-	    float Zi[nii] __attribute__ ((aligned(64)));
-        float Poti[nii] __attribute__ ((aligned(64)));
+	    float Xi[nii],Yi[nii],Zi[nii],Mi[nii];
 #else
-	    double Xi[nii] __attribute__ ((aligned(64)));
-	    double Yi[nii] __attribute__ ((aligned(64)));
-	    double Zi[nii] __attribute__ ((aligned(64)));
-        double Poti[nii] __attribute__ ((aligned(64)));
+        double Xi[nii],Yi[nii],Zi[nii],Mi[nii];
 #endif
 	    for(int k = 0; k < ni; k++)
 	      {
 		Xi[k]  = -Bi[k].X[0];
 		Yi[k]  = -Bi[k].X[1];
 		Zi[k]  = -Bi[k].X[2];
-        Poti[k] = 0;
 	      }
 
 #ifndef DOUBLE_P2P
-	    Vec16f xi, yi, zi, r, mj;
+	    Vec16f xi, yi, zi, r, mj, mi;
 	    Vec16f invR, dx, dy, dz, r2;
 	    Vec16f ax, ay, az, pot;
 #else
-	    Vec8d xi, yi, zi, r, mj;
+	    Vec8d xi, yi, zi, r, mj, mi;
 	    Vec8d invR, dx, dy, dz, r2;
 	    Vec8d ax, ay, az, pot;
 #endif
 	    for(int i = 0; i < nii; i = i + NSIMD)
 	      {
-		xi.load(Xi + i);
-		yi.load(Yi + i);
-		zi.load(Zi + i);
-
+        xi.load(Xi + i);
+        yi.load(Yi + i);
+        zi.load(Zi + i);
+              
 		ax = 0, ay = 0, az = 0, pot = 0;
 
 		for(int j = 0; j < nj; j++)
@@ -333,13 +325,14 @@ namespace exafmm
             mj   *= invR;
               
 		    pot += mj;
+              
 		    mj = mj * (invR * invR);
 		    ax += dx * mj;
 		    ay += dy * mj;
 		    az += dz * mj;
 		  }
 
-            pot.store(Poti+i);
+            pot.store(Mi+i);
             ax.store(Xi+i);
             ay.store(Yi+i);
             az.store(Zi+i);
@@ -348,7 +341,7 @@ namespace exafmm
           for(int i = 0; i < ni; i++) {
               if(Bi[i].issink) {
 #pragma omp atomic
-              Bi[i].p    += (real_t) Poti[i];
+              Bi[i].p    += (real_t) Mi[i];
 #pragma omp atomic
               Bi[i].F[0] += (real_t) Xi[i];
 #pragma omp atomic
@@ -381,9 +374,7 @@ namespace exafmm
 
 		    real_t R2 = (dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
 
-		    if(R2 > 0)
-		      {
-			real_t R = sqrt(R2);
+		    if(R2 > 0) {
 			real_t invR2 = 1 / R2;
 			real_t invR = Bj[j].q * sqrt(invR2);
 			pot += invR;
@@ -455,9 +446,8 @@ namespace exafmm
 	Body *Bj = Cj->BODY;
 
 	int ni = Ci->NBODY;
+          
 	int nj = Cj->NBODY;
-
-	real_t delta_t;
 
 #if SIMD_P2P
 	int nii = (ni + NSIMD - 1) & (-NSIMD);
