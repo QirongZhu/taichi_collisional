@@ -111,7 +111,7 @@ namespace exafmm
 
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
-  int ncrit = 300;		//!< Number of bodies per leaf cell
+  int ncrit    = 320;		//!< Number of bodies per leaf cell
   real_t theta = 0.5;		//!< Multipole acceptance criterion
   real_t dX[3], dV[3];		//!< Distance vector
 #pragma omp threadprivate(dX, dV)	//!< Make global variables private

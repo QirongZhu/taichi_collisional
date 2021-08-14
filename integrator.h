@@ -226,7 +226,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
     
     real_t min_timesteps = HUGE;
     
-    if(bodies.size() > 1e5) {
+    {
 
    std::vector<Vec3d>  force(bodies.size());
    std::vector<real_t> potential(bodies.size());
@@ -267,47 +267,6 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
 #endif
     }
         
-    }
-    else{
-        
-    Vec3d  force[bodies.size()];
-    real_t potential[bodies.size()];
-    real_t timestep[bodies.size()];
-    real_t acc_old[bodies.size()];
-        
-#pragma omp parallel for if(bodies.size() > 20)
-       for(size_t b = 0; b < bodies.size(); b++)
-         {
-           unsigned int i = bodies[b].index;
-           force[i] = Vec3d(bodies[b].F[0], bodies[b].F[1], bodies[b].F[2]);
-           potential[i] = bodies[b].p;
-           timestep[i]  = (real_t)1/sqrt(sqrt(bodies[b].timestep));
-         if(min_timesteps > timestep[i])
-             min_timesteps = timestep[i];
-           acc_old[i]   = bodies[b].acc_old;
-         }
-
-       if(update_timestep)
-         {
-           for(size_t i = 0; i < sinks.n; i++)
-         {
-     #ifdef GRADIENT
-             sinks.part[i].timestep = min_timesteps;
-     #else
-             sinks.part[i].timestep = timestep[i];
-     #endif
-         }
-         }
-
-       for(size_t i = 0; i < sinks.n; i++)
-         {
-           sinks.part[i].pot     = potential[i];
-           sinks.part[i].vel    += force[i] * dt;
-           sinks.part[i].acc_old = acc_old[i];
-     #ifdef OUTPUTACC
-           sinks.part[i].acc = force[i];
-     #endif
-         }
     }
 
 #if DEBUG
@@ -354,7 +313,7 @@ void kick_gradient(int clevel, struct sys sinks, struct sys sources,
 
   get_force_and_potential(bodies, false);
 
-    if(bodies.size() > 1e5) {
+  {
         
   std::vector<Vec3d> force(bodies.size());
   std::vector<real_t> potential(bodies.size());
@@ -371,22 +330,7 @@ void kick_gradient(int clevel, struct sys sinks, struct sys sources,
       sinks.part[i].vel   += force[i] * dt * (real_t)2/(real_t)3;
     }
     }
-    else{
-        Vec3d force [bodies.size()];
-        real_t potential [bodies.size()];
 
-        for(size_t b = 0; b < bodies.size(); b++)
-          {
-            unsigned int i   = bodies[b].index;
-            force[i] = Vec3d(bodies[b].F[0], bodies[b].F[1], bodies[b].F[2]);
-          }
-
-        for(size_t i = 0; i < sinks.n; i++)
-          {
-            sinks.part[i].pot    = potential[i];
-            sinks.part[i].vel   += force[i] * dt * (real_t)2/(real_t)3;
-          }
-    }
 }
 
 void kick(int clevel, struct sys sinks, struct sys sources,
@@ -737,7 +681,7 @@ void evolve_split_naive(int clevel, struct sys sys1, struct sys sys2,
   update_timestep = true;
 
     if(slow.n > 0){
-//      kick_naive(clevel, slow, fast, sys2, dt/2, update_timestep);
+//    kick_naive(clevel, slow, fast, sys2, dt/2, update_timestep);
       kick_cpu_with_steps(clevel, slow, totalsys, dt/2, update_timestep);
     }
 }

@@ -12,7 +12,6 @@
 
 namespace omp_par
 {
-
   template < class T, class StrictWeakOrdering >
     void merge(T A_, T A_last, T B_, T B_last, T C_, size_t p, StrictWeakOrdering comp)
   {
@@ -21,6 +20,7 @@ namespace omp_par
 
     _DiffType N1 = A_last - A_;
     _DiffType N2 = B_last - B_;
+        
     if(N1 == 0 && N2 == 0)
       return;
     if(N1 == 0 || N2 == 0)

@@ -275,7 +275,7 @@ namespace exafmm
 	int nj = Cj->NBODY;
 
 #if SIMD_P2P
-	if(ni > NSIMD*2)
+	if(ni > NSIMD)
 	  {
 	    int nii = (ni + NSIMD - 1) & (-NSIMD);
 
@@ -284,13 +284,14 @@ namespace exafmm
 #else
         double Xi[nii],Yi[nii],Zi[nii],Mi[nii];
 #endif
+          
 	    for(int k = 0; k < ni; k++)
 	      {
 		Xi[k]  = -Bi[k].X[0];
 		Yi[k]  = -Bi[k].X[1];
 		Zi[k]  = -Bi[k].X[2];
 	      }
-
+          
 #ifndef DOUBLE_P2P
 	    Vec16f xi, yi, zi, r, mj, mi;
 	    Vec16f invR, dx, dy, dz, r2;
@@ -339,7 +340,8 @@ namespace exafmm
 	      }
           
           for(int i = 0; i < ni; i++) {
-              if(Bi[i].issink) {
+              if(Bi[i].issink)
+              {
 #pragma omp atomic
               Bi[i].p    += (real_t) Mi[i];
 #pragma omp atomic
