@@ -340,7 +340,6 @@ namespace exafmm
   }
 
 
-
   void buildCellsSorted(Body * bodies, int begin, int end, Cell * cell, Cells & cells, real_t * X, real_t R,
 			int level = 0)
   {
@@ -440,6 +439,7 @@ namespace exafmm
     real_t R0, X0[3];		// Radius and center root cell
     getBounds(bodies, R0, X0);	// Get bounding box from bodies
 
+      /*
     unsigned int max_int = ((unsigned int) 1) << (MAX_DEPTH);
 
 #pragma omp parallel for
@@ -460,13 +460,15 @@ namespace exafmm
       std::sort(bodies.begin(), bodies.end());
     else
       omp_par::merge_sort(&bodies[0], &bodies[bodies.size()]);
-
-    //Bodies buffer = bodies;   // Copy bodies to buffer
-    Cells cells(1);		// Vector of cells
+*/
+      
+    Bodies buffer = bodies;   // Copy bodies to buffer
+    Cells cells(1);		      // Vector of cells
     cells.reserve(bodies.size()/4);	// Reserve memory space
-    //buildCells(&bodies[0], &buffer[0], 0, bodies.size(), &cells[0], cells, X0, R0);   // Build tree recursively
+      
+    buildCells(&bodies[0], &buffer[0], 0, bodies.size(), &cells[0], cells, X0, R0);   // Build tree recursively
 
-    buildCellsSorted(&bodies[0], 0, bodies.size(), &cells[0], cells, X0, R0);	// Build tree from sorted bodies
+    //buildCellsSorted(&bodies[0], 0, bodies.size(), &cells[0], cells, X0, R0);	// Build tree from sorted bodies
     return cells;		// Return pointer of root cell
   }
 }

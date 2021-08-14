@@ -348,17 +348,20 @@ namespace exafmm
   //! Direct summation
   void direct(Bodies & bodies, bool get_steps)
   {
-      Cells cells = buildTree(bodies);      
+      Cells cells = buildTree(bodies);
+      
 //    std::vector<omp_lock_t> lock;
 //    lock.resize(cells.size());
       
-    for (size_t i=0; i<cells.size(); i++) {
+      for (size_t i=0; i<cells.size(); i++) {
         //omp_init_lock(&lock[i]);
         //cells[i].p2p_lock = &(lock[i]);
         cells[i].has_sink = true;
-    }
-      
-    directPass(cells, cells, get_steps);// Evaluate P2P kenrel
+      }
+
+      //      start("directPass");
+      directPass(cells, cells, get_steps);// Evaluate P2P kenrel
+      //      stop("directPass");
   }
 }
 #endif
