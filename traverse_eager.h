@@ -58,7 +58,7 @@ namespace exafmm
   }
 
 
-  void horizontalPassHigh(Cell * Ci, Cell * Cj, bool get_steps)
+  void horizontalPassHigh(Cell * Ci, Cell * Cj)
   {
     for(int d = 0; d < 3; d++)
       dX[d] = Ci->X[d] - Cj->X[d];
@@ -102,53 +102,31 @@ namespace exafmm
 
     if(f2 < thres && f1 < thres) 
       {
-	if((Ci->NBODY <= 2 && Cj->NBODY <= 8) || (Cj->NBODY <= 2 && Ci->NBODY <= 8))
-	  {
-	    if(get_steps)
-	      {
-		P2P(Ci, Cj);
-	      }
-	    else
-	      {
-		P2P_simple(Ci, Cj);
-	      }
-	  }
-	else	  
-	  {
-	    if(!get_steps)
-	      M2L_rotate(Ci, Cj);	//  M2L kernel
-	  }
+	M2L_rotate(Ci, Cj);	//  M2L kernel
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {				// Else if both cells are leafs
-	if(get_steps)
-	  {
-	    P2P(Ci, Cj);	//  P2P kernel
-	  }
-	else
-	  {
-	    P2P_simple(Ci, Cj);
-	  }
+	P2P(Ci, Cj);	//  P2P kernel
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
 #pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
-	    horizontalPassHigh(ci, Cj, get_steps);	//   Recursive call to target child cells
+	    horizontalPassHigh(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }
     else
       {				// Else if Ci is leaf or Cj is larger
 	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
 	  {			// Loop over Cj's children
-	    horizontalPassHigh(Ci, cj, get_steps);	//   Recursive call to source child cells
+	    horizontalPassHigh(Ci, cj);	//   Recursive call to source child cells
 	  }			//  End loop over Cj's children
       }				// End if for leafs and Ci Cj size
   }
 
   //! Recursive call to dual tree traversal for horizontal pass
-  void horizontalPass(Cell * Ci, Cell * Cj, bool get_steps)
+  void horizontalPass(Cell * Ci, Cell * Cj)
   {
     for(int d = 0; d < 3; d++)
       dX[d] = Ci->X[d] - Cj->X[d];	// Distance vector from source to target
@@ -157,61 +135,39 @@ namespace exafmm
 
     if(R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R))
       {				// If distance is far enough
-	if((Ci->NBODY <= 2 && Cj->NBODY <= 8) || (Cj->NBODY <= 2 && Ci->NBODY <= 8))
-	  {
-	    if(get_steps)
-	      {
-		P2P(Ci, Cj);
-	      }
-	    else
-	      {
-		P2P_simple(Ci, Cj);
-	      }
-	  }
-	else
-	  {
-	    if(!get_steps)
-	      M2L_rotate(Ci, Cj);	//  M2L kernel
-	  }
+	M2L_rotate(Ci, Cj);	//  M2L kernel
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {				// Else if both cells are leafs
-	if(get_steps)
-	  {
-	    P2P(Ci, Cj);	//  P2P kernel
-	  }
-	else
-	  {
-	    P2P_simple(Ci, Cj);	// simple P2P kernel
-	  }
+	P2P(Ci, Cj);	//  P2P kernel
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
 #pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
-	    horizontalPass(ci, Cj, get_steps);	//   Recursive call to target child cells
+	    horizontalPass(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }
     else
       {				// Else if Ci is leaf or Cj is larger
 	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
 	  {			// Loop over Cj's children
-	    horizontalPass(Ci, cj, get_steps);	//   Recursive call to source child cells
+	    horizontalPass(Ci, cj);	//   Recursive call to source child cells
 	  }			//  End loop over Cj's children
       }				// End if for leafs and Ci Cj size
   }
 
   //! Horizontal pass interface
-  void horizontalPass(Cells & icells, Cells & jcells, bool high_force, bool get_steps)
+  void horizontalPass(Cells & icells, Cells & jcells, bool high_force)
   {
 #pragma omp parallel		// Start OpenMP
 #pragma omp single nowait
     {				// Start OpenMP single region with nowait
       if(!high_force)
-	horizontalPass(&icells[0], &jcells[0], get_steps);	// Pass root cell to recursive call
+	horizontalPass(&icells[0], &jcells[0]);	// Pass root cell to recursive call
       else
-	horizontalPassHigh(&icells[0], &jcells[0], get_steps);	// Pass root cell to recursive call
+	horizontalPassHigh(&icells[0], &jcells[0]);	// Pass root cell to recursive call
     }
   }
 
@@ -259,43 +215,36 @@ namespace exafmm
   }
 
 
-  void directPass(Cell * Ci, Cell * Cj, bool get_steps)
+  void directPass(Cell * Ci, Cell * Cj)
   {
     if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {// Else if both cells are leafs
-	if(get_steps)
-	  {
-	    P2P(Ci, Cj);
-	  }
-	else
-	  {
-	    P2P_simple(Ci, Cj);
-	  }			//  P2P kernel
+	P2P(Ci, Cj);
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
 #pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
-	    directPass(ci, Cj, get_steps);	//   Recursive call to target child cells
+	    directPass(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }
     else
       {				// Else if Ci is leaf or Cj is larger
 	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
 	  {			// Loop over Cj's children
-	    directPass(Ci, cj, get_steps);	//   Recursive call to source child cells
+	    directPass(Ci, cj);	//   Recursive call to source child cells
 	  }			//  End loop over Cj's children
       }				// End if for leafs and Ci Cj size
   }
 
   //! direct pass interface
-  void directPass(Cells & icells, Cells & jcells, bool get_steps)
+  void directPass(Cells & icells, Cells & jcells)
   {
 #pragma omp parallel		// Start OpenMP
 #pragma omp single nowait
     {				// Start OpenMP single region with nowait
-      directPass(&icells[0], &jcells[0], get_steps);	// Pass root cell to recursive call
+      directPass(&icells[0], &jcells[0]);	// Pass root cell to recursive call
     }
   }
 
@@ -346,22 +295,15 @@ namespace exafmm
   }
 
   //! Direct summation
-  void direct(Bodies & bodies, bool get_steps)
+  void direct(Bodies & bodies)
   {
-      Cells cells = buildTree(bodies);
-      
-//    std::vector<omp_lock_t> lock;
-//    lock.resize(cells.size());
-      
-      for (size_t i=0; i<cells.size(); i++) {
-        //omp_init_lock(&lock[i]);
-        //cells[i].p2p_lock = &(lock[i]);
-        cells[i].has_sink = true;
-      }
-
-      //      start("directPass");
-      directPass(cells, cells, get_steps);// Evaluate P2P kenrel
-      //      stop("directPass");
+    Cells cells = buildTree(bodies);
+            
+    for (size_t i=0; i<cells.size(); i++) {
+      cells[i].has_sink = true;
+    }
+    
+    directPass(cells, cells);// Evaluate P2P kenrel
   }
 }
 #endif

@@ -138,10 +138,10 @@ int main(int argc, char **argv)
       read_snapshot(snapnum);
     }
 
-  for(unsigned int b = 0; b < mainsys.n; b++)
-    {
-      mainsys.part[b].pos_e = Vec3d(0,0,0);
-    }
+  for(unsigned int b = 0; b < mainsys.n; b++) {
+    mainsys.part[b].pos_e = Vec3d(0,0,0);
+    mainsys.part[b].vel_e = Vec3d(0,0,0);
+  }
 
   start("Intergration");
 

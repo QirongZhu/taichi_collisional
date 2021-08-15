@@ -42,6 +42,7 @@ namespace exafmm
       return Morton[0]<rhs.Morton[0];
     }
     real_t timestep;
+    real_t dtimestep;
     int index;
     bool issink;
     bool issource;
@@ -79,6 +80,7 @@ namespace exafmm
     Vec3d pos_e;
     real_t mass;
     Vec3d vel;
+    Vec3d vel_e;
     real_t timestep;
     Vec3d acc;
     real_t pot;
@@ -109,6 +111,10 @@ namespace exafmm
 
   double dt_param = 0.025;
 
+  real_t PI2 = M_PI * M_PI;
+  real_t PI4 = PI2 * PI2;
+  real_t PI6 = PI4 * PI2;
+  
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
   int ncrit    = 320;		//!< Number of bodies per leaf cell
