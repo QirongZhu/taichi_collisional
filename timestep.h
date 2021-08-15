@@ -185,8 +185,10 @@ void timestepCore(Cell * Ci, Cell * Cj)
 
       if(R2 > 0) {
           real_t R = sqrt(R2);
+          
           real_t vdotdr2;
-          real_t v2 = norm(dV);
+          
+          real_t v2 = norm(dV) + 1e-20;
 
           vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
 
@@ -293,6 +295,8 @@ void findtimesteps(struct sys system) {
     }
     else{
         
+        real_t min_step = HUGE;
+        
         for(unsigned int i = 0; i < system.n; i++) {
             
         real_t timestep = 0;
@@ -311,27 +315,34 @@ void findtimesteps(struct sys system) {
 
                 real_t R = sqrt(R2);
                 real_t vdotdr2;
-                real_t v2 = norm(dV);
+                real_t v2 = norm(dV) + 1e-20;
 
                 vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
 
                 real_t tau = dt_param / M_SQRT2 * sqrt(R * R2 / (system.part[i].mass + system.part[j].mass));
                 real_t dtau = 3 * tau * vdotdr2 / 2;
+                        
                 if(dtau > 1) dtau = 1;
                 tau = (1 - dtau / 2)/tau;
                 timestep += tau*tau*tau*tau;
 
                 tau = dt_param * R / sqrt(v2);
                 dtau = tau * vdotdr2 * (1 + (system.part[i].mass + system.part[j].mass) / (v2 * R));
+
                 if(dtau > 1) dtau = 1;
                 tau = (1 - dtau / 2)/tau;
                 timestep += tau*tau*tau*tau;
               }
             
-            system.part[i].timestep = 1/sqrt(sqrt(timestep));
-            
+            system.part[i].timestep = 1.0/sqrt(sqrt(timestep));
+                        
+            //if(min_step > system.part[i].timestep)
+            //    min_step = system.part[i].timestep;
           }
-        
+                
+//        for(unsigned int i = 0; i < system.n; i++) {
+//            system.part[i].timestep = min_step;
+//        }
         
     }
 }

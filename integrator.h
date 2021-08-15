@@ -164,7 +164,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
 
 void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradient)
 {
-    real_t fac = dt * dt / (real_t)24;
+    real_t fac = 3 * dt * dt / 32;
 
 #pragma omp parallel for if(s1.n > ncrit)
   for(unsigned int i = 0; i < s1.n; i++)
@@ -198,11 +198,10 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradie
     }
 }
 
-
 void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
 {
- real_t fac = dt * dt / (real_t) 24.0;
-    
+  real_t fac = 3 * dt * dt / 32;
+
   bodies.resize(sinks.n);
 
   for(size_t i = 0; i < sinks.n; i++)
@@ -252,7 +251,7 @@ void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
 
 void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool isgradient)
 {
-  real_t fac = dt * dt / (real_t)24 ;
+  real_t fac = 3 * dt * dt / 32;
 
   bodies.resize(sinks.n + sources.n);
 
