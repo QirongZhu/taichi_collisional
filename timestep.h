@@ -150,15 +150,15 @@ void timestepCore(Cell * Ci, Cell * Cj)
       tau = dt_param / M_SQRT2 * r * sqrt(r / mi);
       dtau = 1.5 * tau * vdotdr2;
       dtau = select(dtau<1, 1-dtau/2, 0.5);
-      tau /= dtau;
-      timestep += 1.0/(tau*tau*tau*tau);
+      tau = dtau/tau;
+      timestep += tau*tau*tau*tau;
 
       tau = dt_param * r / sqrt(v2);
       dtau = tau * vdotdr2 * (1 + mi / (v2 * r));
       dtau = select(dtau<1, 1-dtau/2, 0.5);
-      tau /= dtau;
+      tau = dtau/tau;
 
-      timestep += 1.0/(tau*tau*tau*tau);
+      timestep += tau*tau*tau*tau;
       }
         
       timestep.store(Xi+i);
