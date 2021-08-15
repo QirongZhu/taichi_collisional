@@ -314,7 +314,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool i
 void get_force_and_potential(Bodies & bodies)
 {
 #ifdef FMM
-  if(bodies.size() < ncrit)
+  if(bodies.size() < 10000)
     {
       direct(bodies);
     }

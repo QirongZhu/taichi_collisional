@@ -95,7 +95,7 @@ namespace exafmm
   int snapnum;
 
   real_t t_now;
-  real_t force_accuracy = 2.0e-07;
+  real_t force_accuracy = 2.0e-08;
 
   real_t G = 1;			//0.004300710573170628; 
   //gravitaional constant with Msun, pc and km/s.
