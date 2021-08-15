@@ -609,26 +609,32 @@ void evolve_split_hold_dkd(int clevel, struct sys total,
   if(fast.n > 0)
     evolve_split_hold_dkd(clevel+1, fast, stime, stime+dt/2, dt/2, false);
 
-  //dkd for the slow system
   if(slow.n > 0)
-    dkd(clevel, slow, stime, stime+dt/2, dt/2);
+      drift(clevel, slow, stime + dt / 2, dt / 2);
     
-  if(slow.n > 0 && fast.n > 0) { //kicksf in between
+  if(slow.n > 0) { //kicksf in between
     if(total.n > ncrit)
       {
-	kick_sf(clevel, slow, fast, dt, false);
-	kick_sf(clevel, fast, slow, dt, false);
+          kick_self(clevel, slow, dt, false);
+
+          if(fast.n > 0) {
+              kick_sf(clevel, slow, fast, dt, false);
+              kick_sf(clevel, fast, slow, dt, false);
+          }
       }
     else
       {
-	kick_cpu(clevel, slow, fast, dt, false);
-	kick_cpu(clevel, fast, slow, dt, false);
+          kick_cpu(clevel, slow, slow, dt, false);
+
+          if(fast.n > 0) {
+              kick_cpu(clevel, slow, fast, dt, false);
+              kick_cpu(clevel, fast, slow, dt, false);
+          }
       }
   }
     
-  //dkd for the slow system
   if(slow.n > 0)
-    dkd(clevel, slow, stime+dt/2, stime+dt, dt/2);
+    drift(clevel, slow, etime, dt / 2);
 
   //hold for fast system
   if(fast.n > 0)
