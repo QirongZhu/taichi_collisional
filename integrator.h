@@ -22,7 +22,7 @@ extern struct diagnostics *diag;
 #pragma omp threadprivate(diag)
 
 #define SWAP(a,b,c) {c t;t=(a);(a)=(b);(b)=t;}
-#define ABS(X) (((X) >= 0) ? (X) : -(X))
+#define ABS(X) (((X) >= 0) ? (X) :-(X))
 #define SIGN(X)   ((X>0)-(X<0))
 #define LOG(fmt, ...) {				\
     printf("%s:%d\t", __FILE__, __LINE__);	\
@@ -65,7 +65,7 @@ void kick(int clevel, struct sys s, double etime, double dt)
 #pragma omp parallel for if(s.n > ncrit)
   for(unsigned int i = 0; i < s.n; i++)
     {
-      COMPSUM(s.part[i].vel, s.part[i].vel_e, dt * s.part[i].acc);
+      COMPSUM(s.part[i].vel, s.part[i].vel_e, dt*s.part[i].acc);
       s.part[i].postime = etime;
     }
 }
@@ -97,10 +97,10 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
     {
       for(unsigned int i = sinks.n; i < sinks.n + sources1.n; i++)
 	{
-	  bodies[i].X = sources1.part[i - sinks.n].pos;
-	  bodies[i].V = sources1.part[i - sinks.n].vel;
+	  bodies[i].X = sources1.part[i-sinks.n].pos;
+	  bodies[i].V = sources1.part[i-sinks.n].vel;
 	  bodies[i].index = i;
-	  bodies[i].q = sources1.part[i - sinks.n].mass;
+	  bodies[i].q = sources1.part[i-sinks.n].mass;
 	  bodies[i].issource = true;
 	  bodies[i].issink = false;
 	}
@@ -111,10 +111,10 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
       unsigned int startindex = sinks.n + sources1.n;
       for(unsigned int i = startindex; i < startindex + sources2.n; i++)
 	{
-	  bodies[i].X = sources2.part[i - startindex].pos;
-	  bodies[i].V = sources2.part[i - startindex].vel;
+	  bodies[i].X = sources2.part[i-startindex].pos;
+	  bodies[i].V = sources2.part[i-startindex].vel;
 	  bodies[i].index = i;
-	  bodies[i].q = sources2.part[i - startindex].mass;
+	  bodies[i].q = sources2.part[i-startindex].mass;
 	  bodies[i].issource = true;
 	  bodies[i].issink = false;
 	}
@@ -130,32 +130,24 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
   start("Getting result");
 #endif
 
-  real_t *force = new real_t[3 * bodies.size()];
-  real_t *potential = new real_t[bodies.size()];
-  real_t *acc_old = new real_t[bodies.size()];
+    std::vector<Vec3d> force(bodies.size());
+    std::vector<real_t> potential(bodies.size());
+    std::vector<real_t> acc_old(bodies.size());
 
   real_t min_timesteps = HUGE;
     
-  for(size_t b = 0; b < bodies.size(); b++)
-    {
+  for(size_t b = 0; b < bodies.size(); b++) {
       unsigned int i = bodies[b].index;
-      force[3 * i + 0] = bodies[b].F[0];
-      force[3 * i + 1] = bodies[b].F[1];
-      force[3 * i + 2] = bodies[b].F[2];
+      force[i]     = Vec3d(bodies[b].F[0], bodies[b].F[1], bodies[b].F[2]);
       potential[i] = bodies[b].p;
       acc_old[i]   = bodies[b].acc_old;
     }
 
-  for(size_t i = 0; i < sinks.n; i++)
-    {
+  for(size_t i = 0; i < sinks.n; i++) {
       sinks.part[i].pot = potential[i];
-      sinks.part[i].vel += Vec3d(force[i*3+0], force[i*3+1], force[i*3+2])* dt;
+      sinks.part[i].vel += force[i]* dt;
       sinks.part[i].acc_old = acc_old[i];
     }
-
-  delete[] force;
-  delete[] potential;
-  delete[] acc_old;
 
 #if DEBUG
   stop("Getting result");
@@ -164,7 +156,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
 
 void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradient)
 {
-    real_t fac = 3 * dt * dt / 32;
+    real_t fac = 3*dt*dt / 32;
 
 #pragma omp parallel for if(s1.n > ncrit)
   for(unsigned int i = 0; i < s1.n; i++)
@@ -180,34 +172,35 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradie
       Vec3d dx;
         
         if(isgradient){
-            dx = (s1.part[i].pos + s1.part[i].acc*fac) -
-            (s2.part[j].pos + s1.part[i].acc*fac);
+            dx = (s1.part[i].pos + s1.part[i].acc * fac)-
+            (s2.part[j].pos + s2.part[i].acc * fac);
         }
         else{
-            dx = s1.part[i].pos - s2.part[j].pos;
+            dx = s1.part[i].pos-s2.part[j].pos;
         }
-	  dr2 = dx[0] * dx[0] + dx[1] * dx[1] + dx[2] * dx[2];
-	  dr = sqrt(dr2);
-	  dr3 = dr * dr2;
-	  dr = s2.part[j].mass / dr3;
-	  acc -= dx * dr;
+        
+	  dr2  = dx[0]*dx[0] + dx[1]*dx[1] + dx[2]*dx[2];
+	  dr   = sqrt(dr2);
+	  dr3  = dr*dr2;
+	  dr   = s2.part[j].mass / dr3;
+	  acc -= dx*dr;
 	    
 	}
       s1.part[i].acc = acc;
-      s1.part[i].vel += dt * acc;
+      s1.part[i].vel += dt*acc;
     }
 }
 
 void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
 {
-  real_t fac = 3 * dt * dt / 32;
+  real_t fac = 3*dt*dt / 32;
 
   bodies.resize(sinks.n);
 
   for(size_t i = 0; i < sinks.n; i++)
     {
         if(isgradient)
-            bodies[i].X = sinks.part[i].pos+fac*sinks.part[i].acc;
+            bodies[i].X = sinks.part[i].pos + fac * sinks.part[i].acc;
         else
             bodies[i].X = sinks.part[i].pos;
         
@@ -237,7 +230,7 @@ void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
         for(size_t i = 0; i < sinks.n; i++)
         {
             sinks.part[i].pot = potential[i];
-            COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, dt * force[i]);
+            COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, dt*force[i]);
         }
     }else{
         for(size_t i = 0; i < sinks.n; i++)
@@ -251,14 +244,14 @@ void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
 
 void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool isgradient)
 {
-  real_t fac = 3 * dt * dt / 32;
+  real_t fac = 3*dt*dt / 32;
 
   bodies.resize(sinks.n + sources.n);
 
   for(size_t i = 0; i < sinks.n; i++)
     {
     if(isgradient)
-        bodies[i].X = sinks.part[i].pos+fac*sinks.part[i].acc;
+      bodies[i].X = sinks.part[i].pos+fac*sinks.part[i].acc;
     else
       bodies[i].X = sinks.part[i].pos;
         
@@ -275,12 +268,12 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool i
   for(size_t i = sinks.n; i < sinks.n + sources.n; i++)
     {
         if(isgradient)
-            bodies[i].X = sources.part[i - sinks.n].pos + fac* sources.part[i - sinks.n].acc;
+            bodies[i].X = sources.part[i-sinks.n].pos + fac* sources.part[i-sinks.n].acc;
         else
-            bodies[i].X = sources.part[i - sinks.n].pos;
+            bodies[i].X = sources.part[i-sinks.n].pos;
         
       bodies[i].index = i;
-      bodies[i].q = sources.part[i - sinks.n].mass;
+      bodies[i].q = sources.part[i-sinks.n].mass;
       bodies[i].issource = true;
       bodies[i].issink = false;
       bodies[i].p = 0;
@@ -306,7 +299,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool i
         for(size_t i = 0; i < sinks.n; i++)
         {
             sinks.part[i].pot = potential[i];
-            COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, dt * force[i]);
+            COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, dt*force[i]);
         }
     }else{
         for(size_t i = 0; i < sinks.n; i++)
@@ -406,11 +399,11 @@ void get_force_and_potential(Bodies & bodies)
 	{
 	  for(int n = 0; n <= P; n++)
 	    {
-	      for(int m = -n; m <= n; m++)
+	      for(int m =-n; m <= n; m++)
 		{
-		  int index = n * n + n + m;
+		  int index = n*n + n + m;
 		  cells[i].Pn[n] += cells[i].M[index] *
-		    cells[i].M[index] * factorial_table[n + m] * factorial_table[n - m];
+		    cells[i].M[index]*factorial_table[n + m]*factorial_table[n-m];
 		}
 	      cells[i].Pn[n] = sqrt(cells[i].Pn[n]);
 	    }
@@ -464,7 +457,7 @@ struct sys join(struct sys sinks, struct sys sources)
       else
 	ENDRUN("join error 1");
     }
-  if(s.last - s.part + 1 != s.n)
+  if(s.last-s.part + 1 != s.n)
     ENDRUN("join error 2");
   return s;
 }
@@ -494,8 +487,8 @@ void split(double dt, struct sys s, struct sys *slow, struct sys *fast)
     }
   if(left->timestep < dt)
     left++;
-  slow->n = s.last - left + 1;
-  fast->n = (left - s.part);
+  slow->n = s.last-left + 1;
+  fast->n = (left-s.part);
 
   if(fast->n == 1)
     {
@@ -512,7 +505,7 @@ void split(double dt, struct sys s, struct sys *slow, struct sys *fast)
   if(fast->n > 0)
     {
       fast->part = s.part;
-      fast->last = s.part + fast->n - 1;
+      fast->last = s.part + fast->n-1;
     }
 
   if(fast->n + slow->n != s.n)
@@ -524,19 +517,19 @@ void drift(int clevel, struct sys s, double etime, double dt)
 #pragma omp parallel for if(s.n > ncrit)
   for(unsigned int i = 0; i < s.n; i++)
     {
-      COMPSUM(s.part[i].pos, s.part[i].pos_e, dt * s.part[i].vel);
+      COMPSUM(s.part[i].pos, s.part[i].pos_e, dt*s.part[i].vel);
       s.part[i].postime = etime;
     }
 }
 
 void drift_naive(int clevel, struct sys s, double etime)
 {
-  double dt = etime - s.part[0].postime;
+  double dt = etime-s.part[0].postime;
     
 #pragma omp parallel for if(s.n > ncrit)
   for(unsigned int i = 0; i < s.n; i++)
     {
-      COMPSUM(s.part[i].pos, s.part[i].pos_e, dt * s.part[i].vel);
+      COMPSUM(s.part[i].pos, s.part[i].pos_e, dt*s.part[i].vel);
       s.part[i].postime = etime;
     }
 }
@@ -639,7 +632,6 @@ void evolve_split_hold_dkd(int clevel, struct sys total,
   if(fast.n > 0)
     evolve_split_hold_dkd(clevel+1, fast, stime+dt/2, etime, dt/2, true);
 }
-
 
 void evolve_frost(int clevel, struct sys total,
 			     double stime, double etime,
@@ -760,9 +752,9 @@ double system_kinetic_energy(struct sys s)
   unsigned int i;
   long double e = 0.;
   for(i = 0; i < s.n; i++)
-    e += s.part[i].mass / G * (s.part[i].vel[0] * s.part[i].vel[0] +
-			       s.part[i].vel[1] * s.part[i].vel[1] + 
-			       s.part[i].vel[2] * s.part[i].vel[2]) / 2;
+    e += s.part[i].mass / G*(s.part[i].vel[0]*s.part[i].vel[0] +
+			       s.part[i].vel[1]*s.part[i].vel[1] +
+			       s.part[i].vel[2]*s.part[i].vel[2]) / 2;
   return (double) e;
 }
 
@@ -771,7 +763,7 @@ double system_potential_energy(struct sys s)
   unsigned int i;
   long double e = 0.;
   for(i = 0; i < s.n; i++)
-    e += s.part[i].mass / G * s.part[i].pot / 2;
+    e += s.part[i].mass / G*s.part[i].pot / 2;
   return (double) e;
 }
 
@@ -784,8 +776,8 @@ void system_center_of_mass(struct sys s, long double *cmpos, long double *cmvel)
     {
       for(int i = 0; i < 3; i++)
 	{
-	  pos[i] += (long double) s.part[p].mass * s.part[p].pos[i];
-	  vel[i] += (long double) s.part[p].mass * s.part[p].vel[i];
+	  pos[i] += (long double) s.part[p].mass*s.part[p].pos[i];
+	  vel[i] += (long double) s.part[p].mass*s.part[p].vel[i];
 	}
       mass += (long double) s.part[p].mass;
     }

@@ -340,9 +340,9 @@ void findtimesteps(struct sys system) {
             //    min_step = system.part[i].timestep;
           }
                 
-//        for(unsigned int i = 0; i < system.n; i++) {
-//            system.part[i].timestep = min_step;
-//        }
+        //        for(unsigned int i = 0; i < system.n; i++) {
+        //            system.part[i].timestep = min_step;
+        //        }
         
     }
 }

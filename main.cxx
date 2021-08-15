@@ -118,18 +118,18 @@ int main(int argc, char **argv)
 	    {
 	      mainsys.part[b].id = b;
 	      mainsys.part[b].mass = array[b * 7+0];
-          mainsys.part[b].pos = Vec3d(array[b * 7+1], array[b * 7+2], array[b * 7+3]);
-          mainsys.part[b].vel = Vec3d(array[b * 7+4], array[b * 7+5], array[b * 7+6]);
+	      mainsys.part[b].pos = Vec3d(array[b * 7+1], array[b * 7+2], array[b * 7+3]);
+	      mainsys.part[b].vel = Vec3d(array[b * 7+4], array[b * 7+5], array[b * 7+6]);
 	    }
 	}
       else
 	{
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
-        mainsys.part[b].pos = Vec3d(PPP[b].Pos[0], PPP[b].Pos[1], PPP[b].Pos[2]);
-        mainsys.part[b].vel = Vec3d(PPP[b].Vel[0], PPP[b].Vel[1], PPP[b].Vel[2]);
-        mainsys.part[b].mass = PPP[b].Mass;
-        mainsys.part[b].id = PPP[b].Id;
+	      mainsys.part[b].pos = Vec3d(PPP[b].Pos[0], PPP[b].Pos[1], PPP[b].Pos[2]);
+	      mainsys.part[b].vel = Vec3d(PPP[b].Vel[0], PPP[b].Vel[1], PPP[b].Vel[2]);
+	      mainsys.part[b].mass = PPP[b].Mass;
+	      mainsys.part[b].id = PPP[b].Id;
 	    }
 	}
     }
@@ -149,21 +149,21 @@ int main(int argc, char **argv)
     {
       while(t_end > t_now)
 	{
-	  start("Dummy Poisson test");
+	  //	  start("Dummy Poisson test");
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
-	  stop("Dummy Poisson test");
-      fflush(stdout);
+	  //	  stop("Dummy Poisson test");
+	  //	  fflush(stdout);
       
-    //temporarily use a high force accuracy for the
-    //calculation of potential energies in the snapshots
-      real_t temp_force_accuracy = force_accuracy;
-      force_accuracy = 1e-8;
+	  //temporarily use a high force accuracy for the
+	  //calculation of potential energies in the snapshots
+	  real_t temp_force_accuracy = force_accuracy;
+	  force_accuracy = 1e-8;
         
-	  write_snapshot(snapnum, mainsys);
+	  //	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
 
-    //restore the original value of force_accuracy
-      force_accuracy = temp_force_accuracy;
+	  //restore the original value of force_accuracy
+	  force_accuracy = temp_force_accuracy;
         
 	  real_t kinetic = system_kinetic_energy(mainsys);
 	  real_t pot = system_potential_energy(mainsys);
