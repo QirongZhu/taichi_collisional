@@ -243,10 +243,6 @@ namespace exafmm {
 	    }
                 
 	    real_t R2 = norm(dX);
-            
-	    if(R2 <=0)
-	      continue;
-            
 	    real_t R = sqrt(R2);
 	    real_t vdotdr2;
 	    real_t v2 = norm(dV) + 1e-20;
