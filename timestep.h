@@ -257,15 +257,11 @@ namespace exafmm {
 	    real_t dtau = 3 * tau * vdotdr2 / 2;
 	    tau = (1 - dtau / 2)/tau;
 	    timestep += tau*tau*tau*tau;
-	    //tau = symmetrize_step(tau, dtau);
-	    //timestep = std::min(tau, timestep);
 
 	    tau = dt_param * R / sqrt(v2);
 	    dtau = tau * vdotdr2 * (1 + (system.part[i].mass + system.part[j].mass) / (v2 * R));
 	    tau = (1 - dtau / 2)/tau;
 	    timestep += tau*tau*tau*tau;
-	    //tau = symmetrize_step(tau, dtau);
-	    //timestep = std::min(tau, timestep);
 	  }
 
 	  system.part[i].timestep = 1.0/sqrt(sqrt(timestep));
