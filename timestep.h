@@ -269,10 +269,12 @@ namespace exafmm {
 	  if(min_step > system.part[i].timestep)
 	    min_step = system.part[i].timestep;
 	}
-                
-	for(unsigned int i = 0; i < system.n; i++) {
-	  system.part[i].timestep = min_step;
-	}
+    
+	if(system.n < 20) {
+	  for(unsigned int i = 0; i < system.n; i++) {
+	    system.part[i].timestep = min_step;
+	  }
+        }
         
       }
     }
