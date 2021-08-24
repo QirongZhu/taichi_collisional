@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
   initKernel();
   init_code();
-
+  /*
   printf("\n");
   printf("This is Taichi_collisional v0.5. Taichi_collisional is a FMM based N-body code with individual timesteps.\n");
   printf("Author: Qirong Zhu.\n");
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
   printf("     :##,     \n");
   printf("\n");
   fflush(stdout);
-
+  */
   if(argc != 6)
     {
       printf("\nwrong number of arguments\n");
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
       if(!gadget_file)
 	{
-	  start("reading bodies");
+	  //	  start("reading bodies");
 	  size_t number_of_lines = 0;
 	  std::string line;
 	  std::ifstream file(input_fname);
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	  array.resize(numBodies * 7);
 	  array.assign(std::istream_iterator < double >(fin), std::istream_iterator < double >());
 	  fin.close();
-	  stop("reading bodies");
+	  //	  stop("reading bodies");
 	}
       else
 	{
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
     mainsys.part[b].vel_e = Vec3d(0,0,0);
   }
 
-  start("Intergration");
+//  start("Intergration");
 
   if(t_end > 0)
     {
@@ -168,19 +168,34 @@ int main(int argc, char **argv)
 	  real_t kinetic = system_kinetic_energy(mainsys);
 	  real_t pot = system_potential_energy(mainsys);
 	  system_center_of_mass(mainsys, cmpos, cmvel);
-	  printf("pot=%18.12f kin=%18.12f tot=%18.12f \n", pot, kinetic, -pot+kinetic);
+	  printf("com=%18.12Lg %18.12Lg %18.12Lg tot=%18.12f \n",
+             cmpos[0], cmpos[1], cmpos[2], -pot+kinetic);
 	  fflush(stdout);
-
+        
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);
 
 	  if(mainsys.n > 0)
 	    do_evolve(mainsys, dt);
 
+#if 0
+        for(unsigned int b=0; b<mainsys.n; b++){
+            printf("%g %d %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg\n", t_now,
+                   mainsys.part[b].id,
+                   (long double)mainsys.part[b].pos[0],
+                   (long double)mainsys.part[b].pos[1],
+                   (long double)mainsys.part[b].pos[2],
+                   (long double)mainsys.part[b].vel[0],
+                   (long double)mainsys.part[b].vel[1],
+                   (long double)mainsys.part[b].vel[2],
+                   (long double)(-pot+kinetic));
+        }
+#endif
+        
 	  t_now += dt;
 	}
     }
 
-  stop("Intergration");
+//  stop("Intergration");
 
   return 0;
 }

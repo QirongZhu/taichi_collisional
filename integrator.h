@@ -4,7 +4,7 @@
 #include "traverse_eager.h"
 #include "timestep.h"
 #include "timer.h"
-#include "universal_kepler_solver.h"
+#include "universal.h"
 
 #define MAXLEVEL 64
 
@@ -67,11 +67,12 @@ void integrate_sym_eight(int clevel, struct sys total,
 			 double stime, double etime, double dt);
 
 void evolve_kepler(int clevel, struct sys s, double stime, double etime, double dt) {
+
   if (s.n != 2) ENDRUN("two-body solver was called with sys.n=%u\n", s.n);
+
   // translate coordinates original frame to 2-body frame
-  //printf("Kepler!\n");
   int k;
-  double deltat = dt;
+
   double dpos[3],dpos0[3];
   Vec3d pos_cm;
   double dvel[3],dvel0[3];
@@ -92,20 +93,21 @@ void evolve_kepler(int clevel, struct sys s, double stime, double etime, double 
 
     pos_cm = (m1*s.part->pos+m2*s.last->pos) / mtot;
     vel_cm = (m1*s.part->vel+m2*s.last->vel) / mtot;
+
     // evolve center of mass for dt
-    pos_cm += vel_cm*deltat;
-    // call kepler solver
-    int err=universal_kepler_solver(deltat,mtot, 0,
-                                    dpos0[0],dpos0[1],dpos0[2],
-                                    dvel0[0],dvel0[1],dvel0[2],
-                                    &dpos[0],&dpos[1],&dpos[2],
-                                    &dvel[0],&dvel[1],&dvel[2]);
-    if (err != 0) ENDRUN("kepler solver failure"); // failure of the kepler solver should be very rare now
+    pos_cm += vel_cm*dt;
+
+    // call the Kepler solver
+    Binary state0 = {dpos0[0],dpos0[1],dpos0[2], dvel0[0],dvel0[1],dvel0[2], 0, 0, 0};
+    Binary state1;
+              
+    kepler_step(mtot, dt, &state0, &state1);
+                  
     // translate coordinates from 2-body frame to original frame
-    s.part->pos = pos_cm+f1*Vec3d(dpos[0], dpos[1], dpos[2]);
-    s.part->vel = vel_cm+f1*Vec3d(dvel[0], dvel[1], dvel[2]);
-    s.last->pos = pos_cm-f2*Vec3d(dpos[0], dpos[1], dpos[2]);
-    s.last->vel = vel_cm-f2*Vec3d(dvel[0], dvel[1], dvel[2]);
+    s.part->pos = pos_cm+f1*Vec3d(state1.x, state1.y, state1.z);
+    s.part->vel = vel_cm+f1*Vec3d(state1.xd, state1.yd, state1.zd);
+    s.last->pos = pos_cm-f2*Vec3d(state1.x, state1.y, state1.z);
+    s.last->vel = vel_cm-f2*Vec3d(state1.xd, state1.yd, state1.zd);
   } else {
     s.part->pos +=s.part->vel*dt;
     s.last->pos +=s.last->vel*dt;

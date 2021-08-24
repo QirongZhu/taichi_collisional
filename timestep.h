@@ -274,7 +274,7 @@ namespace exafmm {
         
         real_t third_over_second_ratio = stepsize[2]/stepsize[1];
         
-        if(third_over_second_ratio < 1e10) {
+        if(third_over_second_ratio < 1e2) {
             for(unsigned int i = 0; i < system.n; i++) {
                 system.part[i].timestep = stepsize[0];
             }
