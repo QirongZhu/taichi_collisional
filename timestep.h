@@ -121,7 +121,7 @@ namespace exafmm {
           
 	      real_t vdotdr2;
           
-	      real_t v2 = norm(dV) + 1e-20;
+	      real_t v2 = norm(dV) + 1e-10;
 
 	      vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
 
@@ -228,9 +228,11 @@ namespace exafmm {
         
         real_t min_step = HUGE;
         
+        std::vector<real_t> stepsize(system.n);
+          
         for(unsigned int i = 0; i < system.n; i++) {
             
-	  real_t timestep = 0;
+	   real_t timestep = 0;
               
 	  for(unsigned int j = 0; j < system.n; j++) {
             
@@ -245,7 +247,7 @@ namespace exafmm {
 	    real_t R2 = norm(dX);
 	    real_t R = sqrt(R2);
 	    real_t vdotdr2;
-	    real_t v2 = norm(dV) + 1e-20;
+	    real_t v2 = norm(dV) + 1e-10;
 
 	    vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
 
@@ -254,23 +256,30 @@ namespace exafmm {
 	    tau = (1 - dtau / 2)/tau;
 	    timestep += tau*tau*tau*tau;
 
+          
 	    tau = dt_param * R / sqrt(v2);
 	    dtau = tau * vdotdr2 * (1 + (system.part[i].mass + system.part[j].mass) / (v2 * R));
 	    tau = (1 - dtau / 2)/tau;
 	    timestep += tau*tau*tau*tau;
 	  }
-
-	  system.part[i].timestep = 1.0/sqrt(sqrt(timestep));
-                        
-	  if(min_step > system.part[i].timestep)
-	    min_step = system.part[i].timestep;
+        
+    stepsize[i] = 1.0/sqrt(sqrt(timestep));
+    system.part[i].timestep = stepsize[i];
 	}
-    
-	if(system.n < 20) {
-	  for(unsigned int i = 0; i < system.n; i++) {
-	    system.part[i].timestep = min_step;
-	  }
+          
+          
+    if(system.n > 2 && system.n < 20) {
+        
+        std::sort(stepsize.begin(), stepsize.end());
+        
+        real_t third_over_second_ratio = stepsize[2]/stepsize[1];
+        
+        if(third_over_second_ratio < 1e10) {
+            for(unsigned int i = 0; i < system.n; i++) {
+                system.part[i].timestep = stepsize[0];
+            }
         }
+    }
         
       }
     }

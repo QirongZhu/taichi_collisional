@@ -4,6 +4,7 @@
 #include "traverse_eager.h"
 #include "timestep.h"
 #include "timer.h"
+#include "universal_kepler_solver.h"
 
 #define MAXLEVEL 64
 
@@ -22,7 +23,6 @@ extern struct diagnostics *diag;
 
 #define SWAP(a,b,c) {c t;t=(a);(a)=(b);(b)=t;}
 #define ABS(X) (((X) >= 0) ? (X) :-(X))
-#define SIGN(X)   ((X>0)-(X<0))
 #define LOG(fmt, ...) {				\
     printf("%s:%d\t", __FILE__, __LINE__);	\
     printf(fmt, ## __VA_ARGS__);		\
@@ -43,7 +43,8 @@ void get_force_and_potential(Bodies & bodies);
 
 void split(double dt, struct sys s, struct sys *slow, struct sys *fast);
 
-void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradient);
+void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt,
+              double b, double c, bool isgradient);
 
 void kick(int clevel, struct sys sinks, struct sys sources, double dt,
 	  bool update_timestep, bool sinks_are_fast);
@@ -58,6 +59,58 @@ void evolve_split_naive(int clevel, struct sys sys1, struct sys sys2,
 
 void evolve_split_hold_dkd(int clevel, struct sys s, double stime,
 			   double etime, double dt, int calc_timestep);
+
+void integrate_sym_six(int clevel, struct sys total,
+                       double stime, double etime, double dt);
+
+void integrate_sym_eight(int clevel, struct sys total,
+			 double stime, double etime, double dt);
+
+void evolve_kepler(int clevel, struct sys s, double stime, double etime, double dt) {
+  if (s.n != 2) ENDRUN("two-body solver was called with sys.n=%u\n", s.n);
+  // translate coordinates original frame to 2-body frame
+  //printf("Kepler!\n");
+  int k;
+  double deltat = dt;
+  double dpos[3],dpos0[3];
+  Vec3d pos_cm;
+  double dvel[3],dvel0[3];
+  Vec3d vel_cm;
+  double m1 = s.part->mass;
+  double m2 = s.last->mass;
+  double mtot = s.part->mass+s.last->mass;
+  double f1 = m2 / mtot;
+  double f2 = m1 / mtot;
+  if(mtot>0.) {
+    dpos0[0] = s.part->pos.get_x()-s.last->pos.get_x();
+    dpos0[1] = s.part->pos.get_y()-s.last->pos.get_y();
+    dpos0[2] = s.part->pos.get_z()-s.last->pos.get_z();
+      
+    dvel0[0] = s.part->vel.get_x()-s.last->vel.get_x();
+    dvel0[1] = s.part->vel.get_y()-s.last->vel.get_y();
+    dvel0[2] = s.part->vel.get_z()-s.last->vel.get_z();
+
+    pos_cm = (m1*s.part->pos+m2*s.last->pos) / mtot;
+    vel_cm = (m1*s.part->vel+m2*s.last->vel) / mtot;
+    // evolve center of mass for dt
+    pos_cm += vel_cm*deltat;
+    // call kepler solver
+    int err=universal_kepler_solver(deltat,mtot, 0,
+                                    dpos0[0],dpos0[1],dpos0[2],
+                                    dvel0[0],dvel0[1],dvel0[2],
+                                    &dpos[0],&dpos[1],&dpos[2],
+                                    &dvel[0],&dvel[1],&dvel[2]);
+    if (err != 0) ENDRUN("kepler solver failure"); // failure of the kepler solver should be very rare now
+    // translate coordinates from 2-body frame to original frame
+    s.part->pos = pos_cm+f1*Vec3d(dpos[0], dpos[1], dpos[2]);
+    s.part->vel = vel_cm+f1*Vec3d(dvel[0], dvel[1], dvel[2]);
+    s.last->pos = pos_cm-f2*Vec3d(dpos[0], dpos[1], dpos[2]);
+    s.last->vel = vel_cm-f2*Vec3d(dvel[0], dvel[1], dvel[2]);
+  } else {
+    s.part->pos +=s.part->vel*dt;
+    s.last->pos +=s.last->vel*dt;
+  }
+}
 
 void kick(int clevel, struct sys s, double etime, double dt)
 {
@@ -153,9 +206,14 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
 #endif
 }
 
-void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradient)
+void kick_cpu(int clevel, struct sys s1, struct sys s2,
+                  double dt, double b, double c, bool isgradient)
 {
-  real_t fac = 3*dt*dt / 32;
+
+    real_t fac = 0;
+    
+    if(isgradient)
+        fac = 2.0 * c / b * dt * dt;
     
 #pragma omp parallel for if(s1.n > ncrit)
   for(unsigned int i = 0; i < s1.n; i++)
@@ -163,51 +221,45 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2, double dt, bool isgradie
       Vec3d acc(0.0, 0.0, 0.0);
 
       for(unsigned int j = 0; j < s2.n; j++)
-	{
-	  if(s1.part[i].id == s2.part[j].id)
-	    continue;
+    {
+      if(s1.part[i].id == s2.part[j].id)
+        continue;
         
-	  real_t dr3, dr2, dr;
-	  Vec3d dx;
+      real_t dr3, dr2, dr;
+
+      Vec3d dx = (s1.part[i].pos-s2.part[j].pos)+(s1.part[i].acc-s2.part[j].acc)*fac;
         
-	  if(isgradient){
-            dx = (s1.part[i].pos + s1.part[i].acc * fac)-
-	      (s2.part[j].pos + s2.part[j].acc * fac);
-	  }
-	  else{
-            dx = s1.part[i].pos-s2.part[j].pos;
-	  }
+      dr2  = dx[0]*dx[0] + dx[1]*dx[1] + dx[2]*dx[2];
+      dr   = sqrt(dr2);
+      dr3  = dr*dr2;
+      dr   = s2.part[j].mass / dr3;
+      acc -= dx*dr;
         
-	  dr2  = dx[0]*dx[0] + dx[1]*dx[1] + dx[2]*dx[2];
-	  dr   = sqrt(dr2);
-	  dr3  = dr*dr2;
-	  dr   = s2.part[j].mass / dr3;
-	  acc -= dx*dr;
-	    
-	}
-      s1.part[i].acc = acc;
-      s1.part[i].vel += dt*acc;
+    }
+    s1.part[i].acc  = acc;
+    COMPSUM(s1.part[i].vel, s1.part[i].vel_e, (b*dt)*s1.part[i].acc);
+
     }
 }
 
-void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
+void kick_self(int clevel, struct sys sinks, double dt,
+                   double b, double c, bool isgradient)
 {
-  real_t fac = 3*dt*dt / 32;
+    real_t fac = 0;
+
+    if(isgradient)
+        fac = 2.0 * c / b * dt * dt;
 
   bodies.resize(sinks.n);
 
   for(size_t i = 0; i < sinks.n; i++)
     {
-      if(isgradient)
-	bodies[i].X = sinks.part[i].pos + fac * sinks.part[i].acc;
-      else
-	bodies[i].X = sinks.part[i].pos;
-        
+      bodies[i].X     = sinks.part[i].pos + fac * sinks.part[i].acc;
       bodies[i].index = i;
       bodies[i].q = sinks.part[i].mass;
       bodies[i].issource = true;
       bodies[i].issink = true;
-      bodies[i].p = 0;
+      bodies[i].p    = 0;
       bodies[i].F[0] = 0;
       bodies[i].F[1] = 0;
       bodies[i].F[2] = 0;
@@ -228,32 +280,33 @@ void kick_self(int clevel, struct sys sinks, double dt, bool isgradient)
   if(dt > 0) {
     for(size_t i = 0; i < sinks.n; i++)
       {
-	sinks.part[i].pot = potential[i];
-	COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, dt*force[i]);
+    sinks.part[i].pot = potential[i];
+    COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, (b*dt)*force[i] );
       }
   }else{
     for(size_t i = 0; i < sinks.n; i++)
       {
-	sinks.part[i].pot = potential[i];
-	sinks.part[i].acc = force[i];
+    sinks.part[i].pot = potential[i];
+    sinks.part[i].acc = force[i];
       }
   }
     
 }
 
-void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool isgradient)
+void kick_sf(int clevel, struct sys sinks, struct sys sources,
+                 double dt, double b, double c, bool isgradient)
 {
-  real_t fac = 3*dt*dt / 32;
+
+    real_t fac =  0;
+    
+    if(isgradient)
+        fac = 2.0 * c / b * dt * dt;
 
   bodies.resize(sinks.n + sources.n);
 
   for(size_t i = 0; i < sinks.n; i++)
     {
-      if(isgradient)
-	bodies[i].X = sinks.part[i].pos + fac*sinks.part[i].acc;
-      else
-	bodies[i].X = sinks.part[i].pos;
-        
+      bodies[i].X = sinks.part[i].pos + fac * sinks.part[i].acc;
       bodies[i].index = i;
       bodies[i].q = sinks.part[i].mass;
       bodies[i].issource = false;
@@ -266,11 +319,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool i
 
   for(size_t i = sinks.n; i < sinks.n + sources.n; i++)
     {
-      if(isgradient)
-	bodies[i].X = sources.part[i-sinks.n].pos + fac * sources.part[i-sinks.n].acc;
-      else
-	bodies[i].X = sources.part[i-sinks.n].pos;
-        
+      bodies[i].X = sources.part[i-sinks.n].pos + fac * sources.part[i-sinks.n].acc;
       bodies[i].index = i;
       bodies[i].q = sources.part[i-sinks.n].mass;
       bodies[i].issource = true;
@@ -294,17 +343,17 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources, double dt, bool i
       potential[i] = bodies[b].p;
     }
         
-  if(dt > 0) {
+  if(b > 0) {
     for(size_t i = 0; i < sinks.n; i++)
       {
-	sinks.part[i].pot = potential[i];
-	COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, dt*force[i]);
+    sinks.part[i].pot = potential[i];
+    COMPSUM(sinks.part[i].vel, sinks.part[i].vel_e, (b*dt) * force[i] );
       }
   }else{
     for(size_t i = 0; i < sinks.n; i++)
       {
-	sinks.part[i].pot = potential[i];
-	sinks.part[i].acc = force[i];
+    sinks.part[i].pot = potential[i];
+    sinks.part[i].acc = force[i];
       }
   }
     
@@ -470,8 +519,10 @@ void split(double dt, struct sys s, struct sys *slow, struct sys *fast)
   dt = fabs(dt);
   while(1)
     {
-      if(i >= s.n)
-	ENDRUN("split error 1");
+      if(i >= s.n){
+	printf("i:%d s.n:%d dt=%g left=%g right=%g \n", i, s.n, dt, left->timestep, right->timestep);
+	ENDRUN("split error 1\n");
+      }
       i++;
       while(left->timestep < dt && left < right)
 	left++;
@@ -508,7 +559,7 @@ void split(double dt, struct sys s, struct sys *slow, struct sys *fast)
     }
 
   if(fast->n + slow->n != s.n)
-    ENDRUN("split error 2");
+    ENDRUN("split error 2\n");
 }
 
 void drift(int clevel, struct sys s, double etime, double dt)
@@ -536,43 +587,128 @@ void drift_naive(int clevel, struct sys s, double etime)
 void dkd(int clevel, struct sys slow, double stime, double etime, double dt) {
   drift(clevel, slow, stime+dt/2, dt/2);
   if(slow.n>ncrit){
-    kick_self(clevel, slow, dt, false);
+    kick_self(clevel, slow, dt, 1, 0, false);
   }
   else{
-    kick_cpu(clevel, slow, slow, dt, false);
+    kick_cpu(clevel, slow, slow, dt, 1, 0, false);
   }
   drift(clevel, slow, stime+dt, dt/2);
 }
 
-void kdk(int clevel, struct sys slow, double stime, double etime, double dt) {
-  if(slow.n>ncrit){
-    kick_self(clevel, slow, dt/6, false);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt/6, false);
-  }
+void kdk4(int clevel, struct sys slow, double stime, double etime, double dt) {
+  {
+      
+    if(slow.n>ncrit){
+      kick_self(clevel, slow, dt, 1.0/6, 0, false);
+    }
+    else{
+      kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
+    }
     
-  drift(clevel, slow, stime+dt/2, dt/2);
+    drift(clevel, slow, stime+dt/2, dt/2);
     
-  if(slow.n>ncrit){
-    kick_self(clevel, slow, 0*dt/3, false);
-    kick_self(clevel, slow, 2*dt/3, true);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, 0*dt, false);
-    kick_cpu(clevel, slow, slow, 2*dt/3, true);
-  }
-    
-  drift(clevel, slow, stime+dt, dt/2);
+    double b = 0.0, c = 0.0;
 
+    if(slow.n>ncrit){
+      kick_self(clevel, slow, dt, b, c, false);
+      b=2.0/3.0, c = 1.0/72.0;
+      kick_self(clevel, slow, dt, b, c, true);
+    }
+    else{
+      kick_cpu(clevel, slow, slow, dt, b, c, false);
+      b=2.0/3.0, c = 1.0/72.0;
+      kick_cpu(clevel, slow, slow, dt, b, c, true);
+    }
+    
+    drift(clevel, slow, stime+dt, dt/2);
+
+    if(slow.n>ncrit){
+      kick_self(clevel, slow, dt, 1.0/6, 0, false);
+    }
+    else{
+      kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
+    }
+      
+  }
+}
+
+/*needs more testing on this integrator...
+void kdk6(int clevel, struct sys slow, double stime, double etime, double dt) {
+      
+  double b, c;
+    
+  b = 0.3599508087941436;
+  c = 0;
+    
   if(slow.n>ncrit){
-    kick_self(clevel, slow, dt/6, false);
+    kick_self(clevel, slow, dt, b, 0, false);
   }
   else{
-    kick_cpu(clevel, slow, slow, dt/6, false);
+    kick_cpu(clevel, slow, slow, dt, b, 0, false);
   }
     
+  double a = 1.0798524263824309;
+    
+  drift(clevel, slow, stime+dt*a, dt*a);
+    
+  b = -0.1437147273026540;
+  c = -0.0139652542242388*0;
+    
+  if(slow.n>ncrit){
+    kick_self(clevel, slow, dt, 0, 0, false);
+    kick_self(clevel, slow, dt, b, c, true);
+  }
+  else{
+    kick_cpu(clevel, slow, slow, dt, 0, 0, false);
+    kick_cpu(clevel, slow, slow, dt, b, c, true);
+  }
+    
+  a  = -0.5798524263824309;
+    
+  drift(clevel, slow, etime, dt*a);
+    
+  b = 0.5675278370170208;
+  c = -0.0392470293823456*0;
+    
+  if(slow.n>ncrit){
+    kick_self(clevel, slow, dt, 0, 0, false);
+    kick_self(clevel, slow, dt, b, c, true);
+  }
+  else{
+    kick_cpu(clevel, slow, slow, dt, 0, 0, false);
+    kick_cpu(clevel, slow, slow, dt, b, c, true);
+  }
+        
+  a  = -0.5798524263824309;
+  drift(clevel, slow, etime, dt*a);
+    
+  b = -0.1437147273026540;
+  c = -0.0139652542242388*0;
+    
+  if(slow.n>ncrit){
+    kick_self(clevel, slow, dt, 0, 0, false);
+    kick_self(clevel, slow, dt, b, c, true);
+  }
+  else{
+    kick_cpu(clevel, slow, slow, dt, 0, 0, false);
+    kick_cpu(clevel, slow, slow, dt, b, c, true);
+  }
+            
+  a = 1.0798524263824309;
+      
+  drift(clevel, slow, etime, dt*a);
+    
+  b = 0.3599508087941436;
+  c = 0;
+    
+  if(slow.n>ncrit){
+    kick_self(clevel, slow, dt, b, 0, false);
+  }
+  else{
+    kick_cpu(clevel, slow, slow, dt, b, 0, false);
+  }
 }
+ */
 
 void evolve_split_hold_dkd(int clevel, struct sys total,
                            double stime, double etime,
@@ -606,20 +742,20 @@ void evolve_split_hold_dkd(int clevel, struct sys total,
   if(slow.n > 0) { //kicksf in between
     if(total.n > ncrit)
       {
-	kick_self(clevel, slow, dt, false);
+	kick_self(clevel, slow, dt, 1, 0, false);
 
 	if(fast.n > 0) {
-	  kick_sf(clevel, slow, fast, dt, false);
-	  kick_sf(clevel, fast, slow, dt, false);
+	  kick_sf(clevel, slow, fast, dt, 1, 0, false);
+	  kick_sf(clevel, fast, slow, dt, 1, 0, false);
 	}
       }
     else
       {
-	kick_cpu(clevel, slow, slow, dt, false);
+	kick_cpu(clevel, slow, slow, dt, 1, 0, false);
 
 	if(fast.n > 0) {
-	  kick_cpu(clevel, slow, fast, dt, false);
-	  kick_cpu(clevel, fast, slow, dt, false);
+	  kick_cpu(clevel, slow, fast, dt, 1, 0, false);
+	  kick_cpu(clevel, fast, slow, dt, 1, 0, false);
 	}
       }
   }
@@ -636,85 +772,107 @@ void evolve_frost(int clevel, struct sys total,
 		  double stime, double etime,
 		  double dt, bool calc_timestep)
 {
-  struct sys slow = zerosys, fast = zerosys;
-
-  if(calc_timestep) {
-    findtimesteps(total);
-  }
+  Vec3d pos_cm, vel_cm;
     
-  split(dt, total, &slow, &fast);
-
-  if(fast.n == 0)
-    {
-      diag->simtime += dt;
-#if DEBUG
-      printf("t=%g s=%d \n", diag->simtime, total.n);
-#endif
+  if(total.n == 2) { // change to total.n == 2 for kepler solver
+        
+    for(int i=0; i<2; i++) {
+      evolve_kepler(clevel, total, stime+i*dt/2, stime+(i+1)*dt/2, dt/2);
     }
-
-  fflush(stdout);
-
-  if(slow.n > 0 && fast.n > 0) { //kicksf in between
-    if(total.n > ncrit)
-      {
-	kick_sf(clevel, slow, fast, dt/6, false);
-	kick_sf(clevel, fast, slow, dt/6, false);
-      }
-    else
-      {
-	kick_cpu(clevel, slow, fast, dt/6, false);
-	kick_cpu(clevel, fast, slow, dt/6, false);
-      }
+        
+    return;
+                    
   }
+  // uncomment else out for kepler solver
+  else
+    {
     
-    
-  //hold for fast system
-  if(fast.n > 0)
-    evolve_frost(clevel+1, fast, stime, stime+dt/2, dt/2, false);
+      struct sys slow = zerosys, fast = zerosys;
 
-  //kdk for the slow system
-  if(slow.n > 0)
-    kdk(clevel, slow, stime, stime+dt/2, dt/2);
-    
-  if(slow.n > 0 && fast.n > 0) { //kicksf in between
-    if(total.n > ncrit)
-      {
-	kick_sf(clevel, slow, fast, 0, false);
-	kick_sf(clevel, fast, slow, 0, false);
-	kick_sf(clevel, slow, fast, 2*dt/3, true);
-	kick_sf(clevel, fast, slow, 2*dt/3, true);
+      if(calc_timestep) {
+	findtimesteps(total);
       }
-    else
-      {
-	kick_cpu(clevel, slow, fast, 0, false);
-	kick_cpu(clevel, fast, slow, 0, false);
+    
+      split(dt, total, &slow, &fast);
+
+      if(fast.n == 0)
+	{
+	  diag->simtime += dt;
+#if DEBUG
+	  printf("t=%g s=%d \n", diag->simtime, total.n);
+#endif
+	}
+
+      fflush(stdout);
+
+      if(slow.n > 0 && fast.n > 0) { //kicksf in between
+	if(total.n > ncrit)
+	  {
+        double b = 1.0/6.0;
+	    kick_sf(clevel, slow, fast, dt, b, 0, false);
+	    kick_sf(clevel, fast, slow, dt, b, 0, false);
+	  }
+	else
+	  {
+        double b = 1.0/6.0;
+	    kick_cpu(clevel, slow, fast, dt, b, 0, false);
+	    kick_cpu(clevel, fast, slow, dt, b, 0, false);
+	  }
+      }
+    
+    
+      //hold for fast system
+      if(fast.n > 0)
+	evolve_frost(clevel+1, fast, stime, stime+dt/2, dt/2, false);
+
+      //kdk for the slow system
+      if(slow.n > 0)
+	kdk4(clevel, slow, stime, stime+dt/2, dt/2);
+    
+      if(slow.n > 0 && fast.n > 0) { //kicksf in between
+	if(total.n > ncrit)
+	  {
+        double b = 0.0, c = 0.0;
+        kick_sf(clevel, slow, fast, dt, b, c, false);
+        kick_sf(clevel, fast, slow, dt, b, c, false);
+        b = 2.0/3.0, c = 1.0/72.0;
+	    kick_sf(clevel, slow, fast, dt, b, c, true);
+	    kick_sf(clevel, fast, slow, dt, b, c, true);
+	  }
+	else
+	  {
+        double b = 0.0, c = 0.0;
+	    kick_cpu(clevel, slow, fast, dt, b, c, false);
+	    kick_cpu(clevel, fast, slow, dt, b, c, false);
+        b = 2.0/3.0, c = 1.0/72.0;
+	    kick_cpu(clevel, slow, fast, dt, b, c, true);
+	    kick_cpu(clevel, fast, slow, dt, b, c, true);
+	  }
+      }
+    
+      //kdk for the slow system
+      if(slow.n > 0)
+	kdk4(clevel, slow, stime+dt/2, stime+dt, dt/2);
       
-	kick_cpu(clevel, slow, fast, 2*dt/3, true);
-	kick_cpu(clevel, fast, slow, 2*dt/3, true);
-      }
-  }
+      //hold for fast system
+      if(fast.n > 0)
+	evolve_frost(clevel+1, fast, stime+dt/2, etime, dt/2, true);
     
-  //kdk for the slow system
-  if(slow.n > 0)
-    kdk(clevel, slow, stime+dt/2, stime+dt, dt/2);
-
-  //hold for fast system
-  if(fast.n > 0)
-    evolve_frost(clevel+1, fast, stime+dt/2, etime, dt/2, true);
-    
-  if(slow.n > 0 && fast.n > 0) { //kicksf in between
-    if(total.n > ncrit)
-      {
-	kick_sf(clevel, slow, fast, dt/6, false);
-	kick_sf(clevel, fast, slow, dt/6, false);
+      if(slow.n > 0 && fast.n > 0) { //kicksf in between
+	if(total.n > ncrit)
+    {
+        double b = 1.0/6.0;
+	    kick_sf(clevel, slow, fast, dt, b, 0, false);
+	    kick_sf(clevel, fast, slow, dt, b, 0, false);
+	  }
+	else
+	  {
+        double b = 1.0/6.0;
+	    kick_cpu(clevel, slow, fast, dt, b, 0, false);
+	    kick_cpu(clevel, fast, slow, dt, b, 0, false);
+	  }
       }
-    else
-      {
-	kick_cpu(clevel, slow, fast, dt/6, false);
-	kick_cpu(clevel, fast, slow, dt/6, false);
-      }
-  }
-    
+    }
     
 }
 
