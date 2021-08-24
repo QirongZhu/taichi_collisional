@@ -205,8 +205,10 @@ namespace exafmm {
 
 	for(unsigned int i = 0; i < system.n; i++)
 	  {
-	    bodies[i].X = system.part[i].pos;
-	    bodies[i].V = system.part[i].vel;
+	    for(int d=0; d<3; d++) {
+	      bodies[i].X[d] = system.part[i].pos[d];
+	      bodies[i].V[d] = system.part[i].vel[d];
+	    }
 	    bodies[i].index = i;
 	    bodies[i].q = system.part[i].mass;
 	    bodies[i].timestep = 0;
@@ -232,7 +234,7 @@ namespace exafmm {
           
         for(unsigned int i = 0; i < system.n; i++) {
             
-	   real_t timestep = 0;
+	  real_t timestep = 0;
               
 	  for(unsigned int j = 0; j < system.n; j++) {
             
@@ -263,23 +265,23 @@ namespace exafmm {
 	    timestep += tau*tau*tau*tau;
 	  }
         
-    stepsize[i] = 1.0/sqrt(sqrt(timestep));
-    system.part[i].timestep = stepsize[i];
+	  stepsize[i] = 1.0/sqrt(sqrt(timestep));
+	  system.part[i].timestep = stepsize[i];
 	}
           
           
-    if(system.n > 2 && system.n < 20) {
+	if(system.n > 2 && system.n < 20) {
         
-        std::sort(stepsize.begin(), stepsize.end());
+	  std::sort(stepsize.begin(), stepsize.end());
         
-        real_t third_over_second_ratio = stepsize[2]/stepsize[1];
+	  real_t third_over_second_ratio = stepsize[2]/stepsize[1];
         
-        if(third_over_second_ratio < 1e2) {
+	  if(third_over_second_ratio < 1e2) {
             for(unsigned int i = 0; i < system.n; i++) {
-                system.part[i].timestep = stepsize[0];
+	      system.part[i].timestep = stepsize[0];
             }
-        }
-    }
+	  }
+	}
         
       }
     }

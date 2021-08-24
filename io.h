@@ -12,91 +12,91 @@ namespace exafmm
   {
 
     static char dummyString[200];
-      strncpy(dummyString, input_fname + 9, strlen(input_fname) - 5 - 9);
-      snapnum = atoi(dummyString);
+    strncpy(dummyString, input_fname + 9, strlen(input_fname) - 5 - 9);
+    snapnum = atoi(dummyString);
 
     herr_t status;
     hid_t file_id, hdf5_headergrp, hdf5_attribute, dataset;
 
-      file_id = H5Fopen(input_fname, H5F_ACC_RDONLY, H5P_DEFAULT);
-      hdf5_headergrp = H5Gopen(file_id, "/Header");
+    file_id = H5Fopen(input_fname, H5F_ACC_RDONLY, H5P_DEFAULT);
+    hdf5_headergrp = H5Gopen(file_id, "/Header");
 
-      hdf5_attribute = H5Aopen_name(hdf5_headergrp, "NumPartTotal");
-      H5Aread(hdf5_attribute, H5T_NATIVE_UINT, &numBodies);
-      H5Aclose(hdf5_attribute);
+    hdf5_attribute = H5Aopen_name(hdf5_headergrp, "NumPartTotal");
+    H5Aread(hdf5_attribute, H5T_NATIVE_UINT, &numBodies);
+    H5Aclose(hdf5_attribute);
 
-      hdf5_attribute = H5Aopen_name(hdf5_headergrp, "Time");
-      H5Aread(hdf5_attribute, H5T_NATIVE_DOUBLE, &t_now);
-      H5Aclose(hdf5_attribute);
+    hdf5_attribute = H5Aopen_name(hdf5_headergrp, "Time");
+    H5Aread(hdf5_attribute, H5T_NATIVE_DOUBLE, &t_now);
+    H5Aclose(hdf5_attribute);
 
-      H5Gclose(hdf5_headergrp);
+    H5Gclose(hdf5_headergrp);
 
-      mainsys.n = numBodies;
-      mainsys.part = (struct particle *) malloc(numBodies * sizeof(struct particle));
+    mainsys.n = numBodies;
+    mainsys.part = (struct particle *) malloc(numBodies * sizeof(struct particle));
 
-      mainsys.last = &mainsys.part[numBodies - 1];
+    mainsys.last = &mainsys.part[numBodies - 1];
 
     double *data = new double[numBodies];
 
-      dataset = H5Dopen(file_id, "/Posx/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Posx/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].pos += Vec3d(data[b], 0.0, 0.0);
+      mainsys.part[b].pos[0] = data[b];
 
-      dataset = H5Dopen(file_id, "/Posy/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Posy/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].pos += Vec3d(0.0, data[b], 0.0);
+      mainsys.part[b].pos[1] = data[b];
 
-      dataset = H5Dopen(file_id, "/Posz/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Posz/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].pos += Vec3d(0.0, 0.0, data[b]);
+      mainsys.part[b].pos[2] = data[b];
 
-      dataset = H5Dopen(file_id, "/Velx/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Velx/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].vel += Vec3d(data[b], 0.0, 0.0);
+      mainsys.part[b].vel[0] = data[b];
 
-      dataset = H5Dopen(file_id, "/Vely/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Vely/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].vel += Vec3d(0.0, data[b], 0.0);
+      mainsys.part[b].vel[1] = data[b];
 
-      dataset = H5Dopen(file_id, "/Velz/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Velz/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].vel += Vec3d(0.0, 0.0, data[b]);
+      mainsys.part[b].vel[2] = data[b];
 
-      dataset = H5Dopen(file_id, "/Mass/");
-      status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/Mass/");
+    status = H5Dread(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].mass = data[b];
+      mainsys.part[b].mass = data[b];
 
-      delete[] data;
+    delete[] data;
 
     unsigned int *id = new unsigned int[numBodies];
-      dataset = H5Dopen(file_id, "/ID/");
-      status = H5Dread(dataset, H5T_NATIVE_UINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, id);
-      status = H5Dclose(dataset);
+    dataset = H5Dopen(file_id, "/ID/");
+    status = H5Dread(dataset, H5T_NATIVE_UINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, id);
+    status = H5Dclose(dataset);
     for(unsigned int b = 0; b < numBodies; b++)
-        mainsys.part[b].id = id[b];
-      delete[] id;
+      mainsys.part[b].id = id[b];
+    delete[] id;
 
-      status = H5Fclose(file_id);
+    status = H5Fclose(file_id);
 
     if(status < 0)
-        printf("Reading snapshot error\n");
+      printf("Reading snapshot error\n");
 
-      printf("Reading IC done with %d particles \n", numBodies);
-      fflush(stdout);
+    printf("Reading IC done with %d particles \n", numBodies);
+    fflush(stdout);
   }
 
 
@@ -137,8 +137,8 @@ namespace exafmm
     std::iota(ids.begin(), ids.end(), 0);
     sort(ids.begin(), ids.end(),[&s] (unsigned int i1, unsigned int i2)
 	 {
-	 return s.part[i1].id < s.part[i2].id;}
-    );
+	   return s.part[i1].id < s.part[i2].id;}
+	 );
 
     memspace = H5Screate_simple(1, dims, NULL);
     space_id = H5Screate_simple(1, dims, NULL);

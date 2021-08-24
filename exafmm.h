@@ -6,14 +6,12 @@
 #include <vector>
 #include <omp.h>
 
-#include "vectorclass/special/vector3d.h"
-
-#define ENDRUN(fmt, ...) { \
-  printf("ENDRUN at %s:%d ", __FILE__, __LINE__);\
-  printf(fmt, ## __VA_ARGS__);\
-  fflush(stdout);\
-  exit(-1);\
-}
+#define ENDRUN(fmt, ...) {				\
+    printf("ENDRUN at %s:%d ", __FILE__, __LINE__);	\
+    printf(fmt, ## __VA_ARGS__);			\
+    fflush(stdout);					\
+    exit(-1);						\
+  }
 
 namespace exafmm
 {
@@ -24,11 +22,11 @@ namespace exafmm
   //! Structure of bodies
   struct Body
   {
-    Vec3d X;	     	//!< Position
+    real_t X[3];	     	//!< Position
     real_t q;			//!< Charge
     real_t F[3];		//!< Force
     real_t p;			//!< Potential
-    Vec3d V;
+    real_t V[3];
     real_t acc_old;
     unsigned int Morton[3];     //!< Morton IDs for tree build
     bool operator<(const Body &rhs) const {
@@ -76,13 +74,13 @@ namespace exafmm
 
   struct particle
   {
-    Vec3d pos;
-    Vec3d pos_e;
+    real_t pos[3];
+    real_t pos_e[3];
     real_t mass;
-    Vec3d vel;
-    Vec3d vel_e;
+    real_t vel[3];
+    real_t vel_e[3];
     real_t timestep;
-    Vec3d acc;
+    real_t acc[3];
     real_t pot;
     real_t postime;
     real_t acc_old;

@@ -34,25 +34,25 @@ int main(int argc, char **argv)
   initKernel();
   init_code();
   /*
-  printf("\n");
-  printf("This is Taichi_collisional v0.5. Taichi_collisional is a FMM based N-body code with individual timesteps.\n");
-  printf("Author: Qirong Zhu.\n");
-  printf("    ;:::      \n");
-  printf("   #+    :   \n");
-  printf("  @#       `  \n");
-  printf(" ###  ##    : \n");
-  printf(" ###  .,       \n");
-  printf(":###.        :\n");
-  printf("#####,       :\n");
-  printf("########+   :\n");
-  printf(":########@   :\n");
-  printf(" ######+###    \n");
-  printf(" #####   ## : \n");
-  printf("  @####:## `  \n");
-  printf("   ######.:   \n");
-  printf("     :##,     \n");
-  printf("\n");
-  fflush(stdout);
+    printf("\n");
+    printf("This is Taichi_collisional v0.5. Taichi_collisional is a FMM based N-body code with individual timesteps.\n");
+    printf("Author: Qirong Zhu.\n");
+    printf("    ;:::      \n");
+    printf("   #+    :   \n");
+    printf("  @#       `  \n");
+    printf(" ###  ##    : \n");
+    printf(" ###  .,       \n");
+    printf(":###.        :\n");
+    printf("#####,       :\n");
+    printf("########+   :\n");
+    printf(":########@   :\n");
+    printf(" ######+###    \n");
+    printf(" #####   ## : \n");
+    printf("  @####:## `  \n");
+    printf("   ######.:   \n");
+    printf("     :##,     \n");
+    printf("\n");
+    fflush(stdout);
   */
   if(argc != 6)
     {
@@ -118,16 +118,22 @@ int main(int argc, char **argv)
 	    {
 	      mainsys.part[b].id = b;
 	      mainsys.part[b].mass = array[b * 7+0];
-	      mainsys.part[b].pos = Vec3d(array[b * 7+1], array[b * 7+2], array[b * 7+3]);
-	      mainsys.part[b].vel = Vec3d(array[b * 7+4], array[b * 7+5], array[b * 7+6]);
+	      mainsys.part[b].pos[0] = array[b * 7+1];
+	      mainsys.part[b].pos[1] = array[b * 7+2];
+	      mainsys.part[b].pos[2] = array[b * 7+3];
+	      mainsys.part[b].vel[0] = array[b * 7+4];
+	      mainsys.part[b].vel[1] = array[b * 7+5];
+	      mainsys.part[b].vel[2] = array[b * 7+6];
 	    }
 	}
       else
 	{
 	  for(size_t b = 0; b < numBodies; b++)
 	    {
-	      mainsys.part[b].pos = Vec3d(PPP[b].Pos[0], PPP[b].Pos[1], PPP[b].Pos[2]);
-	      mainsys.part[b].vel = Vec3d(PPP[b].Vel[0], PPP[b].Vel[1], PPP[b].Vel[2]);
+	      for(int d=0; d<3; d++) {
+                mainsys.part[b].pos[d] = PPP[b].Pos[d];
+                mainsys.part[b].vel[d] = PPP[b].Vel[d];
+	      }
 	      mainsys.part[b].mass = PPP[b].Mass;
 	      mainsys.part[b].id = PPP[b].Id;
 	    }
@@ -139,11 +145,13 @@ int main(int argc, char **argv)
     }
 
   for(unsigned int b = 0; b < mainsys.n; b++) {
-    mainsys.part[b].pos_e = Vec3d(0,0,0);
-    mainsys.part[b].vel_e = Vec3d(0,0,0);
+    for(int d=0; d<3; d++) {
+      mainsys.part[b].pos_e[d] = 0.0;
+      mainsys.part[b].vel_e[d] = 0.0;
+    }
   }
 
-//  start("Intergration");
+  //  start("Intergration");
 
   if(t_end > 0)
     {
@@ -169,7 +177,7 @@ int main(int argc, char **argv)
 	  real_t pot = system_potential_energy(mainsys);
 	  system_center_of_mass(mainsys, cmpos, cmvel);
 	  printf("com=%18.12Lg %18.12Lg %18.12Lg tot=%18.12f \n",
-             cmpos[0], cmpos[1], cmpos[2], -pot+kinetic);
+		 cmpos[0], cmpos[1], cmpos[2], -pot+kinetic);
 	  fflush(stdout);
         
 	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);
@@ -178,7 +186,7 @@ int main(int argc, char **argv)
 	    do_evolve(mainsys, dt);
 
 #if 0
-        for(unsigned int b=0; b<mainsys.n; b++){
+	  for(unsigned int b=0; b<mainsys.n; b++){
             printf("%g %d %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg\n", t_now,
                    mainsys.part[b].id,
                    (long double)mainsys.part[b].pos[0],
@@ -188,14 +196,14 @@ int main(int argc, char **argv)
                    (long double)mainsys.part[b].vel[1],
                    (long double)mainsys.part[b].vel[2],
                    (long double)(-pot+kinetic));
-        }
+	  }
 #endif
         
 	  t_now += dt;
 	}
     }
 
-//  stop("Intergration");
+  //  stop("Intergration");
 
   return 0;
 }
