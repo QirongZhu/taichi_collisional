@@ -179,7 +179,7 @@ namespace exafmm {
 	{				// If Cj is leaf or Ci is larger
 	  for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	    {			// Loop over Ci's children
-#pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
+#pragma omp task if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
 	      timestepPass(ci, Cj);	//   Recursive call to target child cells
 	    }			//  End loop over Ci's children
 	}
