@@ -445,7 +445,7 @@ namespace exafmm
       }
   }
 
-  void P2M(Cell * C)integrator.h
+  void P2M(Cell * C)
   {
     real_t min_acc = 1e30;
 
