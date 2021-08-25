@@ -102,11 +102,15 @@ namespace exafmm
 
     if(f2 < thres && f1 < thres) 
       {
+	omp_set_lock(Ci->m2l_lock);
 	M2L_rotate(Ci, Cj);	//  M2L kernel
+	omp_unset_lock(Ci->m2l_lock);
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {				// Else if both cells are leafs
+	omp_set_lock(Ci->p2p_lock);
 	P2P(Ci, Cj);	//  P2P kernel
+	omp_unset_lock(Ci->p2p_lock);
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
@@ -135,11 +139,15 @@ namespace exafmm
 
     if(R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R))
       {				// If distance is far enough
+	omp_set_lock(Ci->m2l_lock);
 	M2L_rotate(Ci, Cj);	//  M2L kernel
+	omp_unset_lock(Ci->m2l_lock);
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {				// Else if both cells are leafs
+	omp_set_lock(Ci->p2p_lock);
 	P2P(Ci, Cj);	//  P2P kernel
+	omp_unset_lock(Ci->p2p_lock);
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
@@ -219,7 +227,9 @@ namespace exafmm
   {
     if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {// Else if both cells are leafs
+	omp_set_lock(Ci->p2p_lock);
 	P2P(Ci, Cj);
+	omp_unset_lock(Ci->p2p_lock);
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
@@ -299,7 +309,13 @@ namespace exafmm
   {
     Cells cells = buildTree(bodies);
             
+    std::vector<omp_lock_t> p2plocks;
+    p2plocks.resize(cells.size());
+    
     for (size_t i=0; i<cells.size(); i++) {
+      omp_init_lock(&(p2plocks[i]));
+      cells[i].p2p_lock = &(p2plocks[i]);
+      
       cells[i].has_sink = true;
     }
     

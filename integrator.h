@@ -426,6 +426,11 @@ void get_force_and_potential(Bodies & bodies)
 #endif
       Cells cells = buildTree(bodies);
 
+      std::vector<omp_lock_t> p2plocks;
+      p2plocks.resize(cells.size());
+      std::vector<omp_lock_t> m2llocks;
+      m2llocks.resize(cells.size());
+      
       //allocate memory for multipoles and local expansions
       std::vector<std::vector<real_t> > Multipoles((int)cells.size(),
 						   std::vector<real_t>(NTERM, 0) );
@@ -437,6 +442,12 @@ void get_force_and_potential(Bodies & bodies)
 					   std::vector<real_t>((EXPANSION+1), 0));
                 
       for(size_t i=0; i<cells.size(); i++){
+	omp_init_lock(&(p2plocks[i]));
+        cells[i].p2p_lock = &(p2plocks[i]);
+
+        omp_init_lock(&(m2llocks[i]));
+	cells[i].m2l_lock = &(m2llocks[i]);
+	
         cells[i].M = &Multipoles[i][0];
         cells[i].L = &Locals[i][0];
         cells[i].Pn= &Pns[i][0];

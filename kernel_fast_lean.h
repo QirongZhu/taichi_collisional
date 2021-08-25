@@ -341,13 +341,13 @@ namespace exafmm
 	    for(int i = 0; i < ni; i++) {
               if(Bi[i].issink)
 		{
-#pragma omp atomic
+		  //#pragma omp atomic
 		  Bi[i].p    += (real_t) Mi[i];
-#pragma omp atomic
+		  //#pragma omp atomic
 		  Bi[i].F[0] += (real_t) Xi[i];
-#pragma omp atomic
+		  //#pragma omp atomic
 		  Bi[i].F[1] += (real_t) Yi[i];
-#pragma omp atomic
+		  //#pragma omp atomic
 		  Bi[i].F[2] += (real_t) Zi[i];
                 }
             }
@@ -386,13 +386,13 @@ namespace exafmm
 		      }
 		    }
 		  }
-#pragma omp atomic
+		//#pragma omp atomic
 		Bi[i].p += (real_t) pot;
-#pragma omp atomic
+		//#pragma omp atomic
 		Bi[i].F[0] += (real_t) acc[0];
-#pragma omp atomic
+		//#pragma omp atomic
 		Bi[i].F[1] += (real_t) acc[1];
-#pragma omp atomic
+		//#pragma omp atomic
 		Bi[i].F[2] += (real_t) acc[2];
 	      }
 	  }
@@ -430,13 +430,13 @@ namespace exafmm
 	      }
 
 	    if(Bi[i].issink) {
-#pragma omp atomic
+	      //#pragma omp atomic
 	      Bi[i].p += pot;
-#pragma omp atomic
+	      //#pragma omp atomic
 	      Bi[i].F[0] -= acc[0];
-#pragma omp atomic
+	      //#pragma omp atomic
 	      Bi[i].F[1] -= acc[1];
-#pragma omp atomic
+	      //#pragma omp atomic
 	      Bi[i].F[2] -= acc[2];
 	    }
 	  }
@@ -445,7 +445,7 @@ namespace exafmm
       }
   }
 
-  void P2M(Cell * C)
+  void P2M(Cell * C)integrator.h
   {
     real_t min_acc = 1e30;
 
@@ -1046,7 +1046,7 @@ namespace exafmm
       {
 	for(int indice = 0; indice < NTERM; indice++)
 	  {
-#pragma omp atomic
+	    //#pragma omp atomic
 	    Ci->L[indice] += r_local_ci[indice];
 	  }
 	//#pragma omp atomic
@@ -1057,7 +1057,7 @@ namespace exafmm
       {
 	for(int indice = 0; indice < NTERM; indice++)
 	  {
-#pragma omp atomic
+	    //#pragma omp atomic
 	    Cj->L[indice] += r_local_cj[indice];
 	  }
 	//#pragma omp atomic
@@ -1115,7 +1115,7 @@ namespace exafmm
 
 	for(int indice = 0; indice < NTERM; indice++)
 	  {
-#pragma omp atomic
+	    //#pragma omp atomic
 	    Ci->L[indice] += r_local[indice];
 	  }
       }
