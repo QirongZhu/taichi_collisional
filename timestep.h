@@ -96,7 +96,7 @@ namespace exafmm {
       }
         
     for(int i = 0; i < ni; i++) {
-      //#pragma omp atomic
+#pragma omp atomic
       Bi[i].timestep += (real_t) Xi[i];
     }
     
@@ -142,7 +142,7 @@ namespace exafmm {
 	      }
 	    }
             
-	    //#pragma omp atomic
+#pragma omp atomic
 	    Bi[i].timestep += timestep;
       
 	  }
@@ -161,9 +161,7 @@ namespace exafmm {
       if(R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R)) { // If distance is far enough
         if((Ci->NBODY <= 4 && Cj->NCHILD == 0) ||
            (Cj->NBODY <= 4 && Ci->NCHILD == 0)) {
-          omp_set_lock(Ci->p2p_lock);	  
 	  timestepCore(Ci, Cj);
-	  omp_unset_lock(Ci->p2p_lock);
         }
         else{
 	  return;
@@ -171,15 +169,13 @@ namespace exafmm {
       }
       else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
 	{				// Else if both cells are leafs
-	  omp_set_lock(Ci->p2p_lock);
           timestepCore(Ci, Cj);
-	  omp_unset_lock(Ci->p2p_lock);
 	}
       else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
 	{				// If Cj is leaf or Ci is larger
 	  for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	    {			// Loop over Ci's children
-#pragma omp task if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
+#pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
 	      timestepPass(ci, Cj);	//   Recursive call to target child cells
 	    }			//  End loop over Ci's children
 	}
@@ -220,13 +216,7 @@ namespace exafmm {
 	  }
     
 	Cells cells = buildTree(bodies);
-	omp_lock_t locks[cells.size()];
-	
-	for (size_t i=0; i<cells.size(); i++) {
-          omp_init_lock(& (locks[i]) );
-          cells[i].p2p_lock = & (locks[i]);
-        }
-	
+
 	timestepPass(cells);
     
 #pragma omp parallel for if(bodies.size() > ncrit)

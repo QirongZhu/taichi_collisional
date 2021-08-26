@@ -61,12 +61,13 @@ namespace exafmm
     real_t X[3];		//!< Cell center
     real_t R;			//!< Cell radius
     real_t min_acc;
+    //real_t cell_mass;
 #if EXAFMM_LAZY
     std::vector<Cell*>listM2L;	//!< M2L interaction list
     std::vector<Cell*>listP2P;	//!< P2P interaction list
 #endif
-    omp_lock_t *p2p_lock;
-    omp_lock_t *m2l_lock;
+    //    omp_lock_t *p2p_lock;
+    //    omp_lock_t *m2l_lock;
     bool has_sink;
   };
   typedef std::vector < Cell > Cells;	//!< Vector of cells
