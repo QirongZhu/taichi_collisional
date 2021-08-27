@@ -148,7 +148,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
   bodies.clear();
   bodies.resize(sinks.n + sources1.n + sources2.n);
 
-  for(unsigned int i = 0; i < sinks.n; i++)
+  for(int i = 0; i < sinks.n; i++)
     {
       for(int d=0; d<3; d++){
 	bodies[i].X[d] = sinks.part[i].pos[d];
@@ -163,7 +163,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
 
   if(sources1.n > 0)
     {
-      for(unsigned int i = sinks.n; i < sinks.n + sources1.n; i++)
+      for(int i = sinks.n; i < sinks.n + sources1.n; i++)
 	{
 	  for(int d=0; d<3; d++){
 	    bodies[i].X[d] = sources1.part[i-sinks.n].pos[d];
@@ -179,7 +179,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
   if(sources2.n > 0)
     {
       unsigned int startindex = sinks.n + sources1.n;
-      for(unsigned int i = startindex; i < startindex + sources2.n; i++)
+      for(int i = startindex; i < startindex + sources2.n; i++)
 	{
 	  for(int d=0; d<3; d++){
 	    bodies[i].X[d] = sources2.part[i-startindex].pos[d];
@@ -209,7 +209,7 @@ void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sour
   real_t min_timesteps = HUGE;
     
   for(size_t b = 0; b < bodies.size(); b++) {
-    unsigned int i = bodies[b].index;
+    int i          = bodies[b].index;
     force[3*i+0]   = bodies[b].F[0];
     force[3*i+1]   = bodies[b].F[1];
     force[3*i+2]   = bodies[b].F[2];
@@ -239,7 +239,7 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2,
   if(isgradient)
     fac = 2.0 * c / b * dt * dt;
     
-#pragma omp parallel for if(s1.n > ncrit)
+#pragma omp parallel for if(s1.n > 20)
   for(unsigned int i = 0; i < s1.n; i++)
     {
       real_t acc[3] = {0.0, 0.0, 0.0};
@@ -252,17 +252,24 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2,
 	  real_t dr3, dr2, dr;
 
 	  real_t dx[3];
-	  for(int d=0; d<3; d++)
-	    dx[d] = (s1.part[i].pos[d]-s2.part[j].pos[d])+(s1.part[i].acc[d]-s2.part[j].acc[d])*fac;
+    
+    dx[0] = (s1.part[i].pos[0]-s2.part[j].pos[0])
+          + (s1.part[i].acc[0]-s2.part[j].acc[0]) * fac;
+        
+    dx[1] = (s1.part[i].pos[1]-s2.part[j].pos[1])
+          + (s1.part[i].acc[1]-s2.part[j].acc[1]) * fac;
+        
+    dx[2] = (s1.part[i].pos[2]-s2.part[j].pos[2])
+          + (s1.part[i].acc[2]-s2.part[j].acc[2]) * fac;
         
 	  dr2  = dx[0]*dx[0] + dx[1]*dx[1] + dx[2]*dx[2];
 	  dr   = sqrt(dr2);
 	  dr3  = dr*dr2;
 	  dr   = s2.part[j].mass / dr3;
         
-	  for(int d=0; d<3; d++)
-            acc[d] -= dx[d]*dr;
-        
+    acc[0] -= dx[0]*dr;
+    acc[1] -= dx[1]*dr;
+    acc[2] -= dx[2]*dr;
 	}
         
       for(int d=0; d<3; d++){
@@ -286,12 +293,12 @@ void kick_self(int clevel, struct sys sinks, double dt,
 
   bodies.resize(sinks.n);
 
-  for(size_t i = 0; i < sinks.n; i++)
+  for(int i = 0; i < sinks.n; i++)
     {
-      for(int d=0; d<3; d++){
-	bodies[i].X[d]     = sinks.part[i].pos[d] + fac * sinks.part[i].acc[d];
-      }
       bodies[i].index = i;
+      for(int d=0; d<3; d++){
+	bodies[i].X[d] = sinks.part[i].pos[d] + fac * sinks.part[i].acc[d];
+      }
       bodies[i].q = sinks.part[i].mass;
       bodies[i].issource = true;
       bodies[i].issink = true;
@@ -308,7 +315,7 @@ void kick_self(int clevel, struct sys sinks, double dt,
 
   for(size_t b = 0; b < bodies.size(); b++)
     {
-      unsigned int i = bodies[b].index;
+      int i          = bodies[b].index;
       force[3*i+0]   = bodies[b].F[0];
       force[3*i+1]   = bodies[b].F[1];
       force[3*i+2]   = bodies[b].F[2];
@@ -347,7 +354,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
 
   bodies.resize(sinks.n + sources.n);
 
-  for(size_t i = 0; i < sinks.n; i++)
+  for(int i = 0; i < sinks.n; i++)
     {
       for(int d=0; d<3; d++){
 	bodies[i].X[d] = sinks.part[i].pos[d] + fac * sinks.part[i].acc[d];
@@ -362,7 +369,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
       bodies[i].F[2] = 0;
     }
 
-  for(size_t i = sinks.n; i < sinks.n + sources.n; i++)
+  for(int i = sinks.n; i < sinks.n + sources.n; i++)
     {
       for(int d=0; d<3; d++){
 	bodies[i].X[d] = sources.part[i-sinks.n].pos[d] + fac * sources.part[i-sinks.n].acc[d];
@@ -383,9 +390,9 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
     
   std::vector<real_t> potential(bodies.size());
 
-  for(size_t b = 0; b < bodies.size(); b++)
+  for(int b = 0; b < bodies.size(); b++)
     {
-      unsigned int i = bodies[b].index;
+      int i          = bodies[b].index;
       force[3*i+0]   = bodies[b].F[0];
       force[3*i+1]   = bodies[b].F[1];
       force[3*i+2]   = bodies[b].F[2];
@@ -784,10 +791,9 @@ void evolve_split_hold_dkd(int clevel, struct sys total,
       diag->simtime += dt;
 #if DEBUG
       printf("t=%g s=%d \n", diag->simtime, total.n);
+      fflush(stdout);
 #endif
     }
-
-  fflush(stdout);
 
   //hold for fast system
   if(fast.n > 0)
@@ -856,10 +862,9 @@ void evolve_frost(int clevel, struct sys total,
 	  diag->simtime += dt;
 #if DEBUG
 	  printf("t=%g s=%d \n", diag->simtime, total.n);
+      fflush(stdout);
 #endif
 	}
-
-      fflush(stdout);
 
       if(slow.n > 0 && fast.n > 0) { //kicksf in between
 	if(total.n > ncrit)

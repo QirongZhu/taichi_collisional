@@ -112,7 +112,7 @@ namespace exafmm
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-#pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
+#pragma omp task untied if(ci->NBODY > 500)  //   Start OpenMP task if large enough task
 	    horizontalPassHigh(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }
@@ -145,7 +145,7 @@ namespace exafmm
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-#pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
+#pragma omp task untied if(ci->NBODY > 500)//   Start OpenMP task if large enough task
 	    horizontalPass(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }
@@ -191,7 +191,7 @@ namespace exafmm
       {
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {
-#pragma omp task untied if(ci->NBODY > 1000)
+#pragma omp task untied if(ci->NBODY > 500)
 	    horizontalPass_low(ci, Cj);
 	  }
       }
@@ -225,7 +225,7 @@ namespace exafmm
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-#pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
+#pragma omp task untied if(ci->NBODY > 500)	//   Start OpenMP task if large enough task
 	    directPass(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }

@@ -326,7 +326,7 @@ namespace exafmm
               
 		    pot += mj;
               
-		    mj = mj * (invR * invR);
+		    mj  = mj * (invR * invR);
 		    ax += dx * mj;
 		    ay += dy * mj;
 		    az += dz * mj;
