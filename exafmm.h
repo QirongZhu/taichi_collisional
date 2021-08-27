@@ -13,6 +13,43 @@
     exit(-1);						\
   }
 
+#include "./CGAL/Min_sphere_of_spheres_d.h"
+class Ball {
+private: // representation:
+  double c[3]; // center in Eucliden coordinates
+  double r;    // radius
+public: // constructor:
+  Ball() {}
+  template<typename InputIterator>
+  Ball(InputIterator from, double r) : r(r) {
+    c[0] = *from;
+    c[1] = *++from;
+    c[2] = *++from;
+  }
+public: // accessors:
+  double radius() const { return r; }
+public: // iterator to iterate over the 3 coordinates:
+  typedef const double *Coord_iterator;
+  Coord_iterator begin_center() const { return c; }
+};
+
+struct Ball_traits {
+  typedef Ball Sphere;
+  static const int D=3;
+  typedef double FT;
+  typedef CGAL::Default_algorithm Algorithm;
+  typedef CGAL::Tag_false Use_square_roots;
+  typedef Sphere::Coord_iterator Cartesian_const_iterator;
+  static Cartesian_const_iterator
+  center_cartesian_begin(const Ball& b) {
+    return b.begin_center();
+  }
+  static double radius(const Ball& b) {
+    return b.radius();
+  }
+};
+typedef CGAL::Min_sphere_of_spheres_d<Ball_traits> Minsphere;
+
 namespace exafmm
 {
   //! Basic type definitions
@@ -93,7 +130,7 @@ namespace exafmm
   int snapnum;
 
   real_t t_now;
-  real_t force_accuracy = 2.0e-08;
+  real_t force_accuracy = 2.0e-04;
 
   real_t G = 1;			//0.004300710573170628; 
   //gravitaional constant with Msun, pc and km/s.
