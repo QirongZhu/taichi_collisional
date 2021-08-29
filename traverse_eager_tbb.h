@@ -126,7 +126,7 @@ namespace exafmm
 	
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-	    if(ci->NBODY > 1000)
+	    if(ci->NBODY > USETBB)
 	      tg.run([=]
 		     {horizontalPassHigh(ci, Cj);}
 		     );
