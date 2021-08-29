@@ -83,7 +83,6 @@ namespace exafmm
     bool issource;
   };
   typedef std::vector < Body > Bodies;	//!< Vector of bodies
-  Bodies bodies;
 
   //! Structure of cells
   struct Cell
@@ -130,7 +129,7 @@ namespace exafmm
   int snapnum;
 
   real_t t_now;
-  real_t force_accuracy = 2.0e-04;
+  real_t force_accuracy = 2.0e-06;
 
   real_t G = 1;			//0.004300710573170628; 
   //gravitaional constant with Msun, pc and km/s.
@@ -152,7 +151,7 @@ namespace exafmm
   
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
-  int ncrit    = 320;		//!< Number of bodies per leaf cell
+  int ncrit    = 250;		//!< Number of bodies per leaf cell
   real_t theta = 0.5;		//!< Multipole acceptance criterion
   real_t dX[3], dV[3];		//!< Distance vector
 #pragma omp threadprivate(dX, dV)	//!< Make global variables private

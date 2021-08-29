@@ -13,7 +13,7 @@ namespace exafmm {
     int ni = Ci->NBODY;
     int nj = Cj->NBODY;
 
-#if SIMD_P2P
+#ifdef SIMD_P2P
     int nii = (ni + NSIMD - 1) & (-NSIMD);
         
 #ifndef DOUBLE_P2P
@@ -146,9 +146,10 @@ namespace exafmm {
 	    Bi[i].timestep += timestep;
       
 	  }
-    
+    }
+      
 #endif
-      }
+  }
 
     //! Recursive call to dual tree traversal for horizontal pass
     void timestepPass(Cell * Ci, Cell * Cj)
@@ -194,14 +195,12 @@ namespace exafmm {
 #pragma omp single nowait
       timestepPass(&icells[0], &icells[0]);
     }
-
     
     void findtimesteps(struct sys system) {
 
       if(system.n > ncrit/2) {
     
-	bodies.clear();
-	bodies.resize(system.n);
+     Bodies bodies(system.n);
 
 	for(unsigned int i = 0; i < system.n; i++)
 	  {
@@ -285,6 +284,5 @@ namespace exafmm {
         
       }
     }
-
 
   }

@@ -6,15 +6,23 @@
 #include <iterator>
 #include <cstring>
 
+#ifdef USETBB
+#include <tbb/tbb.h>
+#include <tbb/task_group.h>
+#include <tbb/task_arena.h>
+#endif
+
 #include "exafmm.h"
 #include "integrator.h"
-#include "kernel_fast_lean.h"
 #include "timer.h"
-#include "traverse_eager.h"
+//#ifndef USETBB
+//#include "traverse_eager.h"
+//#else
+//#include "traverse_eager_tbb.h"
+//#endif
 #include "load_gadget.h"
 #include "io.h"
 
-using namespace std;
 using namespace exafmm;
 
 void init_code(void);
@@ -95,7 +103,7 @@ int main(int argc, char **argv)
 
 	  std::ifstream fin(input_fname);
 	  array.resize(numBodies * 7);
-	  array.assign(std::istream_iterator < double >(fin), std::istream_iterator < double >());
+	  array.assign(std::istream_iterator<double>(fin), std::istream_iterator < double >());
 	  fin.close();
 	  //	  stop("reading bodies");
 	}
@@ -151,16 +159,16 @@ int main(int argc, char **argv)
     }
   }
 
-  //  start("Intergration");
+  start("Intergration");
 
   if(t_end > 0)
     {
       while(t_end > t_now)
 	{
-	  //	  start("Dummy Poisson test");
-	  kick_naive(0, mainsys, zerosys, zerosys, 0, false);
-	  //	  stop("Dummy Poisson test");
-	  //	  fflush(stdout);
+	  start("Dummy Poisson test");
+	  kick_self(0,  mainsys,  dt, 0, 0, false);
+	  stop("Dummy Poisson test");
+	  fflush(stdout);
       
 	  //temporarily use a high force accuracy for the
 	  //calculation of potential energies in the snapshots
@@ -180,7 +188,7 @@ int main(int argc, char **argv)
 		 cmpos[0], cmpos[1], cmpos[2], -pot+kinetic);
 	  fflush(stdout);
         
-	  kick_naive(0, mainsys, zerosys, zerosys, 0, true);
+      kick_self(0,  mainsys,  dt, 0, 0, false);
 
 	  if(mainsys.n > 0)
 	    do_evolve(mainsys, dt);
@@ -203,13 +211,19 @@ int main(int argc, char **argv)
 	}
     }
 
-  //  stop("Intergration");
+  stop("Intergration");
 
   return 0;
 }
 
 void init_code(void)
 {
+  
+#ifdef USETBB  
+  auto x = tbb::this_task_arena::max_concurrency();
+  std::cout <<" Using TBB with threads: "<< x << std::endl;
+#endif
+  
   diag = &global_diag;
   diag->simtime = 0.;
 }

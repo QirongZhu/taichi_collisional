@@ -1,7 +1,12 @@
 #pragma once
 
-#include "kernel_fast_lean.h"
-#include "traverse_eager.h"
+#ifdef USETBB
+#include "kernel_fast_omp.h"
+#include "traverse_eager_tbb.h"
+#else
+#include "kernel_fast_omp.h"
+#include "traverse_eager_omp.h"
+#endif
 #include "timestep.h"
 #include "timer.h"
 #include "universal.h"
@@ -137,99 +142,6 @@ void kick(int clevel, struct sys s, double etime, double dt)
     }
 }
 
-void kick_naive(int rung, struct sys sinks, struct sys sources1, struct sys sources2,
-		double dt, bool update_timestep)
-{
-
-#if DEBUG
-  start("Prepare");
-#endif
-
-  bodies.clear();
-  bodies.resize(sinks.n + sources1.n + sources2.n);
-
-  for(int i = 0; i < sinks.n; i++)
-    {
-      for(int d=0; d<3; d++){
-	bodies[i].X[d] = sinks.part[i].pos[d];
-	bodies[i].V[d] = sinks.part[i].vel[d];
-      }
-      bodies[i].index = i;
-      bodies[i].q = sinks.part[i].mass;
-      bodies[i].issink = true;
-      bodies[i].issource = true;
-      bodies[i].timestep = 0;
-    }
-
-  if(sources1.n > 0)
-    {
-      for(int i = sinks.n; i < sinks.n + sources1.n; i++)
-	{
-	  for(int d=0; d<3; d++){
-	    bodies[i].X[d] = sources1.part[i-sinks.n].pos[d];
-	    bodies[i].V[d] = sources1.part[i-sinks.n].vel[d];
-	  }
-	  bodies[i].index = i;
-	  bodies[i].q = sources1.part[i-sinks.n].mass;
-	  bodies[i].issource = true;
-	  bodies[i].issink = false;
-	}
-    }
-
-  if(sources2.n > 0)
-    {
-      unsigned int startindex = sinks.n + sources1.n;
-      for(int i = startindex; i < startindex + sources2.n; i++)
-	{
-	  for(int d=0; d<3; d++){
-	    bodies[i].X[d] = sources2.part[i-startindex].pos[d];
-	    bodies[i].V[d] = sources2.part[i-startindex].vel[d];
-	  }
-	  bodies[i].index = i;
-	  bodies[i].q = sources2.part[i-startindex].mass;
-	  bodies[i].issource = true;
-	  bodies[i].issink = false;
-	}
-    }
-
-#if DEBUG
-  stop("Prepare");
-#endif
-
-  get_force_and_potential(bodies);
-
-#if DEBUG
-  start("Getting result");
-#endif
-
-  std::vector<real_t> force(bodies.size()*3);
-  std::vector<real_t> potential(bodies.size());
-  std::vector<real_t> acc_old(bodies.size());
-
-  real_t min_timesteps = HUGE;
-    
-  for(size_t b = 0; b < bodies.size(); b++) {
-    int i          = bodies[b].index;
-    force[3*i+0]   = bodies[b].F[0];
-    force[3*i+1]   = bodies[b].F[1];
-    force[3*i+2]   = bodies[b].F[2];
-    potential[i] = bodies[b].p;
-    acc_old[i]   = bodies[b].acc_old;
-  }
-
-  for(size_t i = 0; i < sinks.n; i++) {
-    sinks.part[i].pot = potential[i];
-    sinks.part[i].vel[0] += force[3*i+0]* dt;
-    sinks.part[i].vel[1] += force[3*i+1]* dt;
-    sinks.part[i].vel[2] += force[3*i+2]* dt;
-    sinks.part[i].acc_old = acc_old[i];
-  }
-
-#if DEBUG
-  stop("Getting result");
-#endif
-}
-
 void kick_cpu(int clevel, struct sys s1, struct sys s2,
 	      double dt, double b, double c, bool isgradient)
 {
@@ -273,11 +185,8 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2,
 	}
         
       for(int d=0; d<3; d++){
-	s1.part[i].acc[d]  = acc[d];
-      }
-        
-      for(int d=0; d<3; d++) {
-        COMPSUM(s1.part[i].vel[d], s1.part[i].vel_e[d], (b*dt)*s1.part[i].acc[d]);
+          s1.part[i].acc[d]  = acc[d];
+          COMPSUM(s1.part[i].vel[d], s1.part[i].vel_e[d], (b*dt)*s1.part[i].acc[d]);
       }
 
     }
@@ -291,7 +200,7 @@ void kick_self(int clevel, struct sys sinks, double dt,
   if(isgradient)
     fac = 2.0 * c / b * dt * dt;
 
-  bodies.resize(sinks.n);
+  Bodies bodies(sinks.n);
 
   for(int i = 0; i < sinks.n; i++)
     {
@@ -352,7 +261,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
   if(isgradient)
     fac = 2.0 * c / b * dt * dt;
 
-  bodies.resize(sinks.n + sources.n);
+   Bodies bodies(sinks.n + sources.n);
 
   for(int i = 0; i < sinks.n; i++)
     {
@@ -487,12 +396,10 @@ void get_force_and_potential(Bodies & bodies)
 
       for(size_t i = 0; i < cells.size(); i++)
 	{
-	  for(int term = 0; term < NTERM; term++)
+	  for(int n = 0; n < NTERM; n++)
 	    {
-	      cells[i].L[term] = 0;
-	      cells[i].M[term] = 0;
-	      cells[i].min_acc = HUGE;
-	      cells[i].has_sink = false;
+	      cells[i].L[n] = 0;
+	      cells[i].M[n] = 0;
 	    }
 	}
 
@@ -503,6 +410,8 @@ void get_force_and_potential(Bodies & bodies)
 #if DEBUG
       stop("upwardPass");
 #endif
+        
+#pragma omp parallel for
       for(size_t i = 0; i < cells.size(); i++)
 	{
 	  for(int n = 0; n <= P; n++)
@@ -516,6 +425,7 @@ void get_force_and_potential(Bodies & bodies)
 	      cells[i].Pn[n] = sqrt(cells[i].Pn[n]);
 	    }
 	}
+        
 #if DEBUG
       start("horizontalPass");
 #endif
