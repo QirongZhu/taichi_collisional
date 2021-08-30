@@ -10,13 +10,14 @@ namespace exafmm
   {
     tbb::task_group tg;
 	  
-    for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
-      {				// Loop over child cells
-	tg.run([=]
-	       {
-		 upwardPass(Cj);		//  Recursive call for child cell
-	       });
-      }				// End loop over child cells
+    for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++) {
+      if(Cj->NBODY > ncrit) {
+	tg.run([=]{ upwardPass(Cj);});
+      }
+      else{
+	upwardPass(Cj);
+      }
+    }
 
     tg.wait();
     
@@ -25,12 +26,12 @@ namespace exafmm
 
     Ci->R = 1.732 * Ci->R;
 
-      if(Ci->NCHILD == 0){
+    if(Ci->NCHILD == 0){
       P2M(Ci);			// P2M kernel
-      }
-      else {
+    }
+    else {
       M2M(Ci);			// M2M kernel
-      }
+    }
   }
 
   //! Upward pass interface
@@ -41,12 +42,17 @@ namespace exafmm
 
   void upwardPass_low(Cell * Ci)
   {
-    for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
-      {
-#pragma omp task untied if(Cj->NBODY > 100)
+    tbb::task_group tg;
+      
+    for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++) {
+      if(Cj->NBODY > ncrit) {
+	tg.run([=] {upwardPass_low(Cj);});
+      }else{
 	upwardPass_low(Cj);
       }
-#pragma omp taskwait
+    }
+      
+    tg.wait();
 
     Ci->has_sink = true;
 
@@ -58,15 +64,11 @@ namespace exafmm
 
   void upwardPass_low(Cells & cells)
   {
-#pragma omp parallel
-#pragma omp single nowait
     upwardPass_low(&cells[0]);
   }
 
-
   void horizontalPassHigh(Cell * Ci, Cell * Cj)
   {
-
     if(!Ci->has_sink || std::abs(Cj->M[0]) < 1e-16) {
       return;
     }
@@ -84,7 +86,7 @@ namespace exafmm
     if(R2 > Ra_p_Rb * Ra_p_Rb)
       {
 	real_t R = sqrt(R2);
-	real_t Rp = R2;		//std::pow(R, P+2);
+	real_t Rp = R2;		    //std::pow(R, P+2);
 	real_t power_Ra = 1;	//std::pow(Ra, P);
 	real_t power_Rb = 1;	//std::pow(Rb, P);
 
@@ -126,10 +128,9 @@ namespace exafmm
 	
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-	    if(ci->NBODY > USETBB)
-	      tg.run([=]
-		     {horizontalPassHigh(ci, Cj);}
-		     );
+	    if(ci->NBODY > USETBB){
+	      tg.run([=]{horizontalPassHigh(ci, Cj);});
+	    }
 	    else{
 	      horizontalPassHigh(ci, Cj);
 	    }			    
@@ -142,7 +143,7 @@ namespace exafmm
       {				// Else if Ci is leaf or Cj is larger
 	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
 	  {			// Loop over Cj's children
-	    horizontalPassHigh(Ci, cj);	//   Recursive call to source child cells
+	    horizontalPassHigh(Ci, cj);	//Recursive call to source child cells
 	  }			//  End loop over Cj's children
       }				// End if for leafs and Ci Cj size
   }
@@ -151,7 +152,7 @@ namespace exafmm
   void horizontalPass(Cell * Ci, Cell * Cj)
   {
     for(int d = 0; d < 3; d++)
-      dX[d] = Ci->X[d] - Cj->X[d];	// Distance vector from source to target
+      dX[d] = Ci->X[d] - Cj->X[d];  // Distance vector from source to target
 
     real_t R2 = norm(dX) * theta * theta;	// Scalar distance squared
 
@@ -166,22 +167,25 @@ namespace exafmm
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
         
-        tbb::task_group tg;
+	tbb::task_group tg;
 
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-          if(ci->NBODY > 1000)
-              tg.run([=] {
-                  horizontalPass(ci, Cj);});
+	    if(ci->NBODY > USETBB){
+              tg.run([=] {horizontalPass(ci, Cj);});
+	    }else{
+              horizontalPass(ci, Cj);
+	    }
 	  }
           
-          tg.wait();
+	tg.wait();
+          
       }
     else
       {				// Else if Ci is leaf or Cj is larger
 	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
 	  {			// Loop over Cj's children
-	    horizontalPass(Ci, cj);	//   Recursive call to source child cells
+	    horizontalPass(Ci, cj); // Recursive call to source child cells
 	  }			//  End loop over Cj's children
       }				// End if for leafs and Ci Cj size
   }
@@ -189,10 +193,10 @@ namespace exafmm
   //! Horizontal pass interface
   void horizontalPass(Cells & icells, Cells & jcells, bool high_force)
   {
-      if(!high_force)
-	horizontalPass(&icells[0], &jcells[0]);	// Pass root cell to recursive call
-      else
-	horizontalPassHigh(&icells[0], &jcells[0]);	// Pass root cell to recursive call
+    if(!high_force)
+      horizontalPass(&icells[0], &jcells[0]);//Pass root cell to recursive call
+    else
+      horizontalPassHigh(&icells[0], &jcells[0]); 
   }
 
 
@@ -211,19 +215,28 @@ namespace exafmm
       {
 	P2P_low(Ci, Cj);
       }
-    else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
-      {
-	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
-	  {
-#pragma omp task untied if(ci->NBODY > 500)
-	    horizontalPass_low(ci, Cj);
-	  }
-      }
     else
       {
-	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
+	if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
 	  {
-	    horizontalPass_low(Ci, cj);
+	    tbb::task_group tg;
+
+	    for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
+	      {
+		if(ci->NBODY > USETBB) {
+          tg.run([=] {horizontalPass_low(ci, Cj);});
+		}
+		else
+		  horizontalPass_low(ci, Cj);
+	      }
+	    tg.wait();
+	  }
+	else
+	  {
+	    for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
+	      {
+		horizontalPass_low(Ci, cj);
+	      }
 	  }
       }
   }
@@ -231,47 +244,40 @@ namespace exafmm
   //! Horizontal pass interface
   void horizontalPass_low(Cells & icells, Cells & jcells)
   {
-#pragma omp parallel
-#pragma omp single nowait
-    {
-      horizontalPass_low(&icells[0], &jcells[0]);
-    }
+    horizontalPass_low(&icells[0], &jcells[0]);
   }
 
 
   void directPass(Cell * Ci, Cell * Cj)
   {
-    if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
-      {// Else if both cells are leafs
-	P2P(Ci, Cj);
-      }
-    else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
-      {				// If Cj is leaf or Ci is larger
+    if(Ci->NCHILD == 0 && Cj->NCHILD == 0) {// Else if both cells are leafs
+      P2P(Ci, Cj);
+    }
+    else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0)) {// If Cj is leaf or Ci is larger
 
-    tbb::task_group tg;
+      tbb::task_group tg;
 
-	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
-	  {			// Loop over Ci's children
-          tg.run([=]{
-	    directPass(ci, Cj);	//   Recursive call to target child cells
-          });
-	  }			//  End loop over Ci's children
-          
-    tg.wait();
-          
+      for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++) {// Loop over Ci's children
+	if(ci->NBODY > ncrit/4) {
+	  tg.run([=]{directPass(ci, Cj);});
+	}
+	else{
+	  directPass(ci, Cj);
+	}
       }
-    else
-      {				// Else if Ci is leaf or Cj is larger
-	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
-	  {			// Loop over Cj's children
-	    directPass(Ci, cj);	//   Recursive call to source child cells
-	  }			//  End loop over Cj's children
-      }				// End if for leafs and Ci Cj size
+          
+      tg.wait();
+          
+    }
+    else {// Else if Ci is leaf or Cj is larger
+      for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++) {// Loop over Cj's children
+	directPass(Ci, cj);	//   Recursive call to source child cells
+      }			//  End loop over Cj's children
+    }				// End if for leafs and Ci Cj size
   }
 
   //! direct pass interface
-  void directPass(Cells & icells, Cells & jcells)
-  {
+  void directPass(Cells & icells, Cells & jcells) {
     directPass(&icells[0], &jcells[0]);	// Pass root cell to recursive call
   }
 
@@ -282,19 +288,23 @@ namespace exafmm
       L2P_low(Cj);		// L2P kernel
     else
       L2L_low(Cj);
-    for(Cell * Ci = Cj->CHILD; Ci != Cj->CHILD + Cj->NCHILD; Ci++)
-      {
-#pragma omp task untied if(Ci->NBODY > 100)
+
+    tbb::task_group tg;
+        
+    for(Cell * Ci = Cj->CHILD; Ci != Cj->CHILD + Cj->NCHILD; Ci++) {
+      if(Ci->NBODY > ncrit) {
+	tg.run([=]{ downwardPass_low(Ci);});
+      }else{
 	downwardPass_low(Ci);
       }
-#pragma omp taskwait
+    }
+
+    tg.wait();
+        
   }
 
   //! Downward pass interface
-  void downwardPass_low(Cells & cells)
-  {
-#pragma omp parallel
-#pragma omp single nowait
+  void downwardPass_low(Cells & cells) {
     downwardPass_low(&cells[0]);
   }
 
@@ -309,8 +319,12 @@ namespace exafmm
     tbb::task_group tg;
     
     for(Cell * Ci = Cj->CHILD; Ci != Cj->CHILD + Cj->NCHILD; Ci++) {// Loop over child cells
-        tg.run([=]{ downwardPass(Ci);});
-      }				// End loop over chlid cells
+      if(Ci->NBODY > ncrit) {
+	tg.run([=]{ downwardPass(Ci);});
+      }else{
+	downwardPass(Ci);
+      }
+    }				// End loop over chlid cells
     tg.wait();
   }
 

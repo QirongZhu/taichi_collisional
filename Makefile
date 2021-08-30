@@ -8,7 +8,7 @@ OPT += -DSIMD_P2P
 OPT += -DEXPANSION=16
 OPT += -DMINIBALL
 OPT += -DDEBUG
-OPT += -DUSETBB=500
+OPT += -DUSETBB=250
 
 CXX = g++-11 -g -funroll-loops -Ofast -march=native -fopenmp -fcx-limited-range  -mavx -mfma #-ltcmalloc #-mavx512f
 

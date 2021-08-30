@@ -1184,7 +1184,6 @@ void make_Gnm_conj(real_t*dX, complex_t*Gnm, int Order)
 
     for(int indice = 0; indice < 9; indice++)
       {
-#pragma omp atomic
 	Ci->L[indice] += r_local[indice];
       }
   }
@@ -1242,7 +1241,6 @@ void make_Gnm_conj(real_t*dX, complex_t*Gnm, int Order)
 
 	for(int k = 0; (k < NSIMD) && (i+k < ni); k++)
 	  {
-#pragma omp atomic
 	    Bi[i+k].acc_old += (real_t) factor1[k];
 	  }
       }
@@ -1261,8 +1259,6 @@ void make_Gnm_conj(real_t*dX, complex_t*Gnm, int Order)
 	    if(R2 > 0)
 	      invR2 = Bj[j].q / R2;
 	  }
-
-#pragma omp atomic
 	Bi[i].acc_old += invR2;
       }
 #endif
@@ -1309,7 +1305,6 @@ void make_Gnm_conj(real_t*dX, complex_t*Gnm, int Order)
 
 	for(int indice = 0; indice < 9; indice++)
 	  {
-#pragma omp atomic
 	    Cj->L[indice] += r_local[indice];
 	  }
 

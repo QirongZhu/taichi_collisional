@@ -15,11 +15,6 @@
 #include "exafmm.h"
 #include "integrator.h"
 #include "timer.h"
-//#ifndef USETBB
-//#include "traverse_eager.h"
-//#else
-//#include "traverse_eager_tbb.h"
-//#endif
 #include "load_gadget.h"
 #include "io.h"
 
@@ -218,10 +213,13 @@ int main(int argc, char **argv)
 
 void init_code(void)
 {
-  
-#ifdef USETBB  
-  auto x = tbb::this_task_arena::max_concurrency();
-  std::cout <<" Using TBB with threads: "<< x << std::endl;
+  auto max_threads = omp_get_max_threads();
+    std::cout <<" OpenMP max_threads: "<< max_threads << std::endl;
+    
+#ifdef USETBB
+    //tbb::task_arena limited(max_threads);
+    auto x = tbb::this_task_arena::max_concurrency();
+    std::cout <<" Using TBB with threads: "<< x << std::endl;
 #endif
   
   diag = &global_diag;

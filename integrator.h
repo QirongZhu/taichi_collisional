@@ -296,7 +296,7 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
   get_force_and_potential(bodies);
         
   std::vector<real_t> force(bodies.size()*3);
-    
+  
   std::vector<real_t> potential(bodies.size());
 
   for(int b = 0; b < bodies.size(); b++)
@@ -343,8 +343,8 @@ void get_force_and_potential(Bodies & bodies)
       Cells cells = buildTree(bodies);
 
       //allocate memory for multipoles and local expansions
-      std::vector<std::vector<real_t> > Multipoles((int)cells.size(),
-						   std::vector<real_t>(NTERM, 0) );
+      std::vector<std::vector<real_t>> Multipoles((int)cells.size(),
+                                std::vector<real_t>(NTERM, 0) );
 
       std::vector<std::vector<real_t>> Locals((int)cells.size(),
 					      std::vector<real_t>(NTERM, 0) );
