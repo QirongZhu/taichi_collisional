@@ -203,38 +203,6 @@ namespace omp_par
 
 namespace exafmm
 {
-  void mergeSortRecursive(Bodies & bodies, size_t left, size_t right)
-  {
-    if(left < right)
-      {
-	if(right - left >= 32)
-	  {
-	    size_t mid = left + (right - left) / 2;
-#pragma omp taskgroup
-	    {
-#pragma omp task shared(bodies) untied if(right-left >= (1<<12))
-	      mergeSortRecursive(bodies, left, mid);
-#pragma omp task shared(bodies) untied if(right-left >= (1<<12))
-	      mergeSortRecursive(bodies, mid + 1, right);
-#pragma omp taskyield
-	    }
-	    inplace_merge(bodies.begin() + left, bodies.begin() + mid + 1, bodies.begin() + right + 1);
-	  }
-	else
-	  {
-	    sort(bodies.begin() + left, bodies.begin() + right + 1);
-	  }
-      }
-  }
-
-  void mergeSort(Bodies & bodies)
-  {
-#pragma omp parallel
-#pragma omp single
-    mergeSortRecursive(bodies, 0, bodies.size() - 1);
-  }
-
-
   //! Get bounding box of bodies
   void getBounds(Bodies & bodies, real_t & R0, real_t * X0)
   {
@@ -439,7 +407,7 @@ namespace exafmm
     real_t R0, X0[3];		// Radius and center root cell
     getBounds(bodies, R0, X0);	// Get bounding box from bodies
 
-      /*
+     // /*
     unsigned int max_int = ((unsigned int) 1) << (MAX_DEPTH);
 
 #pragma omp parallel for
@@ -460,15 +428,15 @@ namespace exafmm
       std::sort(bodies.begin(), bodies.end());
     else
       omp_par::merge_sort(&bodies[0], &bodies[bodies.size()]);
-*/
+//*/
       
-    Bodies buffer = bodies;   // Copy bodies to buffer
+    //Bodies buffer = bodies;   // Copy bodies to buffer
     Cells cells(1);		      // Vector of cells
     cells.reserve(bodies.size()/4);	// Reserve memory space
       
-    buildCells(&bodies[0], &buffer[0], 0, bodies.size(), &cells[0], cells, X0, R0);   // Build tree recursively
+    //buildCells(&bodies[0], &buffer[0], 0, bodies.size(), &cells[0], cells, X0, R0);   // Build tree recursively
 
-    //buildCellsSorted(&bodies[0], 0, bodies.size(), &cells[0], cells, X0, R0);	// Build tree from sorted bodies
+    buildCellsSorted(&bodies[0], 0, bodies.size(), &cells[0], cells, X0, R0);	// Build tree from sorted bodies
     return cells;		// Return pointer of root cell
   }
 }

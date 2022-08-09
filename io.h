@@ -133,7 +133,7 @@ namespace exafmm
     H5Sclose(hdf5_dataspace);
     //Header writing done 
 
-    std::vector < unsigned int >ids(s.n);
+	std::vector < unsigned int >ids(s.n);
     std::iota(ids.begin(), ids.end(), 0);
     sort(ids.begin(), ids.end(),[&s] (unsigned int i1, unsigned int i2)
 	 {

@@ -65,8 +65,8 @@ void load_snapshot(char *fname, int files)
 	  exit(0);
 	}
 
-//      printf("reading `%s' ...\n", buf);
-//      fflush(stdout);
+      //      printf("reading `%s' ...\n", buf);
+      //      fflush(stdout);
 
       fread(&dummy, sizeof(dummy), 1, fd);
       fread(&header1, sizeof(header1), 1, fd);
@@ -158,17 +158,17 @@ void load_snapshot(char *fname, int files)
  * particle data.  */
 void allocate_gadget_memory(void)
 {
-//  printf("allocating memory for N=%d ...\n", NumPart);
+  //  printf("allocating memory for N=%d ...\n", NumPart);
   if(!(PPP = (particle_data *) malloc(NumPart * sizeof(struct particle_data))))
     {
       fprintf(stderr, "failed to allocate memory.\n");
       exit(0);
     }
-//  printf("allocating memory...done\n");
+  //  printf("allocating memory...done\n");
 }
 
 void free_gadget_memory(void)
 {
   free(PPP);
-//  printf("freeing memory...done\n");
+  //  printf("freeing memory...done\n");
 }

@@ -10,7 +10,7 @@ namespace exafmm
   {
     for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
       {				// Loop over child cells
-	#pragma omp task untied if(Cj->NBODY > 100)	//  Start OpenMP task if large enough task
+	#pragma omp task untied //  Start OpenMP task if large enough task
 		 upwardPass(Cj);		//  Recursive call for child cell
       }				// End loop over child cells
     #pragma omp taskwait		// Synchronize OpenMP tasks
@@ -40,7 +40,7 @@ namespace exafmm
   {
     for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
       {
-#pragma omp task untied if(Cj->NBODY > 100)
+#pragma omp task untied
 	upwardPass_low(Cj);
       }
 #pragma omp taskwait
@@ -64,7 +64,7 @@ namespace exafmm
   void horizontalPassHigh(Cell * Ci, Cell * Cj)
   {
 
-    if(!Ci->has_sink || std::abs(Cj->M[0]) < 1e-16) {
+    if(!Ci->has_sink || Cj->M[0] < 1e-16) {
       return;
     }
       
@@ -81,7 +81,7 @@ namespace exafmm
     if(R2 > Ra_p_Rb * Ra_p_Rb)
       {
 	real_t R = sqrt(R2);
-	real_t Rp = R;		//std::pow(R, P+2);
+	real_t Rp = R;		    //std::pow(R, P+2);
 	real_t power_Ra = 1;	//std::pow(Ra, P);
 	real_t power_Rb = 1;	//std::pow(Rb, P);
 
@@ -90,7 +90,7 @@ namespace exafmm
 	for(int k = 0; k <= P; k++)
 	  {
 	    real_t fac = combinator_coef[P][k];
-	    Eab += (Ci->Pn[P-k] * power_Rb * fac);
+	    Eab += (Ci->Pn[P - k] * power_Rb * fac);
 	    Eba += (Cj->Pn[P - k] * power_Ra * fac);
 	    power_Ra *= Ra;
 	    power_Rb *= Rb;
@@ -204,7 +204,7 @@ namespace exafmm
       {
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {
-#pragma omp task untied if(ci->NBODY > 500)
+#pragma omp task untied if(ci->NBODY > 1000)
 	    horizontalPass_low(ci, Cj);
 	  }
       }
@@ -239,7 +239,7 @@ namespace exafmm
       {				// If Cj is leaf or Ci is larger
 	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
 	  {			// Loop over Ci's children
-#pragma omp task untied if(ci->NBODY > 500)	//   Start OpenMP task if large enough task
+#pragma omp task untied if(ci->NBODY > 1000)	//   Start OpenMP task if large enough task
 	    directPass(ci, Cj);	//   Recursive call to target child cells
 	  }			//  End loop over Ci's children
       }
@@ -271,7 +271,7 @@ namespace exafmm
       L2L_low(Cj);
     for(Cell * Ci = Cj->CHILD; Ci != Cj->CHILD + Cj->NCHILD; Ci++)
       {
-#pragma omp task untied if(Ci->NBODY > 100)
+#pragma omp task untied
 	downwardPass_low(Ci);
       }
 #pragma omp taskwait
@@ -295,7 +295,7 @@ namespace exafmm
     
     for(Cell * Ci = Cj->CHILD; Ci != Cj->CHILD + Cj->NCHILD; Ci++)
       {				// Loop over child cells
-	#pragma omp task untied if(Ci->NBODY > 100)	//  Start OpenMP task if large enough task
+	#pragma omp task untied //  Start OpenMP task if large enough task
 	    downwardPass(Ci);//  Recursive call for child cell
       }				// End loop over chlid cells
     #pragma omp taskwait		// Synchronize OpenMP tasks

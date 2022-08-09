@@ -1,18 +1,14 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-
-#include "kernel_fast_lean.h"
-#include "traverse_eager.h"
-
+#include "kernel_fast_omp.h"
+#include "traverse_eager_omp.h"
 #include "timestep.h"
 #include "timer.h"
 #include "universal.h"
 
 #define MAXLEVEL 64
-
 #define DIRECT_THRES 20000L
+
 
 using namespace exafmm;
 
@@ -26,15 +22,6 @@ struct diagnostics {
 extern struct diagnostics global_diag;
 extern struct diagnostics *diag;
 #pragma omp threadprivate(diag)
-
-
-#define ENDRUN(fmt, ...) {                \
-    printf("ENDRUN at %s:%d ", __FILE__, __LINE__);    \
-    printf(fmt, ## __VA_ARGS__);            \
-    fflush(stdout);                    \
-    exit(-1);                        \
-  }
-
 
 #define SWAP(a,b,c) {c t;t=(a);(a)=(b);(b)=t;}
 #define ABS(X) (((X) >= 0) ? (X) :-(X))
@@ -54,7 +41,7 @@ extern struct diagnostics *diag;
 
 #define COMPSUM(s,e,ds){real_t a=s;e+=ds;s=(a+e);e+=(a-s);}
 
-void get_force_and_potential(Bodies & bodies, bool do_direct);
+void get_force_and_potential(Bodies & bodies, bool);
 
 void split(double dt, struct sys s, struct sys *slow, struct sys *fast);
 
@@ -155,10 +142,6 @@ void kick(int clevel, struct sys s, double etime, double dt)
 void kick_cpu(int clevel, struct sys s1, struct sys s2,
 	      double dt, double b, double c, bool isgradient)
 {
-    
-  printf("%d %d ", s1.n, s2.n);
-    
-  start("kdk4");
 
   real_t fac = 0;
     
@@ -179,41 +162,41 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2,
 
 	  real_t dx[3];
     
-	  dx[0] = (s1.part[i].pos[0]-s2.part[j].pos[0])
-	    + (s1.part[i].acc[0]-s2.part[j].acc[0]) * fac;
+    dx[0] = (s1.part[i].pos[0]-s2.part[j].pos[0])
+          + (s1.part[i].acc[0]-s2.part[j].acc[0]) * fac;
         
-	  dx[1] = (s1.part[i].pos[1]-s2.part[j].pos[1])
-	    + (s1.part[i].acc[1]-s2.part[j].acc[1]) * fac;
+    dx[1] = (s1.part[i].pos[1]-s2.part[j].pos[1])
+          + (s1.part[i].acc[1]-s2.part[j].acc[1]) * fac;
         
-	  dx[2] = (s1.part[i].pos[2]-s2.part[j].pos[2])
-	    + (s1.part[i].acc[2]-s2.part[j].acc[2]) * fac;
+    dx[2] = (s1.part[i].pos[2]-s2.part[j].pos[2])
+          + (s1.part[i].acc[2]-s2.part[j].acc[2]) * fac;
         
 	  dr2  = dx[0]*dx[0] + dx[1]*dx[1] + dx[2]*dx[2];
 	  dr   = sqrt(dr2);
 	  dr3  = dr*dr2;
 	  dr   = s2.part[j].mass / dr3;
         
-	  acc[0] -= dx[0]*dr;
-	  acc[1] -= dx[1]*dr;
-	  acc[2] -= dx[2]*dr;
+    acc[0] -= dx[0]*dr;
+    acc[1] -= dx[1]*dr;
+    acc[2] -= dx[2]*dr;
 	}
         
       for(int d=0; d<3; d++){
 	s1.part[i].acc[d]  = acc[d];
-	COMPSUM(s1.part[i].vel[d], s1.part[i].vel_e[d], (b*dt)*s1.part[i].acc[d]);
+      }
+        
+      for(int d=0; d<3; d++) {
+        COMPSUM(s1.part[i].vel[d], s1.part[i].vel_e[d], (b*dt)*s1.part[i].acc[d]);
       }
 
     }
-    
-  stop("kdk4");
-    
 }
 
 void kick_self(int clevel, struct sys sinks, double dt,
 	       double b, double c, bool isgradient)
 {
-  printf("%d %d ", sinks.n, sinks.n);
-  start("kdk4");
+    printf("%d %d ", sinks.n, sinks.n);
+    start("kdk4");
     
   real_t fac = 0;
 
@@ -237,10 +220,10 @@ void kick_self(int clevel, struct sys sinks, double dt,
       bodies[i].F[2] = 0;
     }
 
-  bool do_direct = (bodies.size() < DIRECT_THRES);
+    bool do_direct = (bodies.size() < DIRECT_THRES);
+      
+    get_force_and_potential(bodies, do_direct);
     
-  get_force_and_potential(bodies, do_direct);
-        
   std::vector<real_t> force(bodies.size()*3);
   std::vector<real_t> potential(bodies.size());
 
@@ -255,7 +238,6 @@ void kick_self(int clevel, struct sys sinks, double dt,
     }
         
   if(dt > 0) {
-#pragma omp parallel for
     for(size_t i = 0; i < sinks.n; i++)
       {
 	sinks.part[i].pot = potential[i];
@@ -264,7 +246,6 @@ void kick_self(int clevel, struct sys sinks, double dt,
 	}
       }
   }else{
-#pragma omp parallel for
     for(size_t i = 0; i < sinks.n; i++)
       {
 	sinks.part[i].pot = potential[i];
@@ -274,16 +255,17 @@ void kick_self(int clevel, struct sys sinks, double dt,
       }
   }
     
-  stop("kdk4");
+    stop("kdk4");
 }
 
 void kick_sf(int clevel, struct sys sinks, struct sys sources,
 	     double dt, double b, double c, bool isgradient)
 {
-  printf("%d %d", sinks.n, sources.n);
 
-  start("kdk4");
-
+    printf("%d %d ", sinks.n, sources.n);
+      
+    start("kdk4");
+    
   real_t fac =  0;
     
   if(isgradient)
@@ -297,14 +279,13 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
 	bodies[i].X[d] = sinks.part[i].pos[d] + fac * sinks.part[i].acc[d];
       }
       bodies[i].index = i;
-      bodies[i].q     = sinks.part[i].mass;
+      bodies[i].q = sinks.part[i].mass;
       bodies[i].issource = false;
       bodies[i].issink = true;
       bodies[i].p = 0;
       bodies[i].F[0] = 0;
       bodies[i].F[1] = 0;
       bodies[i].F[2] = 0;
-      bodies[i].acc_old = 1e20;
     }
 
   for(int i = sinks.n; i < sinks.n + sources.n; i++)
@@ -320,16 +301,17 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
       bodies[i].F[0] = 0;
       bodies[i].F[1] = 0;
       bodies[i].F[2] = 0;
-      bodies[i].acc_old = 1e20;
     }
 
-  bool do_direct = (sinks.n * sources.n < DIRECT_THRES*DIRECT_THRES);
+
+    bool do_direct = (sinks.n * sources.n < DIRECT_THRES*DIRECT_THRES);
+      
+    get_force_and_potential(bodies, do_direct);
     
-  get_force_and_potential(bodies, do_direct);
-        
-  std::vector<real_t> force(bodies.size()*3);  
+  std::vector<real_t> force(bodies.size()*3);
+    
   std::vector<real_t> potential(bodies.size());
-    
+
   for(int b = 0; b < bodies.size(); b++)
     {
       int i          = bodies[b].index;
@@ -337,11 +319,10 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
       force[3*i+1]   = bodies[b].F[1];
       force[3*i+2]   = bodies[b].F[2];
 
-      potential[i] = bodies[b].p;            
+      potential[i] = bodies[b].p;
     }
-    
+        
   if(b > 0) {
-#pragma omp parallel for
     for(size_t i = 0; i < sinks.n; i++)
       {
 	sinks.part[i].pot = potential[i];
@@ -349,7 +330,6 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
 	  COMPSUM(sinks.part[i].vel[d], sinks.part[i].vel_e[d], (b*dt) * force[3*i+d] );
       }
   }else{
-#pragma omp parallel for
     for(size_t i = 0; i < sinks.n; i++)
       {
 	sinks.part[i].pot = potential[i];
@@ -359,14 +339,14 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
       }
   }
     
-  stop("kdk4");
+    stop("kdk4");
 
 }
 
 void get_force_and_potential(Bodies & bodies, bool do_direct)
 {
 #ifdef FMM
-  if(do_direct)
+  if (do_direct)
     {
       direct(bodies);
     }
@@ -378,8 +358,8 @@ void get_force_and_potential(Bodies & bodies, bool do_direct)
       Cells cells = buildTree(bodies);
 
       //allocate memory for multipoles and local expansions
-      std::vector<std::vector<real_t>> Multipoles((int)cells.size(),
-						  std::vector<real_t>(NTERM, 0) );
+      std::vector<std::vector<real_t> > Multipoles((int)cells.size(),
+						   std::vector<real_t>(NTERM, 0) );
 
       std::vector<std::vector<real_t>> Locals((int)cells.size(),
 					      std::vector<real_t>(NTERM, 0) );
@@ -413,11 +393,11 @@ void get_force_and_potential(Bodies & bodies, bool do_direct)
 #endif
 
 #if DEBUG
-      start("downwardPass");
+      start("downwardPass_low");
 #endif
       downwardPass_low(cells);
 #if DEBUG
-      stop("downwardPass");
+      stop("downwardPass_low");
 #endif
 
       for(size_t b = 0; b < bodies.size(); b++)
@@ -427,14 +407,17 @@ void get_force_and_potential(Bodies & bodies, bool do_direct)
 	  bodies[b].F[2] = 0;
 	  bodies[b].p = 0;
 	  bodies[b].timestep = 0;
-	  if (!bodies[b].issink)
-	    bodies[b].acc_old = 1e20;
 	}
 
       for(size_t i = 0; i < cells.size(); i++)
 	{
-	  cells[i].L[0] = 0;
-	  cells[i].M[0] = 0;
+	  for(int term = 0; term < NTERM; term++)
+	    {
+	      cells[i].L[term] = 0;
+	      cells[i].M[term] = 0;
+	      cells[i].min_acc = HUGE;
+	      cells[i].has_sink = false;
+	    }
 	}
 
 #if DEBUG
@@ -444,8 +427,6 @@ void get_force_and_potential(Bodies & bodies, bool do_direct)
 #if DEBUG
       stop("upwardPass");
 #endif
-        
-#pragma omp parallel for
       for(size_t i = 0; i < cells.size(); i++)
 	{
 	  for(int n = 0; n <= P; n++)
@@ -459,16 +440,10 @@ void get_force_and_potential(Bodies & bodies, bool do_direct)
 	      cells[i].Pn[n] = sqrt(cells[i].Pn[n]);
 	    }
 	}
-
 #if DEBUG
       start("horizontalPass");
 #endif
 
-      for(size_t i = 0; i < cells.size()*0; i++)
-        {
-	  printf("cell[%d]: %g %g %g %g \n", i, cells[i].X[0], cells[i].X[1], cells[i].X[2], cells[i].R);
-        }
-            
       horizontalPass(cells, cells, true);
 
 #if DEBUG
@@ -608,41 +583,41 @@ void dkd(int clevel, struct sys slow, double stime, double etime, double dt) {
   drift(clevel, slow, stime+dt, dt/2);
 }
 
-void kdk4(int clevel, struct sys slow, double stime, double etime, double dt)
-{
+void kdk4(int clevel, struct sys slow, double stime, double etime, double dt) {
+  {
       
-  if(slow.n>ncrit){
-    kick_self(clevel, slow, dt, 1.0/6, 0, false);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
-  }
+    if(slow.n>ncrit){
+      kick_self(clevel, slow, dt, 1.0/6, 0, false);
+    }
+    else{
+      kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
+    }
     
-  drift(clevel, slow, stime+dt/2, dt/2);
+    drift(clevel, slow, stime+dt/2, dt/2);
     
-  double b = 0.0, c = 0.0;
+    double b = 0.0, c = 0.0;
 
-  if(slow.n>ncrit){
-    kick_self(clevel, slow, dt, b, c, false);
-    b=2.0/3.0, c = 1.0/72.0;
-    kick_self(clevel, slow, dt, b, c, true);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt, b, c, false);
-    b=2.0/3.0, c = 1.0/72.0;
-    kick_cpu(clevel, slow, slow, dt, b, c, true);
-  }
+    if(slow.n>ncrit){
+      kick_self(clevel, slow, dt, b, c, false);
+      b=2.0/3.0, c = 1.0/72.0;
+      kick_self(clevel, slow, dt, b, c, true);
+    }
+    else{
+      kick_cpu(clevel, slow, slow, dt, b, c, false);
+      b=2.0/3.0, c = 1.0/72.0;
+      kick_cpu(clevel, slow, slow, dt, b, c, true);
+    }
     
-  drift(clevel, slow, stime+dt, dt/2);
+    drift(clevel, slow, stime+dt, dt/2);
 
-  if(slow.n>ncrit){
-    kick_self(clevel, slow, dt, 1.0/6, 0, false);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
-  }
+    if(slow.n>ncrit){
+      kick_self(clevel, slow, dt, 1.0/6, 0, false);
+    }
+    else{
+      kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
+    }
       
-
+  }
 }
 
 /*needs more testing on this integrator...
@@ -801,22 +776,24 @@ void evolve_frost(int clevel, struct sys total,
       struct sys slow = zerosys, fast = zerosys;
 
       if(calc_timestep) {
-	printf("-999 -999 ");
-	start("dt");
+          printf("-999 -999 ");
+          start("dt");
 	findtimesteps(total);
-	stop("dt");
-      }
-      printf("-99 -99 ");
-      start("split");
-      split(dt, total, &slow, &fast);
-      stop("split");
+          stop("dt");
 
+      }
+        printf("-99 -99 ");
+        start("split");
+      split(dt, total, &slow, &fast);
+        stop("split");
+
+        
       if(fast.n == 0)
 	{
 	  diag->simtime += dt;
 #if DEBUG
 	  printf("t=%g s=%d \n", diag->simtime, total.n);
-	  fflush(stdout);
+      fflush(stdout);
 #endif
 	}
 

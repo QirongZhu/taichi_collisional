@@ -146,143 +146,143 @@ namespace exafmm {
 	    Bi[i].timestep += timestep;
       
 	  }
-    }
+      }
       
 #endif
   }
 
-    //! Recursive call to dual tree traversal for horizontal pass
-    void timestepPass(Cell * Ci, Cell * Cj)
-    {
-      for(int d = 0; d < 3; d++)
-	dX[d] = Ci->X[d] - Cj->X[d];	// Distance vector from source to target
+  //! Recursive call to dual tree traversal for horizontal pass
+  void timestepPass(Cell * Ci, Cell * Cj)
+  {
+    for(int d = 0; d < 3; d++)
+      dX[d] = Ci->X[d] - Cj->X[d];	// Distance vector from source to target
 
-      real_t R2 = norm(dX) * theta * theta;	// Scalar distance squared
+    real_t R2 = norm(dX) * theta * theta;	// Scalar distance squared
 
-      if(R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R)) { // If distance is far enough
-        if((Ci->NBODY <= 4 && Cj->NCHILD == 0) ||
-           (Cj->NBODY <= 4 && Ci->NCHILD == 0)) {
-	  timestepCore(Ci, Cj);
-        }
-        else{
-	  return;
-        }
-      }
-      else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
-	{				// Else if both cells are leafs
-          timestepCore(Ci, Cj);
-	}
-      else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
-	{				// If Cj is leaf or Ci is larger
-	  for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
-	    {			// Loop over Ci's children
-#pragma omp task untied if(ci->NBODY > 100)	//   Start OpenMP task if large enough task
-	      timestepPass(ci, Cj);	//   Recursive call to target child cells
-	    }			//  End loop over Ci's children
-	}
-      else
-	{				// Else if Ci is leaf or Cj is larger
-          for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++){// Loop over Cj's children
-	    timestepPass(Ci, cj);	//   Recursive call to source child cells
-          }			//  End loop over Cj's children
-	}				// End if for leafs and Ci Cj size
-    }
-
-    //! Horizontal pass interface
-    void timestepPass(Cells & icells)
-    {
-#pragma omp parallel
-#pragma omp single nowait
-      timestepPass(&icells[0], &icells[0]);
-    }
-    
-    void findtimesteps(struct sys system) {
-
-      if(system.n > ncrit/2) {
-    
-     Bodies bodies(system.n);
-
-	for(unsigned int i = 0; i < system.n; i++)
-	  {
-	    for(int d=0; d<3; d++) {
-	      bodies[i].X[d] = system.part[i].pos[d];
-	      bodies[i].V[d] = system.part[i].vel[d];
-	    }
-	    bodies[i].index = i;
-	    bodies[i].q = system.part[i].mass;
-	    bodies[i].timestep = 0;
-	    bodies[i].dtimestep = 0;
-	  }
-    
-	Cells cells = buildTree(bodies);
-
-	timestepPass(cells);
-    
-#pragma omp parallel for if(bodies.size() > ncrit)
-	for(size_t b = 0; b < bodies.size(); b++) {
-	  unsigned int i = bodies[b].index;
-	  real_t tau    = 1/sqrt(sqrt(bodies[b].timestep));
-	  system.part[i].timestep = tau;
-	}
+    if(R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R)) { // If distance is far enough
+      if((Ci->NBODY <= 4 && Cj->NCHILD == 0) ||
+	 (Cj->NBODY <= 4 && Ci->NCHILD == 0)) {
+	timestepCore(Ci, Cj);
       }
       else{
-        
-        real_t min_step = HUGE;
-        
-        std::vector<real_t> stepsize(system.n);
-          
-        for(unsigned int i = 0; i < system.n; i++) {
-            
-	  real_t timestep = 0;
-              
-	  for(unsigned int j = 0; j < system.n; j++) {
-            
-	    if(system.part[i].id == system.part[j].id)
-	      continue;
-
-	    for(int d=0; d<3; d++){
-	      dX[d] = system.part[j].pos[d] - system.part[i].pos[d];
-	      dV[d] = system.part[j].vel[d] - system.part[i].vel[d];
-	    }
-                
-	    real_t R2 = norm(dX);
-	    real_t R = sqrt(R2);
-	    real_t vdotdr2;
-	    real_t v2 = norm(dV) + 1e-10;
-
-	    vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
-
-	    real_t tau = dt_param * sqrt(R * R2 / (system.part[i].mass + system.part[j].mass));
-	    real_t dtau = 3 * tau * vdotdr2 / 2;
-	    tau = (1 - dtau / 2)/tau;
-	    timestep += tau*tau*tau*tau;
-
-          
-	    tau = dt_param * R / sqrt(v2);
-	    dtau = tau * vdotdr2 * (1 + (system.part[i].mass + system.part[j].mass) / (v2 * R));
-	    tau = (1 - dtau / 2)/tau;
-	    timestep += tau*tau*tau*tau;
-	  }
-        
-	  stepsize[i] = 1.0/sqrt(sqrt(timestep));
-	  system.part[i].timestep = stepsize[i];
-	}
-          
-          
-	if(system.n > 2 && system.n < 20) {
-        
-	  std::sort(stepsize.begin(), stepsize.end());
-        
-	  real_t third_over_second_ratio = stepsize[2]/stepsize[1];
-        
-	  if(third_over_second_ratio < 1e2) {
-            for(unsigned int i = 0; i < system.n; i++) {
-	      system.part[i].timestep = stepsize[0];
-            }
-	  }
-	}
-        
+	return;
       }
     }
-
+    else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
+      {				// Else if both cells are leafs
+	timestepCore(Ci, Cj);
+      }
+    else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
+      {				// If Cj is leaf or Ci is larger
+	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
+	  {			// Loop over Ci's children
+#pragma omp task untied if(ci->NBODY > 1000)	//   Start OpenMP task if large enough task
+	    timestepPass(ci, Cj);	//   Recursive call to target child cells
+	  }			//  End loop over Ci's children
+      }
+    else
+      {				// Else if Ci is leaf or Cj is larger
+	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++){// Loop over Cj's children
+	  timestepPass(Ci, cj);	//   Recursive call to source child cells
+	}			//  End loop over Cj's children
+      }				// End if for leafs and Ci Cj size
   }
+
+  //! Horizontal pass interface
+  void timestepPass(Cells & icells)
+  {
+#pragma omp parallel
+#pragma omp single nowait
+    timestepPass(&icells[0], &icells[0]);
+  }
+    
+  void findtimesteps(struct sys system) {
+
+    if(system.n > ncrit/2) {
+    
+      Bodies bodies(system.n);
+
+      for(unsigned int i = 0; i < system.n; i++)
+	{
+	  for(int d=0; d<3; d++) {
+	    bodies[i].X[d] = system.part[i].pos[d];
+	    bodies[i].V[d] = system.part[i].vel[d];
+	  }
+	  bodies[i].index = i;
+	  bodies[i].q = system.part[i].mass;
+	  bodies[i].timestep = 0;
+	  bodies[i].dtimestep = 0;
+	}
+    
+      Cells cells = buildTree(bodies);
+
+      timestepPass(cells);
+    
+#pragma omp parallel for if(bodies.size() > ncrit)
+      for(size_t b = 0; b < bodies.size(); b++) {
+	unsigned int i = bodies[b].index;
+	real_t tau    = 1/sqrt(sqrt(bodies[b].timestep));
+	system.part[i].timestep = tau;
+      }
+    }
+    else{
+        
+      real_t min_step = HUGE;
+        
+      std::vector<real_t> stepsize(system.n);
+          
+      for(unsigned int i = 0; i < system.n; i++) {
+            
+	real_t timestep = 0;
+              
+	for(unsigned int j = 0; j < system.n; j++) {
+            
+	  if(system.part[i].id == system.part[j].id)
+	    continue;
+
+	  for(int d=0; d<3; d++){
+	    dX[d] = system.part[j].pos[d] - system.part[i].pos[d];
+	    dV[d] = system.part[j].vel[d] - system.part[i].vel[d];
+	  }
+                
+	  real_t R2 = norm(dX);
+	  real_t R = sqrt(R2);
+	  real_t vdotdr2;
+	  real_t v2 = norm(dV) + 1e-10;
+
+	  vdotdr2 = (dX[0] * dV[0] + dX[1] * dV[1] + dX[2] * dV[2]) / R2;
+
+	  real_t tau = dt_param * sqrt(R * R2 / (system.part[i].mass + system.part[j].mass));
+	  real_t dtau = 3 * tau * vdotdr2 / 2;
+	  tau = (1 - dtau / 2)/tau;
+	  timestep += tau*tau*tau*tau;
+
+          
+	  tau = dt_param * R / sqrt(v2);
+	  dtau = tau * vdotdr2 * (1 + (system.part[i].mass + system.part[j].mass) / (v2 * R));
+	  tau = (1 - dtau / 2)/tau;
+	  timestep += tau*tau*tau*tau;
+	}
+        
+	stepsize[i] = 1.0/sqrt(sqrt(timestep));
+	system.part[i].timestep = stepsize[i];
+      }
+          
+          
+      if(system.n > 2 && system.n < 20) {
+        
+	std::sort(stepsize.begin(), stepsize.end());
+        
+	real_t third_over_second_ratio = stepsize[2]/stepsize[1];
+        
+	if(third_over_second_ratio < 1e2) {
+	  for(unsigned int i = 0; i < system.n; i++) {
+	    system.part[i].timestep = stepsize[0];
+	  }
+	}
+      }
+        
+    }
+  }
+
+}

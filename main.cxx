@@ -6,18 +6,13 @@
 #include <iterator>
 #include <cstring>
 
-#ifdef USETBB
-#include <tbb/tbb.h>
-#include <tbb/task_group.h>
-#include <tbb/task_arena.h>
-#endif
-
 #include "exafmm.h"
 #include "integrator.h"
 #include "timer.h"
 #include "load_gadget.h"
 #include "io.h"
 
+using namespace std;
 using namespace exafmm;
 
 void init_code(void);
@@ -98,7 +93,7 @@ int main(int argc, char **argv)
 
 	  std::ifstream fin(input_fname);
 	  array.resize(numBodies * 7);
-	  array.assign(std::istream_iterator<double>(fin), std::istream_iterator < double >());
+	  array.assign(std::istream_iterator < double >(fin), std::istream_iterator < double >());
 	  fin.close();
 	  //	  stop("reading bodies");
 	}
@@ -183,7 +178,7 @@ int main(int argc, char **argv)
 		 cmpos[0], cmpos[1], cmpos[2], -pot+kinetic);
 	  fflush(stdout);
         
-      kick_self(0,  mainsys,  dt, 0, 0, false);
+	  kick_self(0,  mainsys,  dt, 0, 0, false);
 
 	  if(mainsys.n > 0)
 	    do_evolve(mainsys, dt);
@@ -213,15 +208,6 @@ int main(int argc, char **argv)
 
 void init_code(void)
 {
-  auto max_threads = omp_get_max_threads();
-    std::cout <<" OpenMP max_threads: "<< max_threads << std::endl;
-    
-#ifdef USETBB
-    //tbb::task_arena limited(max_threads);
-    auto x = tbb::this_task_arena::max_concurrency();
-    std::cout <<" Using TBB with threads: "<< x << std::endl;
-#endif
-  
   diag = &global_diag;
   diag->simtime = 0.;
 }
