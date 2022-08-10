@@ -64,7 +64,7 @@ namespace exafmm
   void horizontalPassHigh(Cell * Ci, Cell * Cj)
   {
 
-    if(!Ci->has_sink || Cj->M[0] < 1e-16) {
+    if(!Ci->has_sink || Cj->M[0] <= 1e-16) {
       return;
     }
       
@@ -106,10 +106,14 @@ namespace exafmm
 
     real_t thres = 1;
 
-    //symmetric tree walk, use f2 < thres for unsymmetric walk
-
+    //symmetric tree walk
+#ifdef SYMMETRICWALK
+    if(f2 < thres && f1 < thres)
+#else
+    //use only (f2 < thres) for unsymmetric walk
     if(f2 < thres)
-      {
+#endif
+    {
 	M2L_rotate(Ci, Cj);	//  M2L kernel
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
@@ -161,7 +165,6 @@ namespace exafmm
       {				// Else if Ci is leaf or Cj is larger
 	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
 	  {			// Loop over Cj's children
-#pragma omp task untied if(cj->NBODY > 1000)//   Start OpenMP task if large enough task
 	    horizontalPass(Ci, cj);	//   Recursive call to source child cells
 	  }			//  End loop over Cj's children
       }				// End if for leafs and Ci Cj size
@@ -196,7 +199,7 @@ namespace exafmm
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {
           if (Ci==Cj)
-	P2P_low(Ci, Cj);
+              P2P_low(Ci, Cj);
           else
               M2L_low(Ci, Cj);
       }
@@ -215,6 +218,7 @@ namespace exafmm
 	    horizontalPass_low(Ci, cj);
 	  }
       }
+#pragma omp taskwait
   }
 
   //! Horizontal pass interface

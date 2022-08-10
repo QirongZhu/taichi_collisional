@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "kernel_fast_lean.h"
+#include "kernel_fast.h"
 #include "traverse_eager.h"
 
 #include "timestep.h"
@@ -12,7 +12,7 @@
 
 #define MAXLEVEL 64
 
-#define DIRECT_THRES 20000L
+#define DIRECT_THRES 10000L
 
 using namespace exafmm;
 
@@ -155,10 +155,6 @@ void kick(int clevel, struct sys s, double etime, double dt)
 void kick_cpu(int clevel, struct sys s1, struct sys s2,
 	      double dt, double b, double c, bool isgradient)
 {
-    
-  printf("%d %d ", s1.n, s2.n);
-    
-  start("kdk4");
 
   real_t fac = 0;
     
@@ -204,16 +200,12 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2,
       }
 
     }
-    
-  stop("kdk4");
-    
+        
 }
 
 void kick_self(int clevel, struct sys sinks, double dt,
 	       double b, double c, bool isgradient)
 {
-  printf("%d %d ", sinks.n, sinks.n);
-  start("kdk4");
     
   real_t fac = 0;
 
@@ -273,16 +265,13 @@ void kick_self(int clevel, struct sys sinks, double dt,
 	}
       }
   }
+
     
-  stop("kdk4");
 }
 
 void kick_sf(int clevel, struct sys sinks, struct sys sources,
 	     double dt, double b, double c, bool isgradient)
 {
-  printf("%d %d", sinks.n, sources.n);
-
-  start("kdk4");
 
   real_t fac =  0;
     
@@ -358,8 +347,6 @@ void kick_sf(int clevel, struct sys sinks, struct sys sources,
 	}
       }
   }
-    
-  stop("kdk4");
 
 }
 
@@ -800,16 +787,14 @@ void evolve_frost(int clevel, struct sys total,
     
       struct sys slow = zerosys, fast = zerosys;
 
-      if(calc_timestep) {
-	printf("-999 -999 ");
-	start("dt");
-	findtimesteps(total);
-	stop("dt");
-      }
-      printf("-99 -99 ");
-      start("split");
-      split(dt, total, &slow, &fast);
-      stop("split");
+    if(calc_timestep)
+    {
+        findtimesteps(total);
+    }
+
+    {
+        split(dt, total, &slow, &fast);
+    }
 
       if(fast.n == 0)
 	{
