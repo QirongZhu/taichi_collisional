@@ -10,29 +10,29 @@ namespace exafmm
   {
     for(Cell * Cj = Ci->CHILD; Cj != Ci->CHILD + Ci->NCHILD; Cj++)
       {				// Loop over child cells
-	#pragma omp task untied //  Start OpenMP task if large enough task
-		 upwardPass(Cj);		//  Recursive call for child cell
+#pragma omp task untied //  Start OpenMP task if large enough task
+	upwardPass(Cj);		//  Recursive call for child cell
       }				// End loop over child cells
-    #pragma omp taskwait		// Synchronize OpenMP tasks
+#pragma omp taskwait		// Synchronize OpenMP tasks
     
     Ci->has_sink = false;
     Ci->min_acc  = HUGE;
 
     Ci->R = 1.732 * Ci->R;
 
-      if(Ci->NCHILD == 0){
+    if(Ci->NCHILD == 0){
       P2M(Ci);			// P2M kernel
-      }
-      else {
+    }
+    else {
       M2M(Ci);			// M2M kernel
-      }
+    }
   }
 
   //! Upward pass interface
   void upwardPass(Cells & cells)
   {
-    #pragma omp parallel		// Start OpenMP
-    #pragma omp single nowait	// Start OpenMP single region with nowait
+#pragma omp parallel		// Start OpenMP
+#pragma omp single nowait	// Start OpenMP single region with nowait
     upwardPass(&cells[0]);	// Pass root cell to recursive call
   }
 
@@ -110,31 +110,31 @@ namespace exafmm
 #ifdef SYMMETRICWALK
     if(f2 < thres && f1 < thres)
 #else
-    //use only (f2 < thres) for unsymmetric walk
-    if(f2 < thres)
+      //use only (f2 < thres) for unsymmetric walk
+      if(f2 < thres)
 #endif
-    {
-	M2L_rotate(Ci, Cj);	//  M2L kernel
-      }
-    else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
-      {				// Else if both cells are leafs
-	P2P(Ci, Cj);	//  P2P kernel
-      }
-    else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
-      {				// If Cj is leaf or Ci is larger
-	for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
-	  {			// Loop over Ci's children
+	{
+	  M2L_rotate(Ci, Cj);	//  M2L kernel
+	}
+      else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
+	{				// Else if both cells are leafs
+	  P2P(Ci, Cj);	//  P2P kernel
+	}
+      else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
+	{				// If Cj is leaf or Ci is larger
+	  for(Cell * ci = Ci->CHILD; ci != Ci->CHILD + Ci->NCHILD; ci++)
+	    {			// Loop over Ci's children
 #pragma omp task untied if(ci->NBODY > 1000)  //   Start OpenMP task if large enough task
-        horizontalPassHigh(ci, Cj);	//   Recursive call to target child cells
-	  }			//  End loop over Ci's children
-      }
-    else
-      {				// Else if Ci is leaf or Cj is larger
-	for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
-	  {			// Loop over Cj's children
-	    horizontalPassHigh(Ci, cj);	//   Recursive call to source child cells
-	  }			//  End loop over Cj's children
-      }				// End if for leafs and Ci Cj size=
+	      horizontalPassHigh(ci, Cj);	//   Recursive call to target child cells
+	    }			//  End loop over Ci's children
+	}
+      else
+	{				// Else if Ci is leaf or Cj is larger
+	  for(Cell * cj = Cj->CHILD; cj != Cj->CHILD + Cj->NCHILD; cj++)
+	    {			// Loop over Cj's children
+	      horizontalPassHigh(Ci, cj);	//   Recursive call to source child cells
+	    }			//  End loop over Cj's children
+	}				// End if for leafs and Ci Cj size=
   }
 
   //! Recursive call to dual tree traversal for horizontal pass
@@ -198,10 +198,10 @@ namespace exafmm
       }
     else if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {
-          if (Ci==Cj)
-              P2P_low(Ci, Cj);
-          else
-              M2L_low(Ci, Cj);
+	if (Ci==Cj)
+	  P2P_low(Ci, Cj);
+	else
+	  M2L_low(Ci, Cj);
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {
@@ -236,8 +236,8 @@ namespace exafmm
   {
     if(Ci->NCHILD == 0 && Cj->NCHILD == 0)
       {// Else if both cells are leafs
-          if(Ci->has_sink && Cj->has_source)
-              P2P(Ci, Cj);
+	if(Ci->has_sink && Cj->has_source)
+	  P2P(Ci, Cj);
       }
     else if(Cj->NCHILD == 0 || (Ci->R >= Cj->R && Ci->NCHILD != 0))
       {				// If Cj is leaf or Ci is larger
@@ -299,10 +299,10 @@ namespace exafmm
     
     for(Cell * Ci = Cj->CHILD; Ci != Cj->CHILD + Cj->NCHILD; Ci++)
       {				// Loop over child cells
-	#pragma omp task untied //  Start OpenMP task if large enough task
-	    downwardPass(Ci);//  Recursive call for child cell
+#pragma omp task untied //  Start OpenMP task if large enough task
+	downwardPass(Ci);//  Recursive call for child cell
       }				// End loop over chlid cells
-    #pragma omp taskwait		// Synchronize OpenMP tasks
+#pragma omp taskwait		// Synchronize OpenMP tasks
   }
 
   //! Downward pass interface
@@ -314,24 +314,71 @@ namespace exafmm
   }
 
   //! Direct summation
-  void direct(Bodies & bodies)
+  void direct_old(Bodies & bodies)
   {
     Cells cells = buildTree(bodies);
             
     for (size_t i=0; i<cells.size(); i++) {
-        cells[i].has_source = false;
-        cells[i].has_sink   = false;
-        for (Body* B=cells[i].BODY; B!=cells[i].BODY+cells[i].NBODY; B++)
+      cells[i].has_source = false;
+      cells[i].has_sink   = false;
+      for (Body* B=cells[i].BODY; B!=cells[i].BODY+cells[i].NBODY; B++)
         {
-            if (B->issource)
-                cells[i].has_source = true;
+	  if (B->issource)
+	    cells[i].has_source = true;
             
-            if (B->issink)
-                cells[i].has_sink = true;
+	  if (B->issink)
+	    cells[i].has_sink = true;
         }
     }
     
     directPass(cells, cells);// Evaluate P2P kenrel
   }
+
+  //We don't really build the octree, hence the sorting time can be saved
+  //Instead, just bin the particles with binsize=ncrit
+  void direct(Bodies & bodies)
+  {
+    Cells cells;
+    
+    const int ni = bodies.size();
+    const int ncrit_ = ncrit;
+    const int ncells = ((ni+ncrit_-1) & (-ncrit_)) / ncrit_;
+    
+    cells.resize(ncells+1);
+    
+    for (size_t i=1; i<=ncells; i++)
+      {
+        cells[i].NBODY = ncrit;
+        cells[i].BODY  = &bodies[0] + (i-1)*ncrit_;
+        cells[i].CHILD = nullptr;
+        cells[i].NCHILD= 0;
+      }
+    
+    //fix the final cell particle number count
+    cells[ncells].NBODY = ni - (ncells-1)*ncrit_;
+    
+    cells[0].BODY  = &bodies[0];
+    cells[0].NBODY = ni;
+    cells[0].CHILD = ncells > 0 ? &cells[1] : nullptr;
+    cells[0].NCHILD= ncells;
+    
+#pragma omp parallel for
+    for (size_t i=0; i<cells.size(); i++) {
+      cells[i].has_source = false;
+      cells[i].has_sink   = false;
+      for (Body* B=cells[i].BODY; B!=cells[i].BODY+cells[i].NBODY; B++)
+	{
+          if (B->issource)
+	    cells[i].has_source = true;
+          
+          if (B->issink)
+	    cells[i].has_sink = true;
+	}
+    }
+  
+    directPass(cells, cells);// Evaluate P2P kenrel
+  }
+
 }
+
 #endif
