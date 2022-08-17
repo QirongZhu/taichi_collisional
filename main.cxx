@@ -163,9 +163,9 @@ int main(int argc, char **argv)
 	  //temporarily use a high force accuracy for the
 	  //calculation of potential energies in the snapshots
 	  real_t temp_force_accuracy = force_accuracy;
-	  force_accuracy = 1e-8;
+	  //force_accuracy = 1e-8;
         
-	  //	  write_snapshot(snapnum, mainsys);
+	  write_snapshot(snapnum, mainsys);
 	  snapnum++;
 
 	  //restore the original value of force_accuracy
@@ -210,4 +210,11 @@ void init_code(void)
 {
   diag = &global_diag;
   diag->simtime = 0.;
+
+#ifdef DOUBLEHEIGHT
+    printf("Correct force accuracy estimation due to DOUBLEHEIGHT M2L kernel\n");
+    fflush(stdout);
+    force_accuracy *= 10;
+#endif
+    
 }

@@ -82,9 +82,9 @@ namespace exafmm
   int snapnum;
 
   real_t t_now;
-  real_t force_accuracy = 1.0e-5;
+  real_t force_accuracy = 1e-5;
 
-  real_t G = 1;			//0.004300710573170628; 
+  const real_t G = 1;
   //gravitaional constant with Msun, pc and km/s.
 
   struct sys
@@ -104,8 +104,8 @@ namespace exafmm
   
   int P;			//!< Order of expansions
   int NTERM;			//!< Number of coefficients
-  int ncrit    = 200;		//!< Number of bodies per leaf cell
-  real_t theta = 0.65;		//!< Multipole acceptance criterion
+  const int ncrit    = 192;		//!< Number of bodies per leaf cell
+  const real_t theta = 0.65;		//!< Multipole acceptance criterion
   real_t dX[3], dV[3];		//!< Distance vector
 #pragma omp threadprivate(dX, dV)	//!< Make global variables private
 }
