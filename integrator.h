@@ -13,6 +13,7 @@
 #define MAXLEVEL 64
 
 #define DIRECT_THRES 10000L
+#define TASK_GRAINSIZE 64
 
 using namespace exafmm;
 
@@ -25,14 +26,12 @@ struct diagnostics {
 
 extern struct diagnostics global_diag;
 extern struct diagnostics *diag;
-#pragma omp threadprivate(diag)
 
-
-#define ENDRUN(fmt, ...) {                \
-    printf("ENDRUN at %s:%d ", __FILE__, __LINE__);    \
-    printf(fmt, ## __VA_ARGS__);            \
-    fflush(stdout);                    \
-    exit(-1);                        \
+#define ENDRUN(fmt, ...) {				\
+    printf("ENDRUN at %s:%d ", __FILE__, __LINE__);	\
+    printf(fmt, ## __VA_ARGS__);			\
+    fflush(stdout);					\
+    exit(-1);						\
   }
 
 
@@ -206,6 +205,11 @@ void kick_cpu(int clevel, struct sys s1, struct sys s2,
 void kick_self(int clevel, struct sys sinks, double dt,
 	       double b, double c, bool isgradient)
 {
+  if (sinks.n < ncrit)
+  {
+      kick_cpu(clevel, sinks, sinks, dt, b, c, isgradient);
+      return;
+  }
     
   real_t fac = 0;
 
@@ -272,7 +276,13 @@ void kick_self(int clevel, struct sys sinks, double dt,
 void kick_sf(int clevel, struct sys sinks, struct sys sources,
 	     double dt, double b, double c, bool isgradient)
 {
-
+    
+    if (sinks.n + sources.n < ncrit)
+    {
+        kick_cpu(clevel, sinks, sources, dt, b, c, isgradient);
+        return;
+    }
+    
   real_t fac =  0;
     
   if(isgradient)
@@ -355,7 +365,7 @@ void get_force_and_potential(Bodies & bodies, bool do_direct)
 #ifdef FMM
   if(do_direct)
     {
-      direct(bodies);
+      direct_old(bodies);
     }
   else
     {
@@ -597,118 +607,25 @@ void dkd(int clevel, struct sys slow, double stime, double etime, double dt) {
 
 void kdk4(int clevel, struct sys slow, double stime, double etime, double dt)
 {
+    if (slow.n <= 0)
+    {
+    return;
+    }
       
-  if(slow.n>ncrit){
     kick_self(clevel, slow, dt, 1.0/6, 0, false);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
-  }
     
-  drift(clevel, slow, stime+dt/2, dt/2);
+    drift(clevel, slow, stime+dt/2, dt/2);
     
-  double b = 0.0, c = 0.0;
-
-  if(slow.n>ncrit){
+    double b = 0.0, c = 0.0;
     kick_self(clevel, slow, dt, b, c, false);
+    
     b=2.0/3.0, c = 1.0/72.0;
     kick_self(clevel, slow, dt, b, c, true);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt, b, c, false);
-    b=2.0/3.0, c = 1.0/72.0;
-    kick_cpu(clevel, slow, slow, dt, b, c, true);
-  }
     
-  drift(clevel, slow, stime+dt, dt/2);
+    drift(clevel, slow, stime+dt, dt/2);
 
-  if(slow.n>ncrit){
     kick_self(clevel, slow, dt, 1.0/6, 0, false);
-  }
-  else{
-    kick_cpu(clevel, slow, slow, dt, 1.0/6, 0, false);
-  }
-      
-
 }
-
-/*needs more testing on this integrator...
-  void kdk6(int clevel, struct sys slow, double stime, double etime, double dt) {
-      
-  double b, c;
-    
-  b = 0.3599508087941436;
-  c = 0;
-    
-  if(slow.n>ncrit){
-  kick_self(clevel, slow, dt, b, 0, false);
-  }
-  else{
-  kick_cpu(clevel, slow, slow, dt, b, 0, false);
-  }
-    
-  double a = 1.0798524263824309;
-    
-  drift(clevel, slow, stime+dt*a, dt*a);
-    
-  b = -0.1437147273026540;
-  c = -0.0139652542242388*0;
-    
-  if(slow.n>ncrit){
-  kick_self(clevel, slow, dt, 0, 0, false);
-  kick_self(clevel, slow, dt, b, c, true);
-  }
-  else{
-  kick_cpu(clevel, slow, slow, dt, 0, 0, false);
-  kick_cpu(clevel, slow, slow, dt, b, c, true);
-  }
-    
-  a  = -0.5798524263824309;
-    
-  drift(clevel, slow, etime, dt*a);
-    
-  b = 0.5675278370170208;
-  c = -0.0392470293823456*0;
-    
-  if(slow.n>ncrit){
-  kick_self(clevel, slow, dt, 0, 0, false);
-  kick_self(clevel, slow, dt, b, c, true);
-  }
-  else{
-  kick_cpu(clevel, slow, slow, dt, 0, 0, false);
-  kick_cpu(clevel, slow, slow, dt, b, c, true);
-  }
-        
-  a  = -0.5798524263824309;
-  drift(clevel, slow, etime, dt*a);
-    
-  b = -0.1437147273026540;
-  c = -0.0139652542242388*0;
-    
-  if(slow.n>ncrit){
-  kick_self(clevel, slow, dt, 0, 0, false);
-  kick_self(clevel, slow, dt, b, c, true);
-  }
-  else{
-  kick_cpu(clevel, slow, slow, dt, 0, 0, false);
-  kick_cpu(clevel, slow, slow, dt, b, c, true);
-  }
-            
-  a = 1.0798524263824309;
-      
-  drift(clevel, slow, etime, dt*a);
-    
-  b = 0.3599508087941436;
-  c = 0;
-    
-  if(slow.n>ncrit){
-  kick_self(clevel, slow, dt, b, 0, false);
-  }
-  else{
-  kick_cpu(clevel, slow, slow, dt, b, 0, false);
-  }
-  }
-*/
 
 void evolve_split_hold_dkd(int clevel, struct sys total,
                            double stime, double etime,
@@ -772,6 +689,9 @@ void evolve_frost(int clevel, struct sys total,
 		  double dt, bool calc_timestep)
 {
     
+  if (total.n <= 0)
+    return;
+    
   if(total.n == 2) { // change to total.n == 2 for kepler solver
         
     for(int i=0; i<2; i++) {
@@ -787,14 +707,14 @@ void evolve_frost(int clevel, struct sys total,
     
       struct sys slow = zerosys, fast = zerosys;
 
-    if(calc_timestep)
-    {
-        findtimesteps(total);
-    }
+      if(calc_timestep)
+	{
+	  findtimesteps(total);
+	}
 
-    {
+      {
         split(dt, total, &slow, &fast);
-    }
+      }
 
       if(fast.n == 0)
 	{
@@ -805,73 +725,85 @@ void evolve_frost(int clevel, struct sys total,
 #endif
 	}
 
-      if(slow.n > 0 && fast.n > 0) { //kicksf in between
-	if(1)
+      if(slow.n > 0 && fast.n > 0)
+	{
+//kicksf in between, in parallel
+//Because kicks only modifies the velocities, therefore we can process
+//the kick_sf and kick_fs in parallell
 	  {
 	    double b = 1.0/6.0;
+//#pragma omp task shared(slow, fast, dt, b) if (total.n > TASK_GRAINSIZE)
 	    kick_sf(clevel, slow, fast, dt, b, 0, false);
+//#pragma omp task shared(slow, fast, dt, b) if (total.n > TASK_GRAINSIZE)
 	    kick_sf(clevel, fast, slow, dt, b, 0, false);
 	  }
-	else
-	  {
-	    double b = 1.0/6.0;
-	    kick_cpu(clevel, slow, fast, dt, b, 0, false);
-	    kick_cpu(clevel, fast, slow, dt, b, 0, false);
-	  }
-      }
+//#pragma omp taskwait
+	}
     
-    
-      //hold for fast system
-      if(fast.n > 0)
+//We evolve fast system with dt/2 using hold, and slow system with kdk4 integrator
+//Because a clean splitting of fast and slow systems, we can processes them in parallel
+      {
+	//hold for fast system
+//#pragma omp task shared(slow, fast, stime, dt) if (total.n > TASK_GRAINSIZE)
 	evolve_frost(clevel+1, fast, stime, stime+dt/2, dt/2, false);
 
-      //kdk for the slow system
-      if(slow.n > 0)
+	//kdk for the slow system
+//#pragma omp task shared(slow, fast, stime, dt) if (total.n > TASK_GRAINSIZE)
 	kdk4(clevel, slow, stime, stime+dt/2, dt/2);
-    
-      if(slow.n > 0 && fast.n > 0) { //kicksf in between
-	if(1)
-	  {
-	    double b = 0.0, c = 0.0;
-	    kick_sf(clevel, slow, fast, dt, b, c, false);
-	    kick_sf(clevel, fast, slow, dt, b, c, false);
-	    b = 2.0/3.0, c = 1.0/72.0;
-	    kick_sf(clevel, slow, fast, dt, b, c, true);
-	    kick_sf(clevel, fast, slow, dt, b, c, true);
-	  }
-	else
-	  {
-	    double b = 0.0, c = 0.0;
-	    kick_cpu(clevel, slow, fast, dt, b, c, false);
-	    kick_cpu(clevel, fast, slow, dt, b, c, false);
-	    b = 2.0/3.0, c = 1.0/72.0;
-	    kick_cpu(clevel, slow, fast, dt, b, c, true);
-	    kick_cpu(clevel, fast, slow, dt, b, c, true);
-	  }
       }
+//#pragma omp taskwait
     
-      //kdk for the slow system
-      if(slow.n > 0)
+      if(slow.n > 0 && fast.n > 0)
+	{
+//kicksf in between, in parallel.
+//The first calculate the force, which then fed into the second time to
+//calculate the extrapolated positions
+          {
+	    double b = 0.0, c = 0.0;
+//#pragma omp task shared(slow, fast, dt, b, c) if (total.n > TASK_GRAINSIZE)
+	    kick_sf(clevel, slow, fast, dt, b, c, false);
+//#pragma omp task shared(slow, fast, dt, b, c) if (total.n > TASK_GRAINSIZE)
+	    kick_sf(clevel, fast, slow, dt, b, c, false);
+          }
+//#pragma omp taskwait
+
+          {
+	    double b = 2.0/3.0, c = 1.0/72.0;
+//#pragma omp task shared(slow, fast, dt, b, c) if (total.n > TASK_GRAINSIZE)
+	    kick_sf(clevel, slow, fast, dt, b, c, true);
+//#pragma omp task shared(slow, fast, dt, b, c) if (total.n > TASK_GRAINSIZE)
+	    kick_sf(clevel, fast, slow, dt, b, c, true);
+          }
+//#pragma omp taskwait
+	}
+        
+//We evolve fast system with dt/2 using hold, and slow system with kdk4 integrator
+//Because a clean splitting of fast and slow systems, we can processes them in parallel
+      {
+	//kdk for the slow system
+//#pragma omp task shared(slow, fast, stime, dt) if (total.n > TASK_GRAINSIZE)
 	kdk4(clevel, slow, stime+dt/2, stime+dt, dt/2);
       
-      //hold for fast system
-      if(fast.n > 0)
+	//hold for fast system
+//#pragma omp task shared(slow, fast, stime, dt) if (total.n > TASK_GRAINSIZE)
 	evolve_frost(clevel+1, fast, stime+dt/2, etime, dt/2, true);
-    
-      if(slow.n > 0 && fast.n > 0) { //kicksf in between
-	if(1)
+      }
+//#pragma omp taskwait
+        
+        
+      if(slow.n > 0 && fast.n > 0)
+	{
+//kicksf in between, in parallel
 	  {
 	    double b = 1.0/6.0;
+//#pragma omp task shared(slow, fast, dt, b) if (total.n > TASK_GRAINSIZE)
 	    kick_sf(clevel, slow, fast, dt, b, 0, false);
+//#pragma omp task shared(slow, fast, dt, b) if (total.n > TASK_GRAINSIZE)
 	    kick_sf(clevel, fast, slow, dt, b, 0, false);
 	  }
-	else
-	  {
-	    double b = 1.0/6.0;
-	    kick_cpu(clevel, slow, fast, dt, b, 0, false);
-	    kick_cpu(clevel, fast, slow, dt, b, 0, false);
-	  }
-      }
+//#pragma omp taskwait
+	}
+        
     }
     
 }
@@ -885,7 +817,9 @@ void do_evolve(struct sys s, double dt)
     return;
   clevel = 0;
 
+  start("findtimesteps");
   findtimesteps(s);
+  stop("findtimesteps");
     
 #if HOLD
   evolve_split_hold_dkd(clevel, s,
@@ -896,13 +830,21 @@ void do_evolve(struct sys s, double dt)
     
     
 #if FROST
-  evolve_frost(clevel, s,
-	       (real_t) diag->simtime,
-	       (real_t) diag->simtime + dt,
-	       (real_t) dt, true);
+//#pragma omp parallel shared(s, dt, diag)
+  {
+//#pragma omp single nowait
+    {
+      //printf("Integrate system: n=%d from time=%g with dt=%g \n", s.n, diag->simtime, dt);
+            
+      evolve_frost(clevel, s,
+		   (real_t) diag->simtime,
+		   (real_t) diag->simtime + dt,
+		   (real_t) dt, true);
+    }
+  }
 #endif
-    
 }
+
 
 double system_kinetic_energy(struct sys s)
 {

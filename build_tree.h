@@ -13,7 +13,7 @@
 namespace omp_par
 {
   template < class T, class StrictWeakOrdering >
-    void merge(T A_, T A_last, T B_, T B_last, T C_, size_t p, StrictWeakOrdering comp)
+  void merge(T A_, T A_last, T B_, T B_last, T C_, size_t p, StrictWeakOrdering comp)
   {
     typedef typename std::iterator_traits < T >::difference_type _DiffType;
     typedef typename std::iterator_traits < T >::value_type _ValType;
@@ -33,7 +33,7 @@ namespace omp_par
 	  {
 	    _DiffType indx1 = (i * N) / p;
 	    _DiffType indx2 = ((i + 1) * N) / p;
-	      memcpy(&C_[indx1], &A[indx1], (indx2 - indx1) * sizeof(_ValType));
+	    memcpy(&C_[indx1], &A[indx1], (indx2 - indx1) * sizeof(_ValType));
 	  }
 	return;
       }
@@ -308,8 +308,7 @@ namespace exafmm
   }
 
 
-  void buildCellsSorted(Body * bodies, int begin, int end, Cell * cell, Cells & cells, real_t * X, real_t R,
-			int level = 0)
+  void buildCellsSorted(Body * bodies, int begin, int end, Cell * cell, Cells & cells, real_t * X, real_t R, int level = 0)
   {
     //! Create a tree cell
     cell->BODY = bodies + begin;	// Pointer of first body in cell
@@ -407,7 +406,7 @@ namespace exafmm
     real_t R0, X0[3];		// Radius and center root cell
     getBounds(bodies, R0, X0);	// Get bounding box from bodies
 
-     // /*
+    // /*
     unsigned int max_int = ((unsigned int) 1) << (MAX_DEPTH);
 
 #pragma omp parallel for
@@ -428,7 +427,7 @@ namespace exafmm
       std::sort(bodies.begin(), bodies.end());
     else
       omp_par::merge_sort(&bodies[0], &bodies[bodies.size()]);
-//*/
+    //*/
       
     //Bodies buffer = bodies;   // Copy bodies to buffer
     Cells cells(1);		      // Vector of cells

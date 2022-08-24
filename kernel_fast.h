@@ -3,11 +3,13 @@
 #include "exafmm.h"
 #include "kernel_rotate.h"
 
+#ifdef SIMD_P2P
 #include "vectorclass/vectorclass.h"
 #ifndef DOUBLE_P2P
 #define NSIMD 16
 #else
 #define NSIMD 8
+#endif
 #endif
 
 #ifdef MINIBALL
@@ -36,47 +38,71 @@ typedef Traits::Sphere                    Sphere;
 
 namespace exafmm
 {
-  real_t oddOrEventable[2*EXPANSION+1];
+  //some global data for factorials
+  real_t factorial_table[2*EXPANSION+8];
 
-  real_t factorial_table[4*EXPANSION+1];
-  real_t inverse_factorial_table[4*EXPANSION+1];
+  real_t factorial_coef[EXPANSION+1][EXPANSION+1];
+  real_t factorial_coef_inv[EXPANSION+1][EXPANSION+1];
 
-  real_t factorial_coef[2*EXPANSION+1][2*EXPANSION+1];
-  real_t factorial_coef_inv[2*EXPANSION+1][2*EXPANSION+1];
+  real_t factorial_coef_oned[(EXPANSION+1)*(EXPANSION+1)];
+  real_t factorial_coef_inv_oned[(EXPANSION+1)*(EXPANSION+1)];
 
-  real_t factorial_coef_oned[(2*EXPANSION+1)*(2*EXPANSION+1)];
-  real_t factorial_coef_inv_oned[(2*EXPANSION+1)*(2*EXPANSION+1)];
+  real_t combinator_coef[EXPANSION+1][EXPANSION+1];
+  
+  int rowRealIndex[(EXPANSION+1)*(EXPANSION+1)];
+  int rowImagIndex[(EXPANSION+1)*(EXPANSION+1)];
 
-  real_t combinator_coef[2*EXPANSION+1][2*EXPANSION+1];
+  int rowMajorBeg[(EXPANSION+1)];
 
-  const complex_t R(1., 0.);    //!<Real unit
-  const complex_t I(0., 1.);    //!<Imaginary unit
-
+  //functions
   inline real_t norm(real_t * X) { return X[0] * X[0] + X[1] * X[1] + X[2] * X[2]; }
 
   inline int index(int n, int m) {return n*(n+1)+m; };
 
-  int oddOrEven(int n)
+  inline int oddOrEven(int n)
   {
     return (((n) & 1) == 1) ? -1 : 1;
   }
 
+int rowMajorIndexOneD(int n, int m)
+{
+  return n-m+(2*P+3-m)*m/2;
+}
+
   void initKernel()
   {
     NTERM = (P+1)*(P+1);
-    
+      
+    for (int n=0; n<=EXPANSION; n++)
+    {
+        rowMajorBeg[n] = rowMajorIndexOneD(n, n);
+        
+        for (int m=0; m<=n; m++)
+        {
+            rowRealIndex[index(n, m)]  = rowMajorIndexOneD(n, m);
+        }
+        
+        for (int m=-n; m<=0; m++)
+        {
+            rowImagIndex[index(n, m)] = rowMajorIndexOneD(n, -m);
+        }
+    }
+          
+      
     factorial_table[0] = 1.0;
       
+    real_t inverse_factorial_table[4*EXPANSION+1];
     inverse_factorial_table[0] = 1.0;
     
-    for(int i = 1; i <= EXPANSION*4; i++)
+    for(int i = 1; i <= EXPANSION*2; i++)
       {
 	factorial_table[i] = (real_t) i *factorial_table[i-1];
 	inverse_factorial_table[i] = 1 / factorial_table[i];
       }
-    for(int i = 0; i <= P*2; i++)
+      
+    for(int i = 0; i <= EXPANSION; i++)
       {
-	for(int j = 0; j <= P*2; j++)
+	for(int j = 0; j <= EXPANSION; j++)
 	  {
 	    factorial_coef[i][j] = factorial_table[i+j]*factorial_table[i-j];
 	    factorial_coef_inv[i][j] = 1.0 / factorial_coef[i][j];
@@ -85,11 +111,9 @@ namespace exafmm
 		factorial_table[i]*inverse_factorial_table[j]*inverse_factorial_table[i-j];
 	  }
 
-	oddOrEventable[i] = oddOrEven(i);
-
       }
 
-    for(int n = 0; n <= P*2; n++)
+    for(int n = 0; n <= EXPANSION; n++)
       {
 	int index_start = n*n+n;
 	factorial_coef_oned[index_start] = factorial_coef[n][0];
@@ -241,14 +265,22 @@ namespace exafmm
 	int nj = Cj->NBODY;
 
 #if SIMD_P2P
-	if(ni > NSIMD)
+	if(ni > NSIMD/2)
 	  {
 	    int nii = (ni + NSIMD-1) & (-NSIMD);
 
 #ifndef DOUBLE_P2P
-	    float Xi[nii],Yi[nii],Zi[nii],Mi[nii];
+          float Xi[nii], Yi[nii], Zi[nii], Mi[nii];
+          //float Xi[nii] __attribute__((aligned(64)));
+          //float Yi[nii] __attribute__((aligned(64)));
+          //float Zi[nii] __attribute__((aligned(64)));
+          //float Mi[nii] __attribute__((aligned(64)));
 #else
-	    double Xi[nii],Yi[nii],Zi[nii],Mi[nii];
+          double Xi[nii], Yi[nii], Zi[nii], Mi[nii];
+          //double Xi[nii] __attribute__((aligned(64)));
+          //double Yi[nii] __attribute__((aligned(64)));
+          //double Zi[nii] __attribute__((aligned(64)));
+          //double Mi[nii] __attribute__((aligned(64)));
 #endif
           
 	    for(int k = 0; k < ni; k++)
@@ -365,49 +397,48 @@ namespace exafmm
 	      }
 	  }
 #else
-	// do not use vectorized version if n1*n2 too small
-	for(int i = 0; i < ni; i++)
-	  {
-	    real_t acc[3] = {0.0,0.0,0.0};
-	    real_t dx[3] = {0.0,0.0,0.0};
-          
-	    real_t pot = 0;
+          {
+            // do not use vectorized version if n1*n2 too small
+            for(int i = 0; i < ni; i++)
+              {
+            if(!Bi[i].issink)
+              continue;
+            
+            real_t acc[3] = {0.0,0.0,0.0};
+            real_t dx[3] = {0.0,0.0,0.0};
 
-	    for(int j = 0; j < nj; j++)
-	      {
-		if(!Bj[j].issource)
-		  continue;
+            real_t pot = 0;
 
-		for(int d=0; d<3; d++)
-		  dx[d] = Bi[i].X[d]-Bj[j].X[d];
+            for(int j = 0; j < nj; j++)
+              {
+                if(!Bj[j].issource)
+                  continue;
 
-		real_t R2 = norm(dX);
+                for(int d=0; d<3; d++)
+                  dx[d] = Bj[j].X[d]-Bi[i].X[d];
 
-		if(R2 > 0)
-		  {
-		    real_t R = sqrt(dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
-		    real_t invR2 = 1.0 / R2;
-		    real_t invR = Bj[j].q * sqrt(invR2) ;
-		    pot += invR;
-              
-		    for(int d=0; d<3; d++) {
-		      dx[d] *= invR2 * invR;
-		      acc[d] += dx[d];
-		    }
-		  }
-	      }
+                real_t R2 = (dx[0]*dx[0]+dx[1]*dx[1]+dx[2]*dx[2]);
 
-	    if(Bi[i].issink) {
-#pragma omp atomic
-	      Bi[i].p += pot;
-#pragma omp atomic
-	      Bi[i].F[0] -= acc[0];
-#pragma omp atomic
-	      Bi[i].F[1] -= acc[1];
-#pragma omp atomic
-	      Bi[i].F[2] -= acc[2];
-	    }
-	  }
+                if(R2 > 0) {
+                  real_t invR2 = 1 / R2;
+                  real_t invR = Bj[j].q * sqrt(invR2);
+                  pot += invR;
+                  for(int d=0; d<3; d++){
+                dx[d] *= invR2 * invR;
+                acc[d] += dx[d];
+                  }
+                }
+              }
+    #pragma omp atomic
+            Bi[i].p += (real_t) pot;
+    #pragma omp atomic
+            Bi[i].F[0] += (real_t) acc[0];
+    #pragma omp atomic
+            Bi[i].F[1] += (real_t) acc[1];
+    #pragma omp atomic
+            Bi[i].F[2] += (real_t) acc[2];
+              }
+          }
 #endif
 
       }
@@ -608,10 +639,10 @@ namespace exafmm
 	  Gnm[i] = std::conj(Gnm[i]);
 
 	for(int n = 0; n <= P; n++)
-	    for(int m = 0; m <= n; m++)
+	  for(int m = 0; m <= n; m++)
             for(int k = 0; k <= P-n; k++)
-                for(int l = -k; l <= k; l++)
-                    c_local[index(n, m)] += c_local_Ci[index(n+k, m+l)] * Gnm[index(k, l)];
+	      for(int l = -k; l <= k; l++)
+		c_local[index(n, m)] += c_local_Ci[index(n+k, m+l)] * Gnm[index(k, l)];
 
 	real_t r_local[NTERM];
 
@@ -652,10 +683,10 @@ namespace exafmm
 	  Gnm[i] = std::conj(Gnm[i]);
 
 	for(int n = 0; n <= 1; n++)
-        for(int m = 0; m <= n; m++)
+	  for(int m = 0; m <= n; m++)
             for(int k = 0; k <= P-n; k++)
-                for(int l = -k; l <= k; l++)
-                    Phi[index(n, m)] += c_local_Ci[index(n + k, m + l)] * Gnm[index(k, l)];
+	      for(int l = -k; l <= k; l++)
+		Phi[index(n, m)] += c_local_Ci[index(n + k, m + l)] * Gnm[index(k, l)];
 
 	B->p    += std::real(Phi[0]);
 	B->F[0] -= std::real(Phi[3]);
@@ -747,6 +778,91 @@ namespace exafmm
       }
   }
 
+
+// This is a (hopefully) simd version of M2L along z axis
+// See solidfmm paper (https://arxiv.org/abs/2202.02847)
+void axial_M2L_simd(real_t r_multipole_Cj[], real_t r_local_ci[], int P)
+{
+    //rowMajor buffer of multipoles
+    real_t bufferImag[rowMajorIndexOneD(P+1, P+1)], bufferReal[rowMajorIndexOneD(P+1, P+1)];
+    
+    //copy imag and real part to each buffer
+    for (int n=0; n<=P; n++)
+    {
+        for (int m=-n; m<=0; m++)
+        {
+            bufferImag[rowImagIndex[index(n, m)]] = r_multipole_Cj[index(n, m)];
+        }
+     
+        for (int m=0; m<=n; m++)
+        {
+            bufferReal[rowRealIndex[index(n, m)]] = r_multipole_Cj[index(n, m)];
+        }
+    }
+    
+    real_t retImag[rowMajorIndexOneD(P+1, P+1)], retReal[rowMajorIndexOneD(P+1, P+1)];
+    
+    for (int m=0; m<=P; m++)
+    {
+        int len = rowMajorBeg[m+1]-rowMajorBeg[m];
+        
+        for (int k=0; k<len; k++)
+        {
+            int des = m + k;
+            real_t res_imag = 0, res_real = 0;
+            
+            for (int kk=0; kk<len; kk++)
+            {
+                res_imag += bufferImag[rowMajorBeg[m] + kk] * factorial_table[m + m + k + kk];
+                res_real += bufferReal[rowMajorBeg[m] + kk] * factorial_table[m + m + k + kk];
+            }
+            retImag[rowMajorBeg[m] + k] = res_imag;
+            retReal[rowMajorBeg[m] + k] = res_real;
+        }
+    }
+    
+    //copy back
+    //copy imag and real part to each buffer
+    for (int n=0; n<=P; n++)
+    {
+        for (int m=-n; m<=0; m++)
+        {
+            r_local_ci[index(n, m)] = retImag[rowImagIndex[index(n, m)]];
+        }
+     
+        for (int m=0; m<=n; m++)
+        {
+            r_local_ci[index(n, m)] = retReal[rowRealIndex[index(n, m)]];
+        }
+        
+    }
+}
+
+
+// This is a plain version of M2L along z axis according to Dehnen2014
+  void axial_M2L(real_t r_multipole_Cj[], real_t r_local_ci[], int P)
+  {
+    for(int n = 0; n <= P; n++)
+      {
+          
+	int index_start = index(n, 0);
+
+	for(int k = 0; k <= P-n; k++)
+	    {
+	      r_local_ci[index_start] += r_multipole_Cj[k*(k+1)]*factorial_table[(n+k)];
+	    }
+          
+	for(int m = 1; m <= std::min(n, P-n); m++)
+	    {
+	      for(int k = m; k <= P-n; k++)
+		  {
+		    r_local_ci[index_start-m] += r_multipole_Cj[index(k, -m)]*factorial_table[(n+k)];
+		    r_local_ci[index_start+m] += r_multipole_Cj[index(k,  m)]*factorial_table[(n+k)];
+		  }
+	    }
+      }
+  }
+
   void M2L_rotate(Cell*Ci, Cell*Cj)
   {
     
@@ -815,7 +931,7 @@ namespace exafmm
     //Step 1:       first rotate multipoles around the original z - axis with alpha_z
     for(int n = 1; n <= P; n++)
       {
-	int index_start = n*n+n;
+	int index_start = index(n, 0);
 	real_t Re_ei, Im_ei, Im_r, Re_r;
 	for(int m = 1; m <= n; m++)
 	  {
@@ -834,7 +950,7 @@ namespace exafmm
     //step 3:       rotate around(new) z - axis by alpha_x
     for(int n = 1; n <= P; n++)
       {
-	int index_start = n*n+n;
+	int index_start = index(n, 0);
 	real_t Re_ei, Im_ei, Im_r, Re_r;
 	for(int m = 1; m <= n; m++)
 	  {
@@ -856,56 +972,29 @@ namespace exafmm
 	r_multipole_Cj[n] *= factorial_coef_inv_oned[n];
       }
 
-
     //Actual computation of M2L, using the fact that along (0, 0, 1) vector
     //the singular solid harmonics is much simpler than the full form
-    
-    for(int n = 0; n <= P; n++)
-      {
-	int index_start = n*(n+1);
-
 #ifndef DOUBLEHEIGHT
-	for(int k = 0; k <= P-n; k++)
+    axial_M2L(r_multipole_Cj, r_local_ci, P);
 #else
-	  for(int k = 0; k <= P; k++)
+    axial_M2L_simd(r_multipole_Cj, r_local_ci, P);
 #endif
-	    {
-	      real_t fac = factorial_table[n+k];
-	      r_local_ci[index_start] += r_multipole_Cj[k*(k+1)]*fac;
-	    }
-
-	real_t fac;
-          
-#ifndef DOUBLEHEIGHT
-	for(int m = 1; m <= std::min(n, P-n); m++)
-#else
-	  for(int m = 1; m <= n; m++)
-#endif
-	    {
-
-#ifndef DOUBLEHEIGHT
-#pragma omp simd
-        for(int k = m; k <= P-n; k++)
-#else
-#pragma omp simd
-		for(int k = m; k <= P; k++)
-#endif
-		  {
-		    int index_start_k = index(k, 0);
-		    fac = factorial_table[(n+k)]*oddOrEventable[m];
-		    r_local_ci[index_start-m] += r_multipole_Cj[index_start_k-m]*fac;
-		    r_local_ci[index_start+m] += r_multipole_Cj[index_start_k+m]*fac;
-		  }
-	    }
-      }
-
+        
+    //Add the missing (-1)^m factor back
+    for(int n=0; n<=P; n++)
+      for (int m=1; m<=n; m+=2)
+        {
+	  r_local_ci[index(n,  m)] *= -1;
+	  r_local_ci[index(n, -m)] *= -1;
+        }
+      
     //Step 5:       swap x and z
     swap_x_z(r_local_ci);
 
     //Step 6:       Rotate local expansion around z - axis by(-alpha_x)
     for(int n = 1; n <= P; n++)
       {
-	int index_start = n*n+n;
+	int index_start = index(n, 0);
 	real_t Re_ei, Im_ei, Im_c, Re_c;
 	for(int m = 1; m <= n; m++)
 	  {
@@ -924,7 +1013,7 @@ namespace exafmm
     //Step 8:       Final rotation around z - axis by(-alpha_z)
     for(int n = 1; n <= P; n++)
       {
-	int index_start = n*n+n;
+	int index_start = index(n, 0);
 	real_t Re_ei, Im_ei, Im_c, Re_c;
 	for(int m = 1; m <= n; m++)
 	  {

@@ -163,9 +163,9 @@ int main(int argc, char **argv)
 	  //temporarily use a high force accuracy for the
 	  //calculation of potential energies in the snapshots
 	  real_t temp_force_accuracy = force_accuracy;
-	  //force_accuracy = 1e-8;
+	  force_accuracy = 1e-8;
         
-	  write_snapshot(snapnum, mainsys);
+	  //write_snapshot(snapnum, mainsys);
 	  snapnum++;
 
 	  //restore the original value of force_accuracy
@@ -174,8 +174,8 @@ int main(int argc, char **argv)
 	  real_t kinetic = system_kinetic_energy(mainsys);
 	  real_t pot = system_potential_energy(mainsys);
 	  system_center_of_mass(mainsys, cmpos, cmvel);
-	  printf("com=%18.12Lg %18.12Lg %18.12Lg tot=%18.12f \n",
-		 cmpos[0], cmpos[1], cmpos[2], -pot+kinetic);
+	  printf("com=%18.12Lg %18.12Lg %18.12Lg pot=%18.12f kin=%18.12f \n",
+		 cmpos[0], cmpos[1], cmpos[2], -pot, kinetic);
 	  fflush(stdout);
         
 	  kick_self(0,  mainsys,  dt, 0, 0, false);
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 
 #if 0
 	  for(unsigned int b=0; b<mainsys.n; b++){
-            printf("%g %d %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg\n", t_now,
+            printf("%g %d %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg %12.10Lg \n", t_now,
                    mainsys.part[b].id,
                    (long double)mainsys.part[b].pos[0],
                    (long double)mainsys.part[b].pos[1],
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
                    (long double)mainsys.part[b].vel[0],
                    (long double)mainsys.part[b].vel[1],
                    (long double)mainsys.part[b].vel[2],
-                   (long double)(-pot+kinetic));
+                   (long double)(-pot), (long double)kinetic);
 	  }
 #endif
         
