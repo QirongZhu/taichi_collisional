@@ -1,0 +1,3 @@
+/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/tree.dir
+/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/edit_cache.dir
+/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/rebuild_cache.dir

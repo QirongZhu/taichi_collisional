@@ -1,0 +1,1 @@
+/usr/local/bin/g++-11  -fopenmp -O3 -DNDEBUG -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/tree.dir/tree.cxx.o -o tree  /usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/libgomp.dylib 

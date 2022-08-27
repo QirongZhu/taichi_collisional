@@ -1,0 +1,803 @@
+The system is: Darwin - 21.6.0 - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/local/bin/gcc-11 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/3.23.2/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/local/bin/g++-11 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/3.23.2/CompilerIdCXX/a.out"
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_23364/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_23364.dir/build.make CMakeFiles/cmTC_23364.dir/build
+Building C object CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o
+/usr/local/bin/gcc-11   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk   -v -Wl,-v -o CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -c /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/gcc-11
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_23364.dir/'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1 -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c -fPIC -quiet -dumpdir CMakeFiles/cmTC_23364.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mmacosx-version-min=12.5.0 -mtune=core2 -version -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccfGM9jm.s
+GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks
+End of search list.
+GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: fc9270750b781d283f30323241b96005
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_23364.dir/'
+ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccfGM9jm.s
+Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+Target: x86_64-apple-darwin21.6.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name ccfGM9jm.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccfGM9jm.s
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.'
+Linking C executable cmTC_23364
+/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_23364.dir/link.txt --verbose=1
+/usr/local/bin/gcc-11  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -o cmTC_23364 
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/gcc-11
+COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'cmTC_23364' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'cmTC_23364.'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_23364 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -lemutls_w -lgcc -lSystem -no_compact_unwind
+collect2 version 11.3.0
+/usr/bin/ld -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_23364 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -lemutls_w -lgcc -lSystem -no_compact_unwind
+@(#)PROGRAM:ld  PROJECT:ld64-764
+BUILD 11:22:50 Apr 28 2022
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+Library search paths:
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib
+Framework search paths:
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+    add: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+    add: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  end of search list found
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+  collapse include dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+  collapse include dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  implicit include dirs: [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make -f Makefile cmTC_23364/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_23364.dir/build.make CMakeFiles/cmTC_23364.dir/build]
+  ignore line: [Building C object CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/local/bin/gcc-11   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk   -v -Wl -v -o CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -c /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/gcc-11]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_23364.dir/']
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1 -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c -fPIC -quiet -dumpdir CMakeFiles/cmTC_23364.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mmacosx-version-min=12.5.0 -mtune=core2 -version -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccfGM9jm.s]
+  ignore line: [GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  ignore line: [End of search list.]
+  ignore line: [GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: fc9270750b781d283f30323241b96005]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_23364.dir/']
+  ignore line: [ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccfGM9jm.s]
+  ignore line: [Apple clang version 13.1.6 (clang-1316.0.21.2.5)]
+  ignore line: [Target: x86_64-apple-darwin21.6.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+  ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name ccfGM9jm.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccfGM9jm.s]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.']
+  ignore line: [Linking C executable cmTC_23364]
+  ignore line: [/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_23364.dir/link.txt --verbose=1]
+  ignore line: [/usr/local/bin/gcc-11  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl -search_paths_first -Wl -headerpad_max_install_names  -v -Wl -v CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -o cmTC_23364 ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/gcc-11]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'cmTC_23364' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'cmTC_23364.']
+  link line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_23364 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o -lemutls_w -lgcc -lSystem -no_compact_unwind]
+    arg [/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2] ==> ignore
+    arg [-dynamic] ==> ignore
+    arg [-arch] ==> ignore
+    arg [x86_64] ==> ignore
+    arg [-syslibroot] ==> ignore
+    arg [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk] ==> ignore
+    arg [-macosx_version_min] ==> ignore
+    arg [12.5.0] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_23364] ==> ignore
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..]
+    arg [-search_paths_first] ==> ignore
+    arg [-headerpad_max_install_names] ==> ignore
+    arg [-v] ==> ignore
+    arg [CMakeFiles/cmTC_23364.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lemutls_w] ==> lib [emutls_w]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lSystem] ==> lib [System]
+    arg [-no_compact_unwind] ==> ignore
+  Library search paths: [;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/]
+  remove lib [System]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  implicit libs: [emutls_w;gcc]
+  implicit objs: []
+  implicit dirs: [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_d0037/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_d0037.dir/build.make CMakeFiles/cmTC_d0037.dir/build
+Building CXX object CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o
+/usr/local/bin/g++-11   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk   -v -Wl,-v -o CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -c /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/g++-11
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d0037.dir/'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1plus -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCXXCompilerABI.cpp -fPIC -quiet -dumpdir CMakeFiles/cmTC_d0037.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mmacosx-version-min=12.5.0 -mtune=core2 -version -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//cc9sdAl6.s
+GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks
+End of search list.
+GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: 02c18aecee5676a1d03bbb99d00490a6
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d0037.dir/'
+ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//cc9sdAl6.s
+Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+Target: x86_64-apple-darwin21.6.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name cc9sdAl6.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//cc9sdAl6.s
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.'
+Linking CXX executable cmTC_d0037
+/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d0037.dir/link.txt --verbose=1
+/usr/local/bin/g++-11  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_d0037 
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/g++-11
+COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'cmTC_d0037' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'cmTC_d0037.'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_d0037 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lemutls_w -lgcc -lSystem -no_compact_unwind
+collect2 version 11.3.0
+/usr/bin/ld -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_d0037 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lemutls_w -lgcc -lSystem -no_compact_unwind
+@(#)PROGRAM:ld  PROJECT:ld64-764
+BUILD 11:22:50 Apr 28 2022
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+Library search paths:
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib
+Framework search paths:
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/
+
+
+
+Parsed CXX implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11]
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21]
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward]
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+    add: [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+    add: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+    add: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  end of search list found
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/include/c++/11]
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21] ==> [/usr/local/Cellar/gcc/11.3.0_2/include/c++/11/x86_64-apple-darwin21]
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward] ==> [/usr/local/Cellar/gcc/11.3.0_2/include/c++/11/backward]
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+  collapse include dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+  collapse include dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+  collapse include dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  implicit include dirs: [/usr/local/Cellar/gcc/11.3.0_2/include/c++/11;/usr/local/Cellar/gcc/11.3.0_2/include/c++/11/x86_64-apple-darwin21;/usr/local/Cellar/gcc/11.3.0_2/include/c++/11/backward;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make -f Makefile cmTC_d0037/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_d0037.dir/build.make CMakeFiles/cmTC_d0037.dir/build]
+  ignore line: [Building CXX object CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/local/bin/g++-11   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk   -v -Wl -v -o CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -c /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/g++-11]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d0037.dir/']
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1plus -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /usr/local/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCXXCompilerABI.cpp -fPIC -quiet -dumpdir CMakeFiles/cmTC_d0037.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mmacosx-version-min=12.5.0 -mtune=core2 -version -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//cc9sdAl6.s]
+  ignore line: [GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  ignore line: [End of search list.]
+  ignore line: [GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: 02c18aecee5676a1d03bbb99d00490a6]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d0037.dir/']
+  ignore line: [ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//cc9sdAl6.s]
+  ignore line: [Apple clang version 13.1.6 (clang-1316.0.21.2.5)]
+  ignore line: [Target: x86_64-apple-darwin21.6.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+  ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name cc9sdAl6.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//cc9sdAl6.s]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.']
+  ignore line: [Linking CXX executable cmTC_d0037]
+  ignore line: [/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d0037.dir/link.txt --verbose=1]
+  ignore line: [/usr/local/bin/g++-11  -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl -search_paths_first -Wl -headerpad_max_install_names  -v -Wl -v CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_d0037 ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/g++-11]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-v' '-o' 'cmTC_d0037' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'cmTC_d0037.']
+  link line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_d0037 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lemutls_w -lgcc -lSystem -no_compact_unwind]
+    arg [/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2] ==> ignore
+    arg [-dynamic] ==> ignore
+    arg [-arch] ==> ignore
+    arg [x86_64] ==> ignore
+    arg [-syslibroot] ==> ignore
+    arg [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk] ==> ignore
+    arg [-macosx_version_min] ==> ignore
+    arg [12.5.0] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_d0037] ==> ignore
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..]
+    arg [-search_paths_first] ==> ignore
+    arg [-headerpad_max_install_names] ==> ignore
+    arg [-v] ==> ignore
+    arg [CMakeFiles/cmTC_d0037.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lemutls_w] ==> lib [emutls_w]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lSystem] ==> lib [System]
+    arg [-no_compact_unwind] ==> ignore
+  Library search paths: [;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/]
+  remove lib [System]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  implicit libs: [stdc++;emutls_w;gcc]
+  implicit objs: []
+  implicit dirs: [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+
+
+Detecting C OpenMP compiler ABI info compiled with the following output:
+Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_7270a/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_7270a.dir/build.make CMakeFiles/cmTC_7270a.dir/build
+Building C object CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o
+/usr/local/bin/gcc-11   -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -o CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -c /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.c
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/gcc-11
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_7270a.dir/'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1 -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.c -fPIC -quiet -dumpdir CMakeFiles/cmTC_7270a.dir/ -dumpbase OpenMPTryFlag.c.c -dumpbase-ext .c -mmacosx-version-min=12.5.0 -mtune=core2 -version -fopenmp -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccnFjATa.s
+GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks
+End of search list.
+GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: fc9270750b781d283f30323241b96005
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_7270a.dir/'
+ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccnFjATa.s
+Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+Target: x86_64-apple-darwin21.6.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name ccnFjATa.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccnFjATa.s
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.'
+Linking C executable cmTC_7270a
+/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7270a.dir/link.txt --verbose=1
+/usr/local/bin/gcc-11  -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -o cmTC_7270a  -v -Wl,-v 
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/gcc-11
+COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'cmTC_7270a' '-v' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'cmTC_7270a.'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_7270a -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -v -lgomp -lemutls_w -lgcc -lSystem -no_compact_unwind
+collect2 version 11.3.0
+/usr/bin/ld -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_7270a -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -v -lgomp -lemutls_w -lgcc -lSystem -no_compact_unwind
+@(#)PROGRAM:ld  PROJECT:ld64-764
+BUILD 11:22:50 Apr 28 2022
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+Library search paths:
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib
+Framework search paths:
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/
+
+
+
+Parsed C OpenMP implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make -f Makefile cmTC_7270a/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_7270a.dir/build.make CMakeFiles/cmTC_7270a.dir/build]
+  ignore line: [Building C object CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o]
+  ignore line: [/usr/local/bin/gcc-11   -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -o CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -c /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.c]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/gcc-11]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_7270a.dir/']
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1 -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.c -fPIC -quiet -dumpdir CMakeFiles/cmTC_7270a.dir/ -dumpbase OpenMPTryFlag.c.c -dumpbase-ext .c -mmacosx-version-min=12.5.0 -mtune=core2 -version -fopenmp -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccnFjATa.s]
+  ignore line: [GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  ignore line: [End of search list.]
+  ignore line: [GNU C17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: fc9270750b781d283f30323241b96005]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_7270a.dir/']
+  ignore line: [ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccnFjATa.s]
+  ignore line: [Apple clang version 13.1.6 (clang-1316.0.21.2.5)]
+  ignore line: [Target: x86_64-apple-darwin21.6.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+  ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name ccnFjATa.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccnFjATa.s]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.']
+  ignore line: [Linking C executable cmTC_7270a]
+  ignore line: [/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7270a.dir/link.txt --verbose=1]
+  ignore line: [/usr/local/bin/gcc-11  -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl -search_paths_first -Wl -headerpad_max_install_names CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -o cmTC_7270a  -v -Wl -v ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/gcc-11]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'cmTC_7270a' '-v' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-mtune=core2' '-dumpdir' 'cmTC_7270a.']
+  link line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_7270a -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o -v -lgomp -lemutls_w -lgcc -lSystem -no_compact_unwind]
+    arg [/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2] ==> ignore
+    arg [-dynamic] ==> ignore
+    arg [-arch] ==> ignore
+    arg [x86_64] ==> ignore
+    arg [-syslibroot] ==> ignore
+    arg [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk] ==> ignore
+    arg [-macosx_version_min] ==> ignore
+    arg [12.5.0] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_7270a] ==> ignore
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..]
+    arg [-search_paths_first] ==> ignore
+    arg [-headerpad_max_install_names] ==> ignore
+    arg [CMakeFiles/cmTC_7270a.dir/OpenMPTryFlag.c.o] ==> ignore
+    arg [-v] ==> ignore
+    arg [-lgomp] ==> lib [gomp]
+    arg [-lemutls_w] ==> lib [emutls_w]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lSystem] ==> lib [System]
+    arg [-no_compact_unwind] ==> ignore
+  Library search paths: [;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/]
+  remove lib [System]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  implicit libs: [gomp;emutls_w;gcc]
+  implicit objs: []
+  implicit dirs: [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+
+
+Detecting CXX OpenMP compiler ABI info compiled with the following output:
+Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_d551b/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_d551b.dir/build.make CMakeFiles/cmTC_d551b.dir/build
+Building CXX object CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o
+/usr/local/bin/g++-11   -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++17 -o CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -c /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.cpp
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/g++-11
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-std=gnu++17' '-o' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d551b.dir/'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1plus -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.cpp -fPIC -quiet -dumpdir CMakeFiles/cmTC_d551b.dir/ -dumpbase OpenMPTryFlag.cpp.cpp -dumpbase-ext .cpp -mmacosx-version-min=12.5.0 -mtune=core2 -std=gnu++17 -version -fopenmp -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccA9JCDp.s
+GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"
+ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"
+ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"
+ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include
+ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks
+End of search list.
+GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)
+	compiled by GNU C version 11.3.0, GMP version 6.2.1, MPFR version 4.1.0, MPC version 1.2.1, isl version isl-0.25-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: 02c18aecee5676a1d03bbb99d00490a6
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-std=gnu++17' '-o' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d551b.dir/'
+ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccA9JCDp.s
+Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+Target: x86_64-apple-darwin21.6.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name ccA9JCDp.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccA9JCDp.s
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-std=gnu++17' '-o' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.'
+Linking CXX executable cmTC_d551b
+/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d551b.dir/link.txt --verbose=1
+/usr/local/bin/g++-11  -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -o cmTC_d551b  -v -Wl,-v 
+Using built-in specs.
+COLLECT_GCC=/usr/local/bin/g++-11
+COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper
+Target: x86_64-apple-darwin21
+Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c,c++,objc,obj-c++,fortran,d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 11.3.0 (Homebrew GCC 11.3.0_2) 
+COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/
+LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../
+COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'cmTC_d551b' '-v' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'cmTC_d551b.'
+ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_d551b -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -v -lstdc++ -lgomp -lemutls_w -lgcc -lSystem -no_compact_unwind
+collect2 version 11.3.0
+/usr/bin/ld -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_d551b -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -v -lstdc++ -lgomp -lemutls_w -lgcc -lSystem -no_compact_unwind
+@(#)PROGRAM:ld  PROJECT:ld64-764
+BUILD 11:22:50 Apr 28 2022
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+Library search paths:
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc
+	/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib
+Framework search paths:
+	/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/
+
+
+
+Parsed CXX OpenMP implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make -f Makefile cmTC_d551b/fast && /Library/Developer/CommandLineTools/usr/bin/make  -f CMakeFiles/cmTC_d551b.dir/build.make CMakeFiles/cmTC_d551b.dir/build]
+  ignore line: [Building CXX object CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o]
+  ignore line: [/usr/local/bin/g++-11   -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++17 -o CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -c /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.cpp]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/g++-11]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-std=gnu++17' '-o' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o' '-c' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d551b.dir/']
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/cc1plus -quiet -v -iprefix /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/ -D__DYNAMIC__ -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk /Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/FindOpenMP/OpenMPTryFlag.cpp -fPIC -quiet -dumpdir CMakeFiles/cmTC_d551b.dir/ -dumpbase OpenMPTryFlag.cpp.cpp -dumpbase-ext .cpp -mmacosx-version-min=12.5.0 -mtune=core2 -std=gnu++17 -version -fopenmp -o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccA9JCDp.s]
+  ignore line: [GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/../../../../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../x86_64-apple-darwin21/include"]
+  ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/Library/Frameworks"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/x86_64-apple-darwin21]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../../../../include/c++/11/backward]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include]
+  ignore line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/include-fixed]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/include]
+  ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  ignore line: [End of search list.]
+  ignore line: [GNU C++17 (Homebrew GCC 11.3.0_2) version 11.3.0 (x86_64-apple-darwin21)]
+  ignore line: [	compiled by GNU C version 11.3.0  GMP version 6.2.1  MPFR version 4.1.0  MPC version 1.2.1  isl version isl-0.25-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: 02c18aecee5676a1d03bbb99d00490a6]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-std=gnu++17' '-o' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d551b.dir/']
+  ignore line: [ as -arch x86_64 -v -mmacosx-version-min=12.5 -mllvm -x86-pad-for-align=false -force_cpusubtype_ALL -o CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccA9JCDp.s]
+  ignore line: [Apple clang version 13.1.6 (clang-1316.0.21.2.5)]
+  ignore line: [Target: x86_64-apple-darwin21.6.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+  ignore line: [ "/Library/Developer/CommandLineTools/usr/bin/clang" -cc1as -triple x86_64-apple-macosx12.5.0 -filetype obj -main-file-name ccA9JCDp.s -target-cpu penryn -fdebug-compilation-dir=/Users/qirong_work/Debug/taichi_new/taichi_collisional/include/CMakeFiles/CMakeTmp -dwarf-debug-producer "Apple clang version 13.1.6 (clang-1316.0.21.2.5)" -dwarf-version=4 -mrelocation-model pic --mrelax-relocations -mllvm -x86-pad-for-align=false -mllvm -disable-aligned-alloc-awareness=1 -o CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o /var/folders/7k/c6sf49rs0qz6npg7xlp14cn80000gp/T//ccA9JCDp.s]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-std=gnu++17' '-o' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o' '-c' '-mmacosx-version-min=12.5.0'  '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.']
+  ignore line: [Linking CXX executable cmTC_d551b]
+  ignore line: [/usr/local/Cellar/cmake/3.23.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d551b.dir/link.txt --verbose=1]
+  ignore line: [/usr/local/bin/g++-11  -fopenmp -v -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -Wl -search_paths_first -Wl -headerpad_max_install_names CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -o cmTC_d551b  -v -Wl -v ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/local/bin/g++-11]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/lto-wrapper]
+  ignore line: [Target: x86_64-apple-darwin21]
+  ignore line: [Configured with: ../configure --prefix=/usr/local/opt/gcc --libdir=/usr/local/opt/gcc/lib/gcc/11 --disable-nls --enable-checking=release --with-gcc-major-version-only --enable-languages=c c++ objc obj-c++ fortran d --program-suffix=-11 --with-gmp=/usr/local/opt/gmp --with-mpfr=/usr/local/opt/mpfr --with-mpc=/usr/local/opt/libmpc --with-isl=/usr/local/opt/isl --with-zstd=/usr/local/opt/zstd --with-pkgversion='Homebrew GCC 11.3.0_2' --with-bugurl=https://github.com/Homebrew/homebrew-core/issues --enable-libphobos --build=x86_64-apple-darwin21 --with-system-zlib --with-sysroot=/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib zstd]
+  ignore line: [gcc version 11.3.0 (Homebrew GCC 11.3.0_2) ]
+  ignore line: [COMPILER_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/]
+  ignore line: [LIBRARY_PATH=/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/:/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-fopenmp' '-v' '-isysroot' '/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk' '-o' 'cmTC_d551b' '-v' '-mmacosx-version-min=12.5.0' '-asm_macosx_version_min=12.5' '-nodefaultexport' '-shared-libgcc' '-mtune=core2' '-dumpdir' 'cmTC_d551b.']
+  link line: [ /usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2 -dynamic -arch x86_64 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -macosx_version_min 12.5.0 -o cmTC_d551b -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11 -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc -L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../.. -search_paths_first -headerpad_max_install_names CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o -v -lstdc++ -lgomp -lemutls_w -lgcc -lSystem -no_compact_unwind]
+    arg [/usr/local/Cellar/gcc/11.3.0_2/bin/../libexec/gcc/x86_64-apple-darwin21/11/collect2] ==> ignore
+    arg [-dynamic] ==> ignore
+    arg [-arch] ==> ignore
+    arg [x86_64] ==> ignore
+    arg [-syslibroot] ==> ignore
+    arg [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk] ==> ignore
+    arg [-macosx_version_min] ==> ignore
+    arg [12.5.0] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_d551b] ==> ignore
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc]
+    arg [-L/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..]
+    arg [-search_paths_first] ==> ignore
+    arg [-headerpad_max_install_names] ==> ignore
+    arg [CMakeFiles/cmTC_d551b.dir/OpenMPTryFlag.cpp.o] ==> ignore
+    arg [-v] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lgomp] ==> lib [gomp]
+    arg [-lemutls_w] ==> lib [emutls_w]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lSystem] ==> lib [System]
+    arg [-no_compact_unwind] ==> ignore
+  Library search paths: [;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/]
+  remove lib [System]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/bin/../lib/gcc/11/gcc/x86_64-apple-darwin21/11/../../..] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc]
+  collapse library dir [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11] ==> [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11]
+  collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+  implicit libs: [stdc++;gomp;emutls_w;gcc]
+  implicit objs: []
+  implicit dirs: [/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc/x86_64-apple-darwin21/11;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11/gcc;/usr/local/Cellar/gcc/11.3.0_2/lib/gcc/11;/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/usr/lib]
+  implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks]
+
+
