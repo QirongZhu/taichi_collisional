@@ -28,8 +28,14 @@ https://developer.nvidia.com/blog/thinking-parallel-part-iii-tree-construction-g
 ### Usage
 e.g.,
 
-mkdir build
-cd build
-CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
-make
-./tree
+1)Edit CMakeList.txt with "BOOST_DIR" and expansion order "EXPANSION"
+
+2)mkdir build
+
+3)cd build
+
+4)CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
+
+5)make
+
+6)./tree
