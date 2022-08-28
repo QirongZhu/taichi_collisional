@@ -1,4 +1,5 @@
 #include "common.h"
+#include "kernel.h"
 
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Min_sphere_of_points_d_traits_3.h>
@@ -148,7 +149,7 @@ namespace FMM
 #endif
             cell.left = -1, cell.right = -1;
 
-            if (cell.NBODY < thres)
+            if (cell.NBODY < ncrit)
             {
                 return;
             }
@@ -181,11 +182,43 @@ namespace FMM
             }
         }
 
+        void allocateMultipoles()
+        {
+            std::vector<std::vector<real_t>> Multipoles((int)cells.size(),
+                                                        std::vector<real_t>(NTERM, 0));
+
+            multipoles = std::move(Multipoles);
+
+            std::vector<std::vector<real_t>> Locals((int)cells.size(),
+                                                    std::vector<real_t>(NTERM, 0));
+
+            locals = std::move(Locals);
+
+            std::vector<std::vector<real_t>> Pns((int)cells.size(),
+                                                 std::vector<real_t>((EXPANSION + 1), 0));
+            pns = std::move(Pns);
+
+            for (size_t i = 0; i < cells.size(); i++)
+            {
+                cells[i].M = &multipoles[i][0];
+                cells[i].L = &locals[i][0];
+                cells[i].Pn = &pns[i][0];
+            }
+        }
+
         void buildTree()
         {
             cells.resize(1);
             cells.reserve(bodies.size());
+
             buildCells(bodies.begin(), bodies.end(), 0, -1);
+#ifdef DEBUG
+            std::cout << "Tree construction done \n";
+#endif
+            allocateMultipoles();
+#ifdef DEBUG
+            std::cout << "Multipole and local memory allocation done \n";
+#endif
         }
 
         void setBodies(size_t num)
@@ -207,7 +240,7 @@ namespace FMM
             else
             {
                 P2M(&node);
-                std::cout << node.X[0] << " " << node.X[1] << " " << node.X[2] << " " << node.R << std::endl;
+                std::cout << node.X[0] << " " << node.X[1] << " " << node.X[2] << " " << node.R << " " << node.left << std::endl;
                 return;
             }
         }
@@ -285,6 +318,31 @@ namespace FMM
             {
                 C->R = 1e-6 * C->R;
             }
+
+            real_t r_multipole[NTERM];
+
+            for (int indice = 0; indice < NTERM; indice++)
+                r_multipole[indice] = 0.0;
+
+            for (auto b = C->BODY; b != C->BODY + C->NBODY; b++)
+            {
+                Body *B = &bodies[b];
+
+                for (int d = 0; d < 3; d++)
+                {
+                    dX[d] = B->X[d] - C->X[d];
+                }
+
+                real_t Gnm[NTERM];
+
+                make_Gnm_real(&dX[0], &Gnm[0], P);
+
+                for (int indice = 0; indice < NTERM; indice++)
+                    r_multipole[indice] += B->m * Gnm[indice];
+            }
+
+            for (int indice = 0; indice < NTERM; indice++)
+                C->M[indice] += r_multipole[indice];
         }
 
         void M2M(Cell *Ci)
@@ -319,19 +377,78 @@ namespace FMM
             Ci->X[1] = center[1];
             Ci->X[2] = center[2];
             Ci->R = rminball;
+
+            complex_t c_multipole[NTERM];
+            for (int i = 0; i < NTERM; i++)
+            {
+                c_multipole[i] = 0;
+            }
+
+            for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + 2; Cj++)
+            {
+                for (int d = 0; d < 3; d++)
+                {
+                    dX[d] = Cj->X[d] - Ci->X[d];
+                }
+
+                real_t r_multipole_Cj[NTERM];
+                complex_t c_multipole_Cj[NTERM];
+
+                for (int i = 0; i < NTERM; i++)
+                {
+                    r_multipole_Cj[i] = Cj->M[i];
+                    c_multipole_Cj[i] = 0;
+                }
+
+                real_2_complex(r_multipole_Cj, c_multipole_Cj, P);
+
+                complex_t Gnm[NTERM];
+
+                make_Gnm(&dX[0], &Gnm[0], P);
+
+                for (int n = 0; n <= P; n++)
+                {
+                    for (int m = 0; m <= n; m++)
+                    {
+                        for (int k = 0; k <= n; k++)
+                            for (int l = std::max(-k, m - n + k); l <= std::min(k, m + n - k); l++)
+                                c_multipole[index(n, m)] +=
+                                    c_multipole_Cj[index(n - k, m - l)] * Gnm[index(k, l)];
+                    }
+                }
+            }
+
+            real_t r_multipole[NTERM];
+            complex_2_real(c_multipole, r_multipole, P);
+
+            for (int indice = 0; indice < NTERM; indice++)
+                Ci->M[indice] += r_multipole[indice];
         }
 
         void printTree()
         {
             for (auto &c : cells)
             {
-                std::cout << c.NBODY << " " << c.X[0] << " " << c.X[1] << " " << c.X[2] << " " << c.R << std::endl;
+                std::cout << c.index << " " << c.NBODY << " "
+                          << c.X[0] << " " << c.X[1] << " " << c.X[2] << " " << c.R << " " << c.left << std::endl;
             }
+
+            std::cout << "Multipoles of root cell: \n";
+            for (int i = 0; i < NTERM; i++)
+            {
+                std::cout << cells[0].M[i] << " ";
+            }
+            std::cout << "\n";
         }
 
     private:
         Bodies bodies;
         Cells cells;
+
+        std::vector<std::vector<real_t>> multipoles;
+        std::vector<std::vector<real_t>> locals;
+        std::vector<std::vector<real_t>> pns;
+
         TreeType treetype = kdtree;
         int dim = 3;
         int count = 0;

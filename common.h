@@ -4,14 +4,18 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <complex>
 #include <random>
 #include <string>
 #include <chrono>
 #include <numeric>
 #include <parallel/algorithm>
 
+
 namespace FMM
 {
+    typedef double real_t;                  //!< Real type
+    typedef std::complex<real_t> complex_t; //!< Complex type
 
     std::random_device rd;
     std::mt19937 e2(rd());
@@ -23,13 +27,13 @@ namespace FMM
         rcbtree
     };
 
-    const int thres = 256;
-    const int para_thres = 1500;
-
     struct Body
     {
-        double X[3];
-        double m;
+        real_t X[3];
+        real_t m;
+        real_t F[3];
+        real_t p;
+        size_t index;
 
         Body()
         {
@@ -45,9 +49,13 @@ namespace FMM
 
     struct Cell
     {
+        real_t X[3];
+        real_t R;
 
-        double X[3];
-        double R;
+        real_t *M;
+        real_t *L;
+        real_t *Pn;
+        real_t min_acc;
 
         int left;
         int right;
@@ -55,11 +63,22 @@ namespace FMM
         size_t NBODY;
         size_t index;
 
-        bool isLeaf() { return left == -1; }
+        bool has_sink;
+        bool has_source;
 
-        // unsigned int level;
+        bool isLeaf() { return left == -1; }
     };
 
     typedef std::vector<Cell> Cells;
+
+    const int P = EXPANSION;                             //!< Order of expansions
+    const int NTERM = (EXPANSION + 1) * (EXPANSION + 1); //!< Number of coefficients
+    const int ncrit = 192;                               //!< Number of bodies per leaf cell
+    const real_t theta = 0.65;                           //!< Multipole acceptance criterion
+    const int para_thres = 1500;
+
+    real_t dX[3];             //!< Distance vector
+#pragma omp threadprivate(dX) //!< Make global variables private
+
 
 }
