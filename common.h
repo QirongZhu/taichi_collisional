@@ -16,10 +16,6 @@ namespace FMM
     typedef double real_t;                  //!< Real type
     typedef std::complex<real_t> complex_t; //!< Complex type
 
-    std::random_device rd;
-    std::mt19937 e2(rd());
-    std::uniform_real_distribution<> dist(-10, 10);
-
     enum TreeType
     {
         kdtree,
@@ -34,12 +30,9 @@ namespace FMM
         real_t p;
         size_t index;
 
-        Body()
+        Body(real_t x_ = 0, real_t y_ = 0, real_t z_ = 0, real_t m_ = 0, size_t id = 0)
         {
-            X[0] = dist(e2);
-            X[1] = dist(e2);
-            X[2] = dist(e2);
-            m = 1.0;
+            X[0] = x_, X[1] = y_, X[2] = z_, m = m_, index = id;
         }
     };
 
@@ -76,7 +69,7 @@ namespace FMM
     const real_t theta = 0.65;                           //!< Multipole acceptance criterion
     const int para_thres = 1500;
 
-    real_t dX[3];             //!< Distance vector
+    static real_t dX[3];      //!< Distance vector
 #pragma omp threadprivate(dX) //!< Make global variables private
 
     static real_t factorial_table[2 * EXPANSION + 8];
