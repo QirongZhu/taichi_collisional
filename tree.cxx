@@ -4,6 +4,10 @@ using namespace FMM;
 
 int main()
 {
+
+  // static method called to initialize some coeff arrays
+  Tree::initKernel();
+
   Tree kdtree;
   kdtree.setType(1);
   kdtree.setBodies(1000000);

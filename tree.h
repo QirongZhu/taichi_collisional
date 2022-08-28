@@ -25,10 +25,53 @@ namespace FMM
 {
 
     class Tree
-
     {
-
     public:
+
+        static void initKernel()
+        {
+            for (int n = 0; n <= EXPANSION; n++)
+            {
+
+                factorial_table[0] = 1.0;
+
+                real_t inverse_factorial_table[4 * EXPANSION + 1];
+                inverse_factorial_table[0] = 1.0;
+
+                for (int i = 1; i <= EXPANSION * 2; i++)
+                {
+                    factorial_table[i] = (real_t)i * factorial_table[i - 1];
+                    inverse_factorial_table[i] = 1 / factorial_table[i];
+                }
+
+                for (int i = 0; i <= EXPANSION; i++)
+                {
+                    for (int j = 0; j <= EXPANSION; j++)
+                    {
+                        factorial_coef[i][j] = factorial_table[i + j] * factorial_table[i - j];
+                        factorial_coef_inv[i][j] = 1.0 / factorial_coef[i][j];
+                        if (j <= i)
+                            combinator_coef[i][j] =
+                                factorial_table[i] * inverse_factorial_table[j] * inverse_factorial_table[i - j];
+                    }
+                }
+
+                for (int n = 0; n <= EXPANSION; n++)
+                {
+                    int index_start = n * n + n;
+                    factorial_coef_oned[index_start] = factorial_coef[n][0];
+                    factorial_coef_inv_oned[index_start] = factorial_coef_inv[n][0];
+                    for (int m = 1; m <= n; m++)
+                    {
+                        factorial_coef_oned[index_start + m] = factorial_coef[n][m];
+                        factorial_coef_oned[index_start - m] = factorial_coef[n][m];
+                        factorial_coef_inv_oned[index_start + m] = factorial_coef_inv[n][m];
+                        factorial_coef_inv_oned[index_start - m] = factorial_coef_inv[n][m];
+                    }
+                }
+            }
+        }
+
         int findSplitAxis(Biter begin, Biter end, double &split_pos)
         {
             double mx = 0, my = 0, mz = 0, mtot = 0;
@@ -425,6 +468,18 @@ namespace FMM
                 Ci->M[indice] += r_multipole[indice];
         }
 
+        void M2L_rotate(Cell *Ci, Cell *Cj)
+        {
+        }
+
+        void L2L(Cell *Ci)
+        {
+        }
+
+        void L2P(Cell *Ci)
+        {
+        }
+
         void printTree()
         {
             for (auto &c : cells)
@@ -453,5 +508,4 @@ namespace FMM
         int dim = 3;
         int count = 0;
     };
-
 }

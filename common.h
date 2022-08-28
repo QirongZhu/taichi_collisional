@@ -11,7 +11,6 @@
 #include <numeric>
 #include <parallel/algorithm>
 
-
 namespace FMM
 {
     typedef double real_t;                  //!< Real type
@@ -80,5 +79,14 @@ namespace FMM
     real_t dX[3];             //!< Distance vector
 #pragma omp threadprivate(dX) //!< Make global variables private
 
+    static real_t factorial_table[2 * EXPANSION + 8];
+
+    static real_t factorial_coef[EXPANSION + 1][EXPANSION + 1];
+    static real_t factorial_coef_inv[EXPANSION + 1][EXPANSION + 1];
+
+    static real_t factorial_coef_oned[(EXPANSION + 1) * (EXPANSION + 1)];
+    static real_t factorial_coef_inv_oned[(EXPANSION + 1) * (EXPANSION + 1)];
+
+    static real_t combinator_coef[EXPANSION + 1][EXPANSION + 1];
 
 }
