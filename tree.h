@@ -23,14 +23,15 @@
 namespace FMM
 {
 
-    inline real_t norm(real_t *X);
-    inline int index(int n, int m);
+    real_t norm(real_t *X);
+    int index(int n, int m);
 
     void real_2_complex(real_t *real_arr, complex_t *complex_arr, int order);
     void complex_2_real(complex_t *complex_arr, real_t *real_arr, int order);
     void make_Tnm(real_t *dX, complex_t *Tnm, int Order);
     void make_Gnm(real_t *dX, complex_t *Gnm, int Order);
     void make_Gnm_real(real_t *dX, real_t *Gnm, int Order);
+
 
     class Tree
     {
