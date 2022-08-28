@@ -24,3 +24,12 @@ https://ui.adsabs.harvard.edu/abs/1989ApJS...71..871J/abstract
 https://developer.nvidia.com/blog/parallelforall/wp-content/uploads/2012/11/karras2012hpg_paper.pdf
 
 https://developer.nvidia.com/blog/thinking-parallel-part-iii-tree-construction-gpu/
+
+### Usage
+e.g.,
+
+mkdir build
+cd build
+CC=gcc-11 CXX=g++-11 cmake ../ -DCMAKE_BUILD_TYPE=Release
+make
+./tree
