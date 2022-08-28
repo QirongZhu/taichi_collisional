@@ -1,0 +1,51 @@
+#if EXPANSION > 3
+coeff=1/8.0 ;
+arr[16]=(
++         8 * arrold[17]
++        56 * arrold[19]
+)*coeff;
+
+arr[17]=(
++         1 * arrold[16]
++        14 * arrold[18]
+)*coeff;
+
+arr[18]=(
++         4 * arrold[17]
++        -4 * arrold[19]
+)*coeff;
+
+arr[19]=(
++         1 * arrold[16]
++        -2 * arrold[18]
+)*coeff;
+
+arr[20]=(
++         3 * arrold[20]
++        -4 * arrold[22]
++         1 * arrold[24]
+)*coeff;
+
+arr[21]=(
++        -6 * arrold[21]
++         2 * arrold[23]
+)*coeff;
+
+arr[22]=(
++        -5 * arrold[20]
++         4 * arrold[22]
++         1 * arrold[24]
+)*coeff;
+
+arr[23]=(
++        14 * arrold[21]
++         6 * arrold[23]
+)*coeff;
+
+arr[24]=(
++        35 * arrold[20]
++        28 * arrold[22]
++         1 * arrold[24]
+)*coeff;
+
+#endif

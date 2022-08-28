@@ -164,7 +164,7 @@ namespace FMM
 #ifdef DEBUG
     std::cout << cell.BODY << " " << cell.NBODY << "\n";
 #endif
-    cell.left = -1, cell.right = -1;
+    cell.left = -1, cell.NCHILD = 0;
 
     if (cell.NBODY < ncrit)
     {
@@ -191,11 +191,11 @@ namespace FMM
 
       cell.left = static_cast<unsigned int>(cells.size() - 2);
 
-      cell.right = static_cast<unsigned int>(cells.size() - 1);
+      cell.NCHILD = 2; //static_cast<unsigned int>(cells.size() - 1);
 
       buildCells(begin, mid, cells[index].left, level + 1);
 
-      buildCells(mid, end, cells[index].right, level + 1);
+      buildCells(mid, end, cells[index].left + 1, level + 1);
     }
   }
 
@@ -238,7 +238,7 @@ namespace FMM
 #endif
   }
 
-  void Tree::setBodies(Bodies & bodies_)
+  void Tree::setBodies(Bodies &bodies_)
   {
     bodies = std::move(bodies_);
   }
@@ -251,7 +251,7 @@ namespace FMM
     if (!node.isLeaf())
     {
       preorder(node.left);
-      preorder(node.right);
+      preorder(node.left+1);
     }
     else
     {
@@ -264,34 +264,6 @@ namespace FMM
   void Tree::preOrder()
   {
     preorder(0);
-  }
-
-  void Tree::upwardPass(Cell *Ci)
-  {
-    if (Ci->isLeaf())
-    {
-      P2M(Ci);
-    }
-    else
-    {
-      for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + 2; Cj++)
-      {
-#pragma omp task untied
-        upwardPass(Cj);
-      }
-#pragma omp taskwait
-
-      M2M(Ci);
-    }
-  }
-
-  //! Upward pass interface
-  void Tree::upwardPass()
-  {
-#pragma omp parallel
-#pragma omp single nowait
-
-    upwardPass(&cells[0]);
   }
 
   // Set the tree to be either (0) KD tree (1) Recursive Coordinates Bisection tree
@@ -307,7 +279,6 @@ namespace FMM
     }
   }
 
-  
   void Tree::printTree()
   {
     for (auto &c : cells)

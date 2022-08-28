@@ -46,17 +46,39 @@ namespace FMM
         void setBodies(Bodies &bodies_);
         void preorder(size_t index);
         void preOrder();
+
         void upwardPass(Cell *Ci);
         //! Upward pass interface
         void upwardPass();
+
+        void upwardPass_low(Cell *Ci);
+        //! Upward pass interface
+        void upwardPass_low();
+        
+        void M2L_rotate(Cell *Ci, Cell *Cj);
+
         // Set the tree to be either (0) KD tree (1) Recursive Coordinates Bisection tree
         void setType(int i);
+
+        //! Recursive call to dual tree traversal for horizontal pass
+        void horizontalPass(Cell *Ci, Cell *Cj);
+        //! Horizontal pass interface
+        void horizontalPass();
+
         void P2M(Cell *C);
         void M2M(Cell *Ci);
         void P2P(Cell *Ci, Cell *Cj);
-        void M2L_rotate(Cell *Ci, Cell *Cj);
         void L2L(Cell *Ci);
         void L2P(Cell *Ci);
+
+        void P2M_low(Cell *C);
+        void M2M_low(Cell *Ci);
+        void M2L_low(Cell *Ci, Cell *Cj);
+        void P2P_low(Cell *Ci, Cell *Cj);
+        void L2L_low(Cell *Ci);
+
+        void L2P_low(Cell *Ci);
+
         void printTree();
 
     private:
