@@ -4,21 +4,21 @@
 #include <CGAL/Min_sphere_of_points_d_traits_3.h>
 #include <CGAL/Min_sphere_of_spheres_d.h>
 
-  typedef CGAL::Simple_cartesian<double> Kp;
-  typedef CGAL::Min_sphere_of_points_d_traits_3<Kp, double> Traitsp;
-  typedef CGAL::Min_sphere_of_spheres_d<Traitsp> Min_spherep;
-  typedef Kp::Point_3 Pointp;
+typedef CGAL::Simple_cartesian<double> Kp;
+typedef CGAL::Min_sphere_of_points_d_traits_3<Kp, double> Traitsp;
+typedef CGAL::Min_sphere_of_spheres_d<Traitsp> Min_spherep;
+typedef Kp::Point_3 Pointp;
 
 #include <CGAL/Min_sphere_of_spheres_d.h>
 #include <CGAL/Cartesian.h>
 #include <CGAL/Min_sphere_of_spheres_d.h>
 
-  typedef double FT;
-  typedef CGAL::Cartesian<FT> K;
-  typedef CGAL::Min_sphere_of_spheres_d_traits_3<K, FT> Traits;
-  typedef CGAL::Min_sphere_of_spheres_d<Traits> Min_sphere;
-  typedef K::Point_3 Point;
-  typedef Traits::Sphere Sphere;
+typedef double FT;
+typedef CGAL::Cartesian<FT> K;
+typedef CGAL::Min_sphere_of_spheres_d_traits_3<K, FT> Traits;
+typedef CGAL::Min_sphere_of_spheres_d<Traits> Min_sphere;
+typedef K::Point_3 Point;
+typedef Traits::Sphere Sphere;
 
 namespace FMM
 {
@@ -32,7 +32,6 @@ namespace FMM
     void make_Gnm(real_t *dX, complex_t *Gnm, int Order);
     void make_Gnm_real(real_t *dX, real_t *Gnm, int Order);
 
-
     class Tree
     {
     public:
@@ -43,8 +42,8 @@ namespace FMM
         void buildCells(Biter begin, Biter end, size_t index, int level);
         void allocateMultipoles();
         void buildTree();
-        //void setBodies(size_t num);
-        void setBodies(Bodies& bodies_);
+        // void setBodies(size_t num);
+        void setBodies(Bodies &bodies_);
         void preorder(size_t index);
         void preOrder();
         void upwardPass(Cell *Ci);
