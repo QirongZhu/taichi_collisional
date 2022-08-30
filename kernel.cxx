@@ -197,7 +197,6 @@ namespace FMM
 
     void Tree::P2M(Cell *C)
     {
-        if (C->NBODY > 0)
         {
             Pointp P[C->NBODY];
 
@@ -217,10 +216,6 @@ namespace FMM
             C->X[1] = center[1];
             C->X[2] = center[2];
             C->R = mb.radius();
-        }
-        else
-        {
-            C->R = 1e-6 * C->R;
         }
 
         real_t r_multipole[NTERM];
@@ -255,7 +250,7 @@ namespace FMM
 
         for (Cell *ci = &cells[Ci->CHILD]; ci != &cells[Ci->CHILD] + Ci->NCHILD; ci++)
         {
-            if (ci->CHILD == -1)
+            if (ci->isLeaf())
             {
                 Point p(ci->X[0], ci->X[1], ci->X[2]);
                 S.push_back(Sphere(p, ci->R));

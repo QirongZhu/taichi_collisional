@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(trees VERSION 1.0)
 
 # choose to use octree instead of the default binary tree
-add_compile_definitions(USE_OCTREE)
+#add_compile_definitions(USE_OCTREE)
 
 # set the bucket size to construct leaf cells  
 add_compile_definitions(LEAFSIZE=96)
