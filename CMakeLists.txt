@@ -2,11 +2,18 @@ cmake_minimum_required(VERSION 3.12)
 
 project(trees VERSION 1.0)
 
+# choose to use octree instead of the default binary tree
+add_compile_definitions(USE_OCTREE)
+
+# set the bucket size to construct leaf cells  
+add_compile_definitions(LEAFSIZE=96)
+
 # multipole EXPANSION order as a macro 
 add_compile_definitions(EXPANSION=10)
+
 #add_compile_definitions(DEBUG)
 add_compile_definitions(SIMD_P2P)
-add_compile_definitions(DOUBLE_P2P)
+#add_compile_definitions(DOUBLE_P2P)
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)

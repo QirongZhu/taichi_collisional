@@ -152,7 +152,7 @@ namespace FMM
     }
   }
 
-  void Tree::buildCells(Biter begin, Biter end, size_t index, int level = 0)
+  void Tree::buildBinCells(Biter begin, Biter end, size_t index, int level = 0)
   {
     auto &cell = cells[index];
 #ifdef DEBUG
@@ -164,7 +164,7 @@ namespace FMM
 #ifdef DEBUG
     std::cout << cell.BODY << " " << cell.NBODY << "\n";
 #endif
-    cell.left = -1, cell.NCHILD = 0;
+    cell.CHILD = -1, cell.NCHILD = 0;
 
     if (cell.NBODY < ncrit)
     {
@@ -189,14 +189,88 @@ namespace FMM
 
       cells.resize(cells.size() + 2);
 
-      cell.left = static_cast<unsigned int>(cells.size() - 2);
+      cell.CHILD = static_cast<unsigned int>(cells.size() - 2);
 
-      cell.NCHILD = 2; //static_cast<unsigned int>(cells.size() - 1);
+      cell.NCHILD = 2; // static_cast<unsigned int>(cells.size() - 1);
 
-      buildCells(begin, mid, cells[index].left, level + 1);
+      buildBinCells(begin, mid, cells[index].CHILD, level + 1);
 
-      buildCells(mid, end, cells[index].left + 1, level + 1);
+      buildBinCells(mid, end, cells[index].CHILD + 1, level + 1);
     }
+  }
+
+  void Tree::buildOctCells(Biter begin, Biter end, double cx, double cy, double cz, double radius, int index)
+  {
+#ifdef USE_OCTREE
+    auto &cell = cells[index];
+
+    cell.index = index;
+    cell.BODY = std::distance(bodies.begin(), begin);
+    cell.NBODY = std::distance(begin, end);
+    cell.CHILD = -1;
+    cell.NCHILD = 0;
+
+    //#ifdef DEBUG
+    // std::cout << "\nBuild cell " << index << " ";
+    // std::cout << cx << " " << cy << " " << cz << " << radius << "" << cell.NBODY << " \n ";
+    //#endif
+
+    if (cell.NBODY < ncrit)
+    {
+      return;
+    }
+
+    for (auto it = begin; it != end; it++)
+    {
+      it->octant = (it->X[0] > cx) + ((it->X[1] > cy) << 1) + ((it->X[2] > cz) << 2);
+      // std::cout << it->octant << std::endl;
+    }
+
+    Biter previous = begin;
+    Biter next = begin;
+
+    int size[8] = {0};
+    int oct = 0;
+    while (oct < 8)
+    {
+      next = std::partition(previous, end,
+                            std::bind([](const Body &b, int o)
+                                      { return b.octant <= o; },
+                                      std::placeholders::_1, oct));
+
+      size[(oct++)] = static_cast<int>(std::distance(previous, next));
+      previous = next;
+    }
+
+    int numChild = 0, offset = 0;
+    int offsets[8];
+
+    for (int i = 0; i < 8; i++)
+    {
+      offsets[i] = offset;
+      offset += size[i];
+      numChild += (size[i] > 0);
+    }
+
+    cells.resize(cells.size() + numChild);
+    cell.CHILD = static_cast<int>(cells.size() - numChild);
+    cell.NCHILD = numChild;
+
+    offset = 0;
+
+    for (int i = 0; i < 8; i++)
+    {
+      double nrad = radius / 2;
+      double ncx = ((i >> 0) & 1) ? (cx + nrad) : (cx - nrad);
+      double ncy = ((i >> 1) & 1) ? (cy + nrad) : (cy - nrad);
+      double ncz = ((i >> 2) & 1) ? (cz + nrad) : (cz - nrad);
+      if (size[i] > 0)
+      {
+        buildOctCells(begin + offsets[i], begin + offsets[i] + size[i],
+                      ncx, ncy, ncz, nrad, cell.CHILD + (offset++));
+      }
+    }
+#endif
   }
 
   void Tree::allocateMultipoles()
@@ -228,7 +302,29 @@ namespace FMM
     cells.resize(1);
     cells.reserve(bodies.size());
 
-    buildCells(bodies.begin(), bodies.end(), 0, -1);
+#ifdef USE_OCTREE
+    getBoundBox();
+    double radius = range_x.second - range_x.first;
+
+    if (radius < range_y.second - range_y.first)
+      radius = range_y.second - range_y.first;
+
+    if (radius < range_z.second - range_z.first)
+      radius = range_z.second - range_z.first;
+
+    radius = radius * 1.001;
+
+    double cx = range_x.first + range_x.second;
+    double cy = range_y.first + range_y.second;
+    double cz = range_z.first + range_z.second;
+
+    int index_start = 0;
+    buildOctCells(bodies.begin(), bodies.end(),
+                  cx / 2, cy / 2, cz / 2, radius / 2, index_start);
+#else
+    buildBinCells(bodies.begin(), bodies.end(), 0, -1);
+#endif
+
 #ifdef DEBUG
     std::cout << "Tree construction done \n";
 #endif
@@ -243,6 +339,32 @@ namespace FMM
     bodies = std::move(bodies_);
   }
 
+  void Tree::getBoundBox()
+  {
+    double xmax = -HUGE, ymax = -HUGE, zmax = -HUGE;
+    double xmin = HUGE, ymin = HUGE, zmin = HUGE;
+    for (auto &p : bodies)
+    {
+      if (p.X[0] > xmax)
+        xmax = p.X[0];
+      else if (p.X[0] < xmin)
+        xmin = p.X[0];
+
+      if (p.X[1] > ymax)
+        ymax = p.X[1];
+      else if (p.X[1] < ymin)
+        ymin = p.X[1];
+
+      if (p.X[2] > zmax)
+        zmax = p.X[2];
+      else if (p.X[2] < zmin)
+        zmin = p.X[2];
+    }
+    range_x = std::make_pair(xmin, xmax);
+    range_y = std::make_pair(ymin, ymax);
+    range_z = std::make_pair(zmin, zmax);
+  }
+
   void Tree::preorder(size_t index)
   {
     auto &node = cells[index];
@@ -250,13 +372,13 @@ namespace FMM
 
     if (!node.isLeaf())
     {
-      preorder(node.left);
-      preorder(node.left+1);
+      preorder(node.CHILD);
+      preorder(node.CHILD + 1);
     }
     else
     {
       P2M(&node);
-      std::cout << node.X[0] << " " << node.X[1] << " " << node.X[2] << " " << node.R << " " << node.left << std::endl;
+      std::cout << node.X[0] << " " << node.X[1] << " " << node.X[2] << " " << node.R << " " << node.CHILD << std::endl;
       return;
     }
   }
@@ -284,7 +406,7 @@ namespace FMM
     for (auto &c : cells)
     {
       std::cout << c.index << " " << c.NBODY << " "
-                << c.X[0] << " " << c.X[1] << " " << c.X[2] << " " << c.R << " " << c.left << std::endl;
+                << c.X[0] << " " << c.X[1] << " " << c.X[2] << " " << c.R << " " << c.CHILD << std::endl;
     }
 
     std::cout << "Multipoles of root cell: \n";

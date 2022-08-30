@@ -9,10 +9,16 @@ int main()
   std::uniform_real_distribution<> dist(-10, 10);
 
   Bodies inputBodies;
-  for (int i=0; i<1000000; i++)
+  for (int i = 0; i < 1000000; i++)
   {
     inputBodies.emplace_back(Body(dist(e2), dist(e2), dist(e2), 1.0, i));
   }
+
+#ifdef USE_OCTREE
+  std::cout << "Octree used for FMM \n";
+#else
+  std::cout << "Binary used for FMM \n";
+#endif
 
   // static method called to initialize some coeff arrays
   Tree::initKernel();
@@ -34,7 +40,15 @@ int main()
   e_seconds = stop - start;
   std::cout << "Tree upward traversal took: " << e_seconds.count() << std::endl;
 
-  kdtree.printTree();
+  // kdtree.printTree();
+
+  start = std::chrono::steady_clock::now();
+  kdtree.horizontalPass();
+  stop = std::chrono::steady_clock::now();
+  e_seconds = stop - start;
+  std::cout << "Tree horizontal traversal took: " << e_seconds.count() << std::endl;
+
+  // kdtree.printTree();
 
   return 0;
 }

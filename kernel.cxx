@@ -2,14 +2,18 @@
 
 #include <vectorclass/vectorclass.h>
 
+#ifdef DOUBLE_P2P
 const int NSIMD = 8;
+#else
+const int NSIMD = 16;
+#endif
 
 namespace FMM
 {
-  inline int oddOrEven(int n)
-  {
-    return (((n) & 1) == 1) ? -1 : 1;
-  }
+    inline int oddOrEven(int n)
+    {
+        return (((n)&1) == 1) ? -1 : 1;
+    }
 
     real_t norm(real_t *X) { return X[0] * X[0] + X[1] * X[1] + X[2] * X[2]; }
 
@@ -249,9 +253,9 @@ namespace FMM
     {
         std::vector<Sphere> S;
 
-        for (Cell *ci = &cells[Ci->left]; ci != &cells[Ci->left] + Ci->NCHILD; ci++)
+        for (Cell *ci = &cells[Ci->CHILD]; ci != &cells[Ci->CHILD] + Ci->NCHILD; ci++)
         {
-            if (ci->left == -1)
+            if (ci->CHILD == -1)
             {
                 Point p(ci->X[0], ci->X[1], ci->X[2]);
                 S.push_back(Sphere(p, ci->R));
@@ -259,7 +263,7 @@ namespace FMM
             else
             {
                 // use granddaughers information to get R_max
-                for (Cell *cii = &cells[ci->left]; cii != &cells[ci->left] + Ci->NCHILD;
+                for (Cell *cii = &cells[ci->CHILD]; cii != &cells[ci->CHILD] + Ci->NCHILD;
                      cii++)
                 {
                     Point p(cii->X[0], cii->X[1], cii->X[2]);
@@ -284,7 +288,7 @@ namespace FMM
             c_multipole[i] = 0;
         }
 
-        for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + Ci->NCHILD; Cj++)
+        for (Cell *Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++)
         {
             for (int d = 0; d < 3; d++)
             {
@@ -511,8 +515,8 @@ namespace FMM
         real_t R2 = norm(dX) * theta * theta; // Scalar distance squared
 
         if (R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R))
-        { // If distance is far enough
-            M2L_rotate(Ci, Cj);	//  M2L kernel
+        {                       // If distance is far enough
+            M2L_rotate(Ci, Cj); //  M2L kernel
         }
         else if (Ci->isLeaf() && Cj->isLeaf())
         {                // Else if both cells are leafs
@@ -520,7 +524,7 @@ namespace FMM
         }
         else if (Cj->isLeaf() || (Ci->R >= Cj->R && !Ci->isLeaf()))
         { // If Cj is leaf or Ci is larger
-            for (Cell *ci = &cells[Ci->left]; ci != &cells[Ci->left] + Ci->NCHILD; ci++)
+            for (Cell *ci = &cells[Ci->CHILD]; ci != &cells[Ci->CHILD] + Ci->NCHILD; ci++)
             {                                 // Loop over Ci's children
 #pragma omp task untied if (ci->NBODY > 1000) //   Start OpenMP task if large enough task
                 horizontalPass(ci, Cj);       //   Recursive call to target child cells
@@ -528,7 +532,7 @@ namespace FMM
         }
         else
         { // Else if Ci is leaf or Cj is larger
-            for (Cell *cj = &cells[Cj->left]; cj != &cells[Cj->left] + Cj->NCHILD; cj++)
+            for (Cell *cj = &cells[Cj->CHILD]; cj != &cells[Cj->CHILD] + Cj->NCHILD; cj++)
             {                           // Loop over Cj's children
                 horizontalPass(Ci, cj); //   Recursive call to source child cells
             }                           //  End loop over Cj's children
@@ -586,7 +590,7 @@ namespace FMM
     {
         real_t comx = 0, comy = 0, comz = 0, totalq = 0;
 
-        for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + Ci->NCHILD; Cj++)
+        for (Cell *Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++)
         {
             comx += Cj->X[0] * Cj->M[0];
             comy += Cj->X[1] * Cj->M[0];
@@ -605,7 +609,7 @@ namespace FMM
 
         real_t max_r = 0;
 
-        for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + Ci->NCHILD; Cj++)
+        for (Cell *Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++)
         {
             for (int d = 0; d < 3; d++)
             {
@@ -706,7 +710,7 @@ namespace FMM
 
     void Tree::L2L_low(Cell *Ci)
     {
-        for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + Ci->NCHILD; Cj++)
+        for (Cell *Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++)
         {
             Cj->L[0] += Ci->L[0];
         }
@@ -728,7 +732,7 @@ namespace FMM
         }
         else
         {
-            for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + 2; Cj++)
+            for (Cell *Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++)
             {
 #pragma omp task untied
                 upwardPass(Cj);
@@ -756,7 +760,7 @@ namespace FMM
         }
         else
         {
-            for (Cell *Cj = &cells[Ci->left]; Cj != &cells[Ci->left] + 2; Cj++)
+            for (Cell *Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++)
             {
 #pragma omp task untied
                 upwardPass_low(Cj);

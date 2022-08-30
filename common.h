@@ -30,6 +30,11 @@ namespace FMM
         real_t p;
         size_t index;
         real_t acc_old;
+
+#ifdef USE_OCTREE
+        int octant;
+#endif
+
         Body(real_t x_ = 0, real_t y_ = 0, real_t z_ = 0, real_t m_ = 0, size_t id = 0)
         {
             X[0] = x_, X[1] = y_, X[2] = z_, m = m_, index = id;
@@ -50,24 +55,21 @@ namespace FMM
         real_t *Pn;
         real_t min_acc;
 
-        int left;
+        int CHILD;
         int NCHILD;
         size_t BODY;
         size_t NBODY;
         size_t index;
 
-        bool has_sink;
-        bool has_source;
-
-        bool isLeaf() { return left == -1; }
+        bool isLeaf() { return CHILD == -1; }
     };
 
     typedef std::vector<Cell> Cells;
 
     const int P = EXPANSION;                             //!< Order of expansions
     const int NTERM = (EXPANSION + 1) * (EXPANSION + 1); //!< Number of coefficients
-    const int ncrit = 100;                               //!< Number of bodies per leaf cell
-    const real_t theta = 0.4;                           //!< Multipole acceptance criterion
+    const int ncrit = LEAFSIZE;                          //!< Number of bodies per leaf cell
+    const real_t theta = 0.5;                            //!< Multipole acceptance criterion
     const int para_thres = 1500;
 
     static real_t dX[3];      //!< Distance vector

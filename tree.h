@@ -39,7 +39,11 @@ namespace FMM
         int findSplitAxis(Biter begin, Biter end, double &split_pos);
         Biter splitBodiesAlong(Biter begin, Biter end, unsigned int i, double split_pos);
         void sortBodiesAlong(Biter begin, Biter end, unsigned int i);
-        void buildCells(Biter begin, Biter end, size_t index, int level);
+
+        void buildBinCells(Biter begin, Biter end, size_t index, int level);
+        void getBoundBox();
+        void buildOctCells(Biter begin, Biter end, double cx, double cy, double cz, double radius, int index);
+
         void allocateMultipoles();
         void buildTree();
         // void setBodies(size_t num);
@@ -54,7 +58,7 @@ namespace FMM
         void upwardPass_low(Cell *Ci);
         //! Upward pass interface
         void upwardPass_low();
-        
+
         void M2L_rotate(Cell *Ci, Cell *Cj);
 
         // Set the tree to be either (0) KD tree (1) Recursive Coordinates Bisection tree
@@ -92,5 +96,9 @@ namespace FMM
         TreeType treetype = kdtree;
         int dim = 3;
         int count = 0;
+
+        std::pair<real_t, real_t> range_x;
+        std::pair<real_t, real_t> range_y;
+        std::pair<real_t, real_t> range_z;
     };
 }
