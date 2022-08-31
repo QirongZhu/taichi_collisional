@@ -10,6 +10,10 @@
 #include <chrono>
 #include <numeric>
 #include <parallel/algorithm>
+#include <memory>
+
+#include <tbb/scalable_allocator.h>
+#include <tbb/cache_aligned_allocator.h>
 
 namespace FMM
 {
@@ -26,10 +30,7 @@ namespace FMM
     {
         real_t X[3];
         real_t m;
-        real_t F[3];
-        real_t p;
         size_t index;
-        real_t acc_old;
 
 #ifdef USE_OCTREE
         int octant;
@@ -38,12 +39,25 @@ namespace FMM
         Body(real_t x_ = 0, real_t y_ = 0, real_t z_ = 0, real_t m_ = 0, size_t id = 0)
         {
             X[0] = x_, X[1] = y_, X[2] = z_, m = m_, index = id;
-            F[0] = 0, F[1] = 0, F[2] = 0, p = 0, acc_old = 0;
         }
     };
 
-    typedef std::vector<Body> Bodies;
+    typedef std::vector<Body, tbb::detail::d1::cache_aligned_allocator<Body>> Bodies;
+    // typedef std::vector<Body, std::allocator<Body>> Bodies;
+
     typedef Bodies::iterator Biter;
+
+    struct Force
+    {
+        real_t F[3];
+        real_t p;
+        Force()
+        {
+            F[0] = 0, F[1] = 0, F[2] = 0, p = 0;
+        }
+    };
+    typedef std::vector<Force, tbb::detail::d1::cache_aligned_allocator<Force>> Forces;
+    //  typedef std::vector<Force, std::allocator<Force>> Forces;
 
     struct Cell
     {
@@ -64,7 +78,8 @@ namespace FMM
         bool isLeaf() { return CHILD == -1; }
     };
 
-    typedef std::vector<Cell> Cells;
+    typedef std::vector<Cell, tbb::detail::d1::cache_aligned_allocator<Cell>> Cells;
+    // typedef std::vector<Cell, std::allocator<Cell>> Cells;
 
     const int P = EXPANSION;                             //!< Order of expansions
     const int NTERM = (EXPANSION + 1) * (EXPANSION + 1); //!< Number of coefficients
