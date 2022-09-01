@@ -1,4 +1,8 @@
+#ifdef USE_RADXTREE
+#include "radixtree.h"
+#else
 #include "tree.h"
+#endif
 
 #include <vectorclass/vectorclass.h>
 
@@ -329,6 +333,9 @@ namespace FMM
         Body *Bi = &bodies[Ci->BODY];
         Body *Bj = &bodies[Cj->BODY];
 
+        Force* Fi=&forces[Ci->BODY];
+        Force* Fj=&forces[Cj->BODY];
+
         int ni = Ci->NBODY;
         int nj = Cj->NBODY;
 
@@ -407,13 +414,13 @@ namespace FMM
             {
 
 #pragma omp atomic
-                Bi[i].p += (real_t)Mi[i];
+                Fi[i].p += (real_t)Mi[i];
 #pragma omp atomic
-                Bi[i].F[0] += (real_t)Xi[i];
+                Fi[i].F[0] += (real_t)Xi[i];
 #pragma omp atomic
-                Bi[i].F[1] += (real_t)Yi[i];
+                Fi[i].F[1] += (real_t)Yi[i];
 #pragma omp atomic
-                Bi[i].F[2] += (real_t)Zi[i];
+                Fi[i].F[2] += (real_t)Zi[i];
             }
         }
         else
@@ -448,13 +455,13 @@ namespace FMM
                     }
                 }
 #pragma omp atomic
-                Bi[i].p += (real_t)pot;
+                Fi[i].p += (real_t)pot;
 #pragma omp atomic
-                Bi[i].F[0] += (real_t)acc[0];
+                Fi[i].F[0] += (real_t)acc[0];
 #pragma omp atomic
-                Bi[i].F[1] += (real_t)acc[1];
+                Fi[i].F[1] += (real_t)acc[1];
 #pragma omp atomic
-                Bi[i].F[2] += (real_t)acc[2];
+                Fi[i].F[2] += (real_t)acc[2];
             }
         }
 #else
@@ -489,13 +496,13 @@ namespace FMM
                     }
                 }
 #pragma omp atomic
-                Bi[i].p += (real_t)pot;
+                Fi[i].p += (real_t)pot;
 #pragma omp atomic
-                Bi[i].F[0] += (real_t)acc[0];
+                Fi[i].F[0] += (real_t)acc[0];
 #pragma omp atomic
-                Bi[i].F[1] += (real_t)acc[1];
+                Fi[i].F[1] += (real_t)acc[1];
 #pragma omp atomic
-                Bi[i].F[2] += (real_t)acc[2];
+                Fi[i].F[2] += (real_t)acc[2];
             }
         }
 #endif
@@ -630,6 +637,9 @@ namespace FMM
         Body *Bi = &bodies[Ci->BODY];
         Body *Bj = &bodies[Cj->BODY];
 
+        Force*Fi = &forces[Ci->BODY];
+        Force*Fj = &forces[Cj->BODY];
+
         int ni = Ci->NBODY;
         int nj = Cj->NBODY;
 
@@ -679,7 +689,7 @@ namespace FMM
 
             for (int k = 0; (k < NSIMD) && (i + k < ni); k++)
             {
-                Bi[i + k].acc_old += (real_t)factor1[k];
+                Fi[i + k].p += (real_t)factor1[k];
             }
         }
 #else
@@ -698,7 +708,7 @@ namespace FMM
                     invR2 += Bj[j].m / R2;
             }
 
-            Bi[i].acc_old += invR2;
+            Fi[i].p += invR2;
         }
 #endif
     }
@@ -715,7 +725,7 @@ namespace FMM
     {
         for (auto b = C->BODY; b != C->BODY + C->NBODY; b++)
         {
-            bodies[b].acc_old += C->L[0];
+            forces[b].p += C->L[0];
         }
     }
 

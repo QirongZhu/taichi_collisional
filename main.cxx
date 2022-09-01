@@ -1,5 +1,8 @@
-//#include "tree.h"
+#ifdef USE_RADXTREE
 #include "radixtree.h"
+#else
+#include "tree.h"
+#endif
 
 using namespace FMM;
 
@@ -10,37 +13,39 @@ int main()
   std::uniform_real_distribution<> dist(0, 1);
 
   Bodies inputBodies;
-  for (int i = 0; i < 1000; i++)
+  for (int i = 0; i < 1000000; i++)
   {
     inputBodies.emplace_back(Body(dist(e2), dist(e2), dist(e2), 1.0, i));
   }
 
   Tree bintree;
+  Tree::initKernel();
+  bintree.setType(1);
+
   bintree.setBodies(inputBodies);
-  //  bintree.getBoundBox();
+
   auto start = std::chrono::steady_clock::now();
-
-  bintree.buildRadixTree();
-  std::cout << "buildRadixTree done\n";
-
+  bintree.buildTree();
   auto stop = std::chrono::steady_clock::now();
+
   std::chrono::duration<double> e_seconds = stop - start;
   std::cout << "Tree construction took: " << e_seconds.count() << std::endl;
 
-  // bintree.printTree();
   start = std::chrono::steady_clock::now();
-
-  bintree.sumUpward();
-  std::cout << "upwardPass done\n";
-
-  bintree.flagNode();
-  std::cout << "flag big nodes \n\n ";
+  bintree.upwardPass();
   stop = std::chrono::steady_clock::now();
-
   e_seconds = stop - start;
-  std::cout << "Tree postprocessing took: " << e_seconds.count() << std::endl;
+  std::cout << "Tree upward traversal took: " << e_seconds.count() << std::endl;
 
-  bintree.convertCells();
+  // bintree.printTree();
+
+  start = std::chrono::steady_clock::now();
+  bintree.horizontalPass();
+  stop = std::chrono::steady_clock::now();
+  e_seconds = stop - start;
+  std::cout << "Tree horizontal traversal took: " << e_seconds.count() << std::endl;
+
+  //  bintree.getBoundBox();
 
   /*
   #ifdef USE_OCTREE

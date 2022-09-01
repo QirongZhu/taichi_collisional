@@ -201,7 +201,7 @@ namespace FMM
 
   void Tree::buildOctCells(Biter begin, Biter end, double cx, double cy, double cz, double radius, int index)
   {
-#ifdef USE_OCTREE
+//#ifdef USE_OCTREE
     auto &cell = cells[index];
 
     cell.index = index;
@@ -270,7 +270,7 @@ namespace FMM
                       ncx, ncy, ncz, nrad, cell.CHILD + (offset++));
       }
     }
-#endif
+//#endif
   }
 
   void Tree::allocateMultipoles()
@@ -302,28 +302,32 @@ namespace FMM
     cells.resize(1);
     cells.reserve(bodies.size());
 
-#ifdef USE_OCTREE
-    getBoundBox();
-    double radius = range_x.second - range_x.first;
+    if (treetype == octree)
+    {
 
-    if (radius < range_y.second - range_y.first)
-      radius = range_y.second - range_y.first;
+      getBoundBox();
+      double radius = range_x.second - range_x.first;
 
-    if (radius < range_z.second - range_z.first)
-      radius = range_z.second - range_z.first;
+      if (radius < range_y.second - range_y.first)
+        radius = range_y.second - range_y.first;
 
-    radius = radius * 1.001;
+      if (radius < range_z.second - range_z.first)
+        radius = range_z.second - range_z.first;
 
-    double cx = range_x.first + range_x.second;
-    double cy = range_y.first + range_y.second;
-    double cz = range_z.first + range_z.second;
+      radius = radius * 1.001;
 
-    int index_start = 0;
-    buildOctCells(bodies.begin(), bodies.end(),
-                  cx / 2, cy / 2, cz / 2, radius / 2, index_start);
-#else
-    buildBinCells(bodies.begin(), bodies.end(), 0, -1);
-#endif
+      double cx = range_x.first + range_x.second;
+      double cy = range_y.first + range_y.second;
+      double cz = range_z.first + range_z.second;
+
+      int index_start = 0;
+      buildOctCells(bodies.begin(), bodies.end(),
+                    cx / 2, cy / 2, cz / 2, radius / 2, index_start);
+    }
+    else
+    {
+      buildBinCells(bodies.begin(), bodies.end(), 0, -1);
+    }
 
 #ifdef DEBUG
     std::cout << "Tree construction done \n";
@@ -337,6 +341,7 @@ namespace FMM
   void Tree::setBodies(Bodies &bodies_)
   {
     bodies = std::move(bodies_);
+    forces.resize(bodies.size());
   }
 
   void Tree::getBoundBox()
@@ -398,6 +403,10 @@ namespace FMM
     else if (i == 1)
     {
       treetype = rcbtree;
+    }
+    else if (i == 2)
+    {
+      treetype = octree;
     }
   }
 

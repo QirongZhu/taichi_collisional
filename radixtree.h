@@ -20,7 +20,6 @@ typedef CGAL::Min_sphere_of_spheres_d<Traits> Min_sphere;
 typedef K::Point_3 Point;
 typedef Traits::Sphere Sphere;
 
-
 typedef std::pair<unsigned int, unsigned int> int2;
 typedef uint32_t HashType;
 
@@ -58,20 +57,20 @@ struct Node
   int BODY;
   bool selected = false;
   bool isleaf;
-  bool isLeaf() {return isleaf;}
+  bool isLeaf() { return isleaf; }
 };
 
 namespace FMM
 {
 
-    real_t norm(real_t *X);
-    int index(int n, int m);
+  real_t norm(real_t *X);
+  int index(int n, int m);
 
-    void real_2_complex(real_t *real_arr, complex_t *complex_arr, int order);
-    void complex_2_real(complex_t *complex_arr, real_t *real_arr, int order);
-    void make_Tnm(real_t *dX, complex_t *Tnm, int Order);
-    void make_Gnm(real_t *dX, complex_t *Gnm, int Order);
-    void make_Gnm_real(real_t *dX, real_t *Gnm, int Order);
+  void real_2_complex(real_t *real_arr, complex_t *complex_arr, int order);
+  void complex_2_real(complex_t *complex_arr, real_t *real_arr, int order);
+  void make_Tnm(real_t *dX, complex_t *Tnm, int Order);
+  void make_Gnm(real_t *dX, complex_t *Gnm, int Order);
+  void make_Gnm_real(real_t *dX, real_t *Gnm, int Order);
 
   class Tree
   {
@@ -90,51 +89,51 @@ namespace FMM
     void flagNode(Node *n, int index);
 
     void sumUpward(Node *Ci);
-    void sumUpward();    
+    void sumUpward();
     void convertCells();
+    void allocateMultipoles();
+    void buildTree();
 
-void upwardPass(Cell *Ci);
-        //! Upward pass interface
-        void upwardPass();
+    void upwardPass(Cell *Ci);
+    //! Upward pass interface
+    void upwardPass();
 
-        void upwardPass_low(Cell *Ci);
-        //! Upward pass interface
-        void upwardPass_low();
+    void upwardPass_low(Cell *Ci);
+    //! Upward pass interface
+    void upwardPass_low();
 
-        void M2L_rotate(Cell *Ci, Cell *Cj);
+    void M2L_rotate(Cell *Ci, Cell *Cj);
 
-        // Set the tree to be either (0) KD tree (1) Recursive Coordinates Bisection tree
-        void setType(int i);
+    // Set the tree to be either (0) KD tree (1) Recursive Coordinates Bisection tree
+    void setType(int i);
 
-        //! Recursive call to dual tree traversal for horizontal pass
-        void horizontalPass(Cell *Ci, Cell *Cj);
-        //! Horizontal pass interface
-        void horizontalPass();
+    //! Recursive call to dual tree traversal for horizontal pass
+    void horizontalPass(Cell *Ci, Cell *Cj);
+    //! Horizontal pass interface
+    void horizontalPass();
 
-        void P2M(Cell *C);
-        void M2M(Cell *Ci);
-        void P2P(Cell *Ci, Cell *Cj);
-        void L2L(Cell *Ci);
-        void L2P(Cell *Ci);
+    void P2M(Cell *C);
+    void M2M(Cell *Ci);
+    void P2P(Cell *Ci, Cell *Cj);
+    void L2L(Cell *Ci);
+    void L2P(Cell *Ci);
 
-        void P2M_low(Cell *C);
-        void M2M_low(Cell *Ci);
-        void M2L_low(Cell *Ci, Cell *Cj);
-        void P2P_low(Cell *Ci, Cell *Cj);
-        void L2L_low(Cell *Ci);
+    void P2M_low(Cell *C);
+    void M2M_low(Cell *Ci);
+    void M2L_low(Cell *Ci, Cell *Cj);
+    void P2P_low(Cell *Ci, Cell *Cj);
+    void L2L_low(Cell *Ci);
 
-        void L2P_low(Cell *Ci);
+    void L2P_low(Cell *Ci);
 
-        void printTree();
-
+    void printTree();
 
   private:
     Bodies bodies;
 
-    std::vector<std::pair<HashType, unsigned int> > MortonIDs;
-    //typedef std::vector<int2, tbb::detail::d1::cache_aligned_allocator<int2>> MortonIDs;
+    std::vector<std::pair<HashType, unsigned int>> MortonIDs;
+    // typedef std::vector<int2, tbb::detail::d1::cache_aligned_allocator<int2>> MortonIDs;
     typedef std::vector<Node, tbb::detail::d1::cache_aligned_allocator<Node>> Nodes;
-
 
     Nodes Leafs;
     Nodes Tree;
@@ -143,13 +142,17 @@ void upwardPass(Cell *Ci);
 
     Forces forces;
 
+    std::vector<std::vector<real_t>> multipoles;
+    std::vector<std::vector<real_t>> locals;
+    std::vector<std::vector<real_t>> pns;
+
     std::pair<real_t, real_t> range_x;
     std::pair<real_t, real_t> range_y;
     std::pair<real_t, real_t> range_z;
     real_t R0;
     real_t X0[3];
     Node *root = nullptr;
-    int start = 0;
+    int currInd = 0;
   };
 
 }

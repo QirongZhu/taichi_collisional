@@ -23,7 +23,8 @@ namespace FMM
     enum TreeType
     {
         kdtree,
-        rcbtree
+        rcbtree,
+        octree
     };
 
     struct Body
@@ -32,9 +33,7 @@ namespace FMM
         real_t m;
         size_t index;
 
-#ifdef USE_OCTREE
         int octant;
-#endif
 
         Body(real_t x_ = 0, real_t y_ = 0, real_t z_ = 0, real_t m_ = 0, size_t id = 0)
         {

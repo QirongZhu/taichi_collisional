@@ -1,6 +1,6 @@
 /**********************************************
 
-Below code for generating radix tree is taken 
+Below code for generating radix tree is taken
 from CudaBVH (https://github.com/aeoleader/CudaBVH),
 which closely follow Karras 2012 paper.
 
@@ -21,6 +21,7 @@ namespace FMM
     void Tree::setBodies(Bodies &bodies_)
     {
         bodies = std::move(bodies_);
+        forces.resize(bodies.size());
     }
 
     int Tree::delta(int x, int y)
@@ -74,7 +75,7 @@ namespace FMM
 
         if (firstCode == lastCode)
         {
-            commonPrefix += CLZ( bodies[first].index ^ bodies[last].index);
+            commonPrefix += CLZ(bodies[first].index ^ bodies[last].index);
         }
 
         // Use binary search to find where the next bit differs.
@@ -199,8 +200,8 @@ namespace FMM
         }
 
         __gnu_parallel::stable_sort(begin(MortonIDs), end(MortonIDs),
-                             [](const int2 &l, const int2 &r)
-                             { return l.first < r.first; });
+                                    [](const int2 &l, const int2 &r)
+                                    { return l.first < r.first; });
 
         Bodies tmp = bodies;
 
@@ -224,7 +225,7 @@ namespace FMM
         }
 
         Tree.resize(bodies.size() - 1);
-        
+
 #pragma omp parallel for
         for (size_t b = 0; b < Tree.size(); b++)
         {
@@ -240,16 +241,16 @@ namespace FMM
 
     void Tree::flagNode(Node *n, int index)
     {
-        std::cout << "node[" << n->idx << "] ->cell[" << index << "] ";
-        std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
+        //   std::cout << "node[" << n->idx << "] ->cell[" << index << "] ";
+        //   std::cout << " currInd: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
 
         n->index = index;
         n->selected = true;
 
         if (n->NBODY >= ncrit)
         {
-            int left_index = (++start);
-            int right_index = (++start);
+            int left_index = (++currInd);
+            int right_index = (++currInd);
             flagNode(n->left, left_index);
             flagNode(n->right, right_index);
         }
@@ -269,58 +270,111 @@ namespace FMM
     {
         if (n->isLeaf())
         {
-            n->BODY = n->idx;
+            n->BODY  = n->idx;
             n->NBODY = 1;
             return;
         }
         else
         {
-            if (n->left) sumUpward(n->left);
-            if (n->right) sumUpward(n->right);
-            
-             n->BODY = (n->left->BODY < n->right->BODY) ? n->left->BODY : n->right->BODY;
-             n->NBODY = n->left->NBODY + n->right->NBODY;
+            if (n->left)
+                sumUpward(n->left);
+            if (n->right)
+                sumUpward(n->right);
+
+            n->BODY = (n->left->BODY < n->right->BODY) ? n->left->BODY : n->right->BODY;
+            n->NBODY = n->left->NBODY + n->right->NBODY;
         }
     }
 
-    void Tree::printTree()
-    {
-        for (size_t c = 0; c < Tree.size(); c++)
-        {
-            std::cout << c << " " << Tree[c].idx << " " << std::endl;
-        }
-    }
+    //void Tree::printTree()
+    //{
+    //    for (size_t c = 0; c < Tree.size(); c++)
+    //    {
+    //        std::cout << c << " " << Tree[c].idx << " " << std::endl;
+    //    }
+    //}
 
     void Tree::convertCells()
     {
-        cells.resize(start);
+        cells.resize(currInd + 1);
 
-        for (size_t c=0; c<Tree.size(); c++)
+        for (size_t c = 0; c < Tree.size(); c++)
         {
-            if(Tree[c].selected)
+            if (Tree[c].selected)
             {
                 auto ind = Tree[c].index;
-                cells[ind].BODY = Tree[c].BODY;
+                
+                cells[ind].BODY  = Tree[c].BODY;
                 cells[ind].NBODY = Tree[c].NBODY;
-
+                cells[ind].index = ind;
+                
                 if (Tree[c].NBODY > ncrit)
                 {
-                    cells[ind].CHILD  = Tree[c].left->index;
+                    cells[ind].CHILD  = (Tree[c].left)->index;
                     cells[ind].NCHILD = 2;
                 }
                 else
                 {
-                    cells[ind].CHILD   = -1;
-                    cells[ind].NCHILD  = 0;
+                    cells[ind].CHILD  = -1;
+                    cells[ind].NCHILD = 0;
                 }
             }
         }
 
-        for (auto &c: cells)
+        // int cnt = 0;
+        // for (auto &c : cells)
+        //{
+        //    std::cout << (cnt++) << " " << c.BODY << " " << c.NBODY << " " << c.CHILD << " " << c.NCHILD << " \n";
+        // }
+    }
+
+    void Tree::allocateMultipoles()
+    {
+        std::vector<std::vector<real_t>> Multipoles((int)cells.size(),
+                                                    std::vector<real_t>(NTERM, 0));
+
+        multipoles = std::move(Multipoles);
+
+        std::vector<std::vector<real_t>> Locals((int)cells.size(),
+                                                std::vector<real_t>(NTERM, 0));
+
+        locals = std::move(Locals);
+
+        std::vector<std::vector<real_t>> Pns((int)cells.size(),
+                                             std::vector<real_t>((EXPANSION + 1), 0));
+        pns = std::move(Pns);
+
+        for (size_t i = 0; i < cells.size(); i++)
         {
-            std::cout << c.BODY << " " << c.NBODY << " " << c.CHILD << " " << c.NCHILD << " \n";
+            cells[i].M = &multipoles[i][0];
+            cells[i].L = &locals[i][0];
+            cells[i].Pn = &pns[i][0];
+        }
+    }
+
+    void Tree::buildTree()
+    {
+        buildRadixTree();
+        sumUpward();
+        flagNode();
+        convertCells();
+        allocateMultipoles();
+    }
+
+    void Tree::printTree()
+    {
+        for (auto &c : cells)
+        {
+            std::cout << c.index << " " << c.BODY << " " << c.NBODY << " "
+                      << c.X[0] << " " << c.X[1] << " " << c.X[2] << " " << c.R << " " << c.CHILD << std::endl;
         }
 
+        std::cout << "Multipoles of root cell: \n";
+        for (int i = 0; i < NTERM; i++)
+        {
+            std::cout << cells[0].M[i] << " ";
+        }
+        std::cout << "\n";
     }
 
 }

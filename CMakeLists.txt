@@ -1,12 +1,18 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(trees VERSION 1.0)
+project(trees VERSION 1.0 LANGUAGES CXX)
+
+# choose between a radix binary tree or other trees
+option(USE_RADIX "Choose radix tree" OFF)
+if (USE_RADIX)
+   add_compile_definitions(USE_RADXTREE)
+endif()
 
 # choose to use octree instead of the default binary tree
 #add_compile_definitions(USE_OCTREE)
 
 # set the bucket size to construct leaf cells  
-add_compile_definitions(LEAFSIZE=96)
+add_compile_definitions(LEAFSIZE=100)
 
 # multipole EXPANSION order as a macro 
 add_compile_definitions(EXPANSION=10)
@@ -44,7 +50,13 @@ if(TBB_FOUND)
 endif()
 
 #build the target
-add_executable(tree main.cxx common.h kernel.cxx radixtree.cxx radixtree.h)
+if(USE_RADIX)
+   message("use radix tree")
+   add_executable(tree main.cxx common.h kernel.cxx radixtree.cxx radixtree.h)
+else()
+   message("use octree or kdtree")
+   add_executable(tree main.cxx common.h kernel.cxx tree.cxx tree.h)
+endif()
 
 target_link_libraries(tree PRIVATE OpenMP::OpenMP_CXX TBB::tbb TBB::tbbmalloc)
 target_compile_options(tree PRIVATE "${OpenMP_CXX_FLAGS}")
