@@ -35,6 +35,7 @@ struct Node
   int index;
   int NBODY;
   int BODY;
+  bool selected = false;
   bool isleaf;
   bool isLeaf() {return isleaf;}
 };
@@ -62,6 +63,8 @@ namespace FMM
     void upwardPass();
 
     void printTree();
+    
+    void convertCells();
 
   private:
     Bodies bodies;
@@ -73,6 +76,8 @@ namespace FMM
 
     Nodes Leafs;
     Nodes Tree;
+
+    Cells cells;
 
     std::pair<real_t, real_t> range_x;
     std::pair<real_t, real_t> range_y;

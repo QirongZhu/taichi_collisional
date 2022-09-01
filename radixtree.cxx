@@ -243,6 +243,7 @@ namespace FMM
         std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
 
         n->index = index;
+        n->selected = true;
 
         if (n->NBODY >= ncrit)
         {
@@ -287,6 +288,38 @@ namespace FMM
         {
             std::cout << c << " " << Tree[c].idx << " " << std::endl;
         }
+    }
+
+    void RadixTree::convertCells()
+    {
+        cells.resize(start);
+
+        for (size_t c=0; c<Tree.size(); c++)
+        {
+            if(Tree[c].selected)
+            {
+                auto ind = Tree[c].index;
+                cells[ind].BODY = Tree[c].BODY;
+                cells[ind].NBODY = Tree[c].NBODY;
+
+                if (Tree[c].NBODY > ncrit)
+                {
+                    cells[ind].CHILD  = Tree[c].left->index;
+                    cells[ind].NCHILD = 2;
+                }
+                else
+                {
+                    cells[ind].CHILD   = -1;
+                    cells[ind].NCHILD  = 0;
+                }
+            }
+        }
+
+        for (auto &c: cells)
+        {
+            std::cout << c.BODY << " " << c.NBODY << " " << c.CHILD << " " << c.NCHILD << " \n";
+        }
+
     }
 
 }
