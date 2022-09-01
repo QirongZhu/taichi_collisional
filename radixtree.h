@@ -1,5 +1,26 @@
 #include "common.h"
 
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Min_sphere_of_points_d_traits_3.h>
+#include <CGAL/Min_sphere_of_spheres_d.h>
+
+typedef CGAL::Simple_cartesian<double> Kp;
+typedef CGAL::Min_sphere_of_points_d_traits_3<Kp, double> Traitsp;
+typedef CGAL::Min_sphere_of_spheres_d<Traitsp> Min_spherep;
+typedef Kp::Point_3 Pointp;
+
+#include <CGAL/Min_sphere_of_spheres_d.h>
+#include <CGAL/Cartesian.h>
+#include <CGAL/Min_sphere_of_spheres_d.h>
+
+typedef double FT;
+typedef CGAL::Cartesian<FT> K;
+typedef CGAL::Min_sphere_of_spheres_d_traits_3<K, FT> Traits;
+typedef CGAL::Min_sphere_of_spheres_d<Traits> Min_sphere;
+typedef K::Point_3 Point;
+typedef Traits::Sphere Sphere;
+
+
 typedef std::pair<unsigned int, unsigned int> int2;
 typedef uint32_t HashType;
 
@@ -42,7 +63,17 @@ struct Node
 
 namespace FMM
 {
-  class RadixTree
+
+    real_t norm(real_t *X);
+    int index(int n, int m);
+
+    void real_2_complex(real_t *real_arr, complex_t *complex_arr, int order);
+    void complex_2_real(complex_t *complex_arr, real_t *real_arr, int order);
+    void make_Tnm(real_t *dX, complex_t *Tnm, int Order);
+    void make_Gnm(real_t *dX, complex_t *Gnm, int Order);
+    void make_Gnm_real(real_t *dX, real_t *Gnm, int Order);
+
+  class Tree
   {
   public:
     int delta(int x, int y);
@@ -55,16 +86,47 @@ namespace FMM
     void setBodies(Bodies &bodies_);
     void buildRadixTree();
 
-    void traverse();
+    void flagNode();
+    void flagNode(Node *n, int index);
 
-    void traverse(Node *n, int index);
-
-    void upwardPass(Node *Ci);
-    void upwardPass();
-
-    void printTree();
-    
+    void sumUpward(Node *Ci);
+    void sumUpward();    
     void convertCells();
+
+void upwardPass(Cell *Ci);
+        //! Upward pass interface
+        void upwardPass();
+
+        void upwardPass_low(Cell *Ci);
+        //! Upward pass interface
+        void upwardPass_low();
+
+        void M2L_rotate(Cell *Ci, Cell *Cj);
+
+        // Set the tree to be either (0) KD tree (1) Recursive Coordinates Bisection tree
+        void setType(int i);
+
+        //! Recursive call to dual tree traversal for horizontal pass
+        void horizontalPass(Cell *Ci, Cell *Cj);
+        //! Horizontal pass interface
+        void horizontalPass();
+
+        void P2M(Cell *C);
+        void M2M(Cell *Ci);
+        void P2P(Cell *Ci, Cell *Cj);
+        void L2L(Cell *Ci);
+        void L2P(Cell *Ci);
+
+        void P2M_low(Cell *C);
+        void M2M_low(Cell *Ci);
+        void M2L_low(Cell *Ci, Cell *Cj);
+        void P2P_low(Cell *Ci, Cell *Cj);
+        void L2L_low(Cell *Ci);
+
+        void L2P_low(Cell *Ci);
+
+        void printTree();
+
 
   private:
     Bodies bodies;
@@ -78,6 +140,8 @@ namespace FMM
     Nodes Tree;
 
     Cells cells;
+
+    Forces forces;
 
     std::pair<real_t, real_t> range_x;
     std::pair<real_t, real_t> range_y;

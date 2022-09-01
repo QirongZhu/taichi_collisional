@@ -12,17 +12,18 @@ calculating funciton "delta(i, j)".
 ***********************************************/
 
 #include "radixtree.h"
+
 #include <bitset>
 
 namespace FMM
 {
 
-    void RadixTree::setBodies(Bodies &bodies_)
+    void Tree::setBodies(Bodies &bodies_)
     {
         bodies = std::move(bodies_);
     }
 
-    int RadixTree::delta(int x, int y)
+    int Tree::delta(int x, int y)
     {
         if (x >= 0 && x < MortonIDs.size() && y >= 0 && y < MortonIDs.size())
         {
@@ -33,7 +34,7 @@ namespace FMM
         return -1;
     }
 
-    int2 RadixTree::determineRange(int idx)
+    int2 Tree::determineRange(int idx)
     {
         int d = sign(delta(idx, idx + 1) - delta(idx, idx - 1));
 
@@ -61,7 +62,7 @@ namespace FMM
         return range;
     }
 
-    int RadixTree::findSplit(int2 range)
+    int Tree::findSplit(int2 range)
     {
         int first = range.first;
         int last = range.second;
@@ -105,7 +106,7 @@ namespace FMM
         return split;
     }
 
-    void RadixTree::assignNode(int idx)
+    void Tree::assignNode(int idx)
     {
         int2 range = determineRange(idx);
 
@@ -128,7 +129,7 @@ namespace FMM
         Tree[idx].right = ChB;
     }
 
-    void RadixTree::getBoundBox()
+    void Tree::getBoundBox()
     {
 
         double xmax = -HUGE, ymax = -HUGE, zmax = -HUGE;
@@ -170,7 +171,7 @@ namespace FMM
         X0[2] = (range_z.first + range_z.second) / 2 - R0;
     }
 
-    void RadixTree::sortBodies()
+    void Tree::sortBodies()
     {
         getBoundBox();
 
@@ -209,7 +210,7 @@ namespace FMM
         }
     }
 
-    void RadixTree::buildRadixTree()
+    void Tree::buildRadixTree()
     {
         sortBodies();
 
@@ -237,7 +238,7 @@ namespace FMM
         root = &Tree[0];
     }
 
-    void RadixTree::traverse(Node *n, int index)
+    void Tree::flagNode(Node *n, int index)
     {
         std::cout << "node[" << n->idx << "] ->cell[" << index << "] ";
         std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
@@ -249,22 +250,22 @@ namespace FMM
         {
             int left_index = (++start);
             int right_index = (++start);
-            traverse(n->left, left_index);
-            traverse(n->right, right_index);
+            flagNode(n->left, left_index);
+            flagNode(n->right, right_index);
         }
     }
 
-    void RadixTree::traverse()
+    void Tree::flagNode()
     {
-        traverse(&Tree[0], 0);
+        flagNode(&Tree[0], 0);
     }
 
-    void RadixTree::upwardPass()
+    void Tree::sumUpward()
     {
-        upwardPass(&Tree[0]);
+        sumUpward(&Tree[0]);
     }
 
-    void RadixTree::upwardPass(Node *n)
+    void Tree::sumUpward(Node *n)
     {
         if (n->isLeaf())
         {
@@ -274,15 +275,15 @@ namespace FMM
         }
         else
         {
-            if (n->left) upwardPass(n->left);
-            if (n->right) upwardPass(n->right);
+            if (n->left) sumUpward(n->left);
+            if (n->right) sumUpward(n->right);
             
              n->BODY = (n->left->BODY < n->right->BODY) ? n->left->BODY : n->right->BODY;
              n->NBODY = n->left->NBODY + n->right->NBODY;
         }
     }
 
-    void RadixTree::printTree()
+    void Tree::printTree()
     {
         for (size_t c = 0; c < Tree.size(); c++)
         {
@@ -290,7 +291,7 @@ namespace FMM
         }
     }
 
-    void RadixTree::convertCells()
+    void Tree::convertCells()
     {
         cells.resize(start);
 

@@ -15,7 +15,7 @@ int main()
     inputBodies.emplace_back(Body(dist(e2), dist(e2), dist(e2), 1.0, i));
   }
 
-  RadixTree bintree;
+  Tree bintree;
   bintree.setBodies(inputBodies);
   //  bintree.getBoundBox();
   auto start = std::chrono::steady_clock::now();
@@ -30,10 +30,10 @@ int main()
   // bintree.printTree();
   start = std::chrono::steady_clock::now();
 
-  bintree.upwardPass();
+  bintree.sumUpward();
   std::cout << "upwardPass done\n";
 
-  bintree.traverse();
+  bintree.flagNode();
   std::cout << "flag big nodes \n\n ";
   stop = std::chrono::steady_clock::now();
 
@@ -41,7 +41,7 @@ int main()
   std::cout << "Tree postprocessing took: " << e_seconds.count() << std::endl;
 
   bintree.convertCells();
-  
+
   /*
   #ifdef USE_OCTREE
     std::cout << "Octree used for FMM \n";

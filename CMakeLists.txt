@@ -44,7 +44,7 @@ if(TBB_FOUND)
 endif()
 
 #build the target
-add_executable(tree main.cxx tree.cxx tree.h common.h kernel.cxx radixtree.cxx radixtree.h)
+add_executable(tree main.cxx common.h kernel.cxx radixtree.cxx radixtree.h)
 
 target_link_libraries(tree PRIVATE OpenMP::OpenMP_CXX TBB::tbb TBB::tbbmalloc)
 target_compile_options(tree PRIVATE "${OpenMP_CXX_FLAGS}")
