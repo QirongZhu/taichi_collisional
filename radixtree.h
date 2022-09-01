@@ -56,7 +56,7 @@ namespace FMM
 
     void traverse();
 
-    void traverse(Node *n);
+    void traverse(Node *n, int index);
 
     void upwardPass(Node *Ci);
         //! Upward pass interface
@@ -68,10 +68,10 @@ namespace FMM
     Bodies bodies;
 
     std::vector<std::pair<HashType, unsigned int> > sortedMortonCodes;
-    typedef std::vector<Node> Nodes;
+    //typedef std::vector<Node> Nodes;
 
     //typedef std::vector<int2, tbb::detail::d1::cache_aligned_allocator<int2>> sortedMortonCodes;
-    //typedef std::vector<Node, tbb::detail::d1::cache_aligned_allocator<Node>> Nodes;
+    typedef std::vector<Node, tbb::detail::d1::cache_aligned_allocator<Node>> Nodes;
 
 
     Nodes Leafs;

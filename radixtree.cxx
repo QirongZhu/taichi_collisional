@@ -1,3 +1,16 @@
+/**********************************************
+
+Below code for generating radix tree is taken 
+from CudaBVH (https://github.com/aeoleader/CudaBVH),
+which closely follow Karras 2012 paper.
+
+Modification: Handle identical Morton IDs using
+concatenation of body IDs after its Morton IDs.
+See Karras 2012 section 4. This is reflected in
+calculating funciton "delta(i, j)".
+
+***********************************************/
+
 #include "radixtree.h"
 #include <bitset>
 
@@ -13,7 +26,9 @@ namespace FMM
     {
         if (x >= 0 && x < sortedMortonCodes.size() && y >= 0 && y < sortedMortonCodes.size())
         {
-            return CLZ(sortedMortonCodes[x].first ^ sortedMortonCodes[y].first);
+            return CLZ(sortedMortonCodes[x].first ^ sortedMortonCodes[y].first) +
+                   (sortedMortonCodes[x].first == sortedMortonCodes[y].first) *
+                       CLZ(bodies[x].index ^ bodies[y].index);
         }
         return -1;
     }
@@ -42,6 +57,7 @@ namespace FMM
         rr = idx > j ? idx : j;
 
         int2 range = std::make_pair(lr, rr);
+
         return range;
     }
 
@@ -53,10 +69,12 @@ namespace FMM
         HashType firstCode = sortedMortonCodes[first].first;
         HashType lastCode = sortedMortonCodes[last].first;
 
-        if (firstCode == lastCode)
-            return (first + last) >> 1;
-
         int commonPrefix = CLZ(firstCode ^ lastCode);
+
+        if (firstCode == lastCode)
+        {
+            commonPrefix += CLZ( bodies[first].index ^ bodies[last].index);
+        }
 
         // Use binary search to find where the next bit differs.
         // Specifically, we are looking for the highest object that
@@ -75,6 +93,9 @@ namespace FMM
                 HashType splitCode = sortedMortonCodes[newSplit].first;
 
                 int splitPrefix = CLZ(firstCode ^ splitCode);
+
+                if (firstCode == splitCode)
+                    splitPrefix += CLZ(bodies[first].index ^ bodies[newSplit].index);
 
                 if (splitPrefix > commonPrefix)
                     split = newSplit; // accept proposal
@@ -141,7 +162,7 @@ namespace FMM
         if (radius < range_z.second - range_z.first)
             radius = range_z.second - range_z.first;
 
-        radius = radius * 1.001;
+        radius = radius * 1.01;
         R0 = radius / 2;
 
         X0[0] = (range_x.first + range_x.second) / 2 - R0;
@@ -157,7 +178,7 @@ namespace FMM
 
         sortedMortonCodes.resize(bodies.size());
 
-        const int max_int = (1 << 20);
+        const int max_int = (1 << 10);
 
 #pragma omp parallel for
         for (size_t b = 0; b < bodies.size(); b++)
@@ -178,7 +199,7 @@ namespace FMM
             sortedMortonCodes[b] = std::make_pair(xx * 4 + yy * 2 + zz, b);
         }
 
-        __gnu_parallel::sort(begin(sortedMortonCodes), end(sortedMortonCodes),
+        __gnu_parallel::stable_sort(begin(sortedMortonCodes), end(sortedMortonCodes),
                              [](const int2 &l, const int2 &r)
                              { return l.first < r.first; });
 
@@ -188,12 +209,6 @@ namespace FMM
         for (size_t b = 0; b < bodies.size(); b++)
         {
             bodies[b] = tmp[sortedMortonCodes[b].second];
-
-            // std::bitset<32> mid(sortedMortonCodes[b].first);
-            // std::cout << mid << " " << sortedMortonCodes[b].second;
-            //  std::cout << bodies[b].index << " " << bodies[b].X[0];
-            // std::cout << bodies[b].index << " " << bodies[b].X[0] << " "
-            //           << bodies[b].X[1] << " " << bodies[b].X[2] << std::endl;
         }
     }
 
@@ -206,41 +221,44 @@ namespace FMM
         {
             Leafs[b].idx = b;
             Leafs[b].isleaf = true;
+            Leafs[b].BODY = bodies.size();
+            Leafs[b].NBODY = 0;
         }
 
         Tree.resize(bodies.size() - 1);
+        
 #pragma omp parallel for
         for (size_t b = 0; b < Tree.size(); b++)
         {
             Tree[b].idx = b;
             Tree[b].isleaf = false;
+            Tree[b].BODY = bodies.size();
+            Tree[b].NBODY = 0;
             assignNode(b);
         }
 
         root = &Tree[0];
     }
 
-    void RadixTree::traverse(Node *n)
+    void RadixTree::traverse(Node *n, int index)
     {
+        //std::cout << "node[" << n->idx << "] ->cell[" << index << "] ";
+        //std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
 
-        std::cout << "node[" << n->idx << "] ->cell[" << start << "] ";
-        std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
-
-        n->index = start;
+        n->index = index;
 
         if (n->NBODY >= ncrit)
         {
-            ++start;
-            traverse(n->left);
-
-            ++start;
-            traverse(n->right);
+            int left_index = (++start);
+            int right_index = (++start);
+            traverse(n->left, left_index);
+            traverse(n->right, right_index);
         }
     }
 
     void RadixTree::traverse()
     {
-        traverse(&Tree[0]);
+        traverse(&Tree[0], 0);
     }
 
     void RadixTree::upwardPass()
@@ -250,23 +268,19 @@ namespace FMM
 
     void RadixTree::upwardPass(Node *n)
     {
-        //   std::cout << "On node " << n->idx << " " << n->index << "\n";
-
         if (n->isLeaf())
         {
             n->BODY = n->idx;
             n->NBODY = 1;
+            return;
         }
         else
         {
-            if (n->left)
-                upwardPass(n->left);
-
-            if (n->right)
-                upwardPass(n->right);
-
-            n->BODY = (n->left->BODY < n->right->BODY) ? n->left->BODY : n->right->BODY;
-            n->NBODY = n->left->NBODY + n->right->NBODY;
+            if (n->left) upwardPass(n->left);
+            if (n->right) upwardPass(n->right);
+            
+             n->BODY = (n->left->BODY < n->right->BODY) ? n->left->BODY : n->right->BODY;
+             n->NBODY = n->left->NBODY + n->right->NBODY;
         }
     }
 
@@ -274,7 +288,7 @@ namespace FMM
     {
         for (size_t c = 0; c < Tree.size(); c++)
         {
-            std::cout << Tree[c].idx << " " << std::endl;
+            std::cout << c << " " << Tree[c].idx << " " << std::endl;
         }
     }
 
