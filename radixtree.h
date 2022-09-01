@@ -49,7 +49,7 @@ namespace FMM
     int findSplit(int2 range);
     void assignNode(int idx);
     void getBoundBox();
-    void sortMontonID();
+    void sortBodies();
 
     void setBodies(Bodies &bodies_);
     void buildRadixTree();
@@ -59,7 +59,6 @@ namespace FMM
     void traverse(Node *n, int index);
 
     void upwardPass(Node *Ci);
-        //! Upward pass interface
     void upwardPass();
 
     void printTree();
@@ -67,10 +66,8 @@ namespace FMM
   private:
     Bodies bodies;
 
-    std::vector<std::pair<HashType, unsigned int> > sortedMortonCodes;
-    //typedef std::vector<Node> Nodes;
-
-    //typedef std::vector<int2, tbb::detail::d1::cache_aligned_allocator<int2>> sortedMortonCodes;
+    std::vector<std::pair<HashType, unsigned int> > MortonIDs;
+    //typedef std::vector<int2, tbb::detail::d1::cache_aligned_allocator<int2>> MortonIDs;
     typedef std::vector<Node, tbb::detail::d1::cache_aligned_allocator<Node>> Nodes;
 
 

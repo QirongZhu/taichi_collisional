@@ -24,10 +24,10 @@ namespace FMM
 
     int RadixTree::delta(int x, int y)
     {
-        if (x >= 0 && x < sortedMortonCodes.size() && y >= 0 && y < sortedMortonCodes.size())
+        if (x >= 0 && x < MortonIDs.size() && y >= 0 && y < MortonIDs.size())
         {
-            return CLZ(sortedMortonCodes[x].first ^ sortedMortonCodes[y].first) +
-                   (sortedMortonCodes[x].first == sortedMortonCodes[y].first) *
+            return CLZ(MortonIDs[x].first ^ MortonIDs[y].first) +
+                   (MortonIDs[x].first == MortonIDs[y].first) *
                        CLZ(bodies[x].index ^ bodies[y].index);
         }
         return -1;
@@ -66,8 +66,8 @@ namespace FMM
         int first = range.first;
         int last = range.second;
 
-        HashType firstCode = sortedMortonCodes[first].first;
-        HashType lastCode = sortedMortonCodes[last].first;
+        HashType firstCode = MortonIDs[first].first;
+        HashType lastCode = MortonIDs[last].first;
 
         int commonPrefix = CLZ(firstCode ^ lastCode);
 
@@ -90,7 +90,7 @@ namespace FMM
 
             if (newSplit < last)
             {
-                HashType splitCode = sortedMortonCodes[newSplit].first;
+                HashType splitCode = MortonIDs[newSplit].first;
 
                 int splitPrefix = CLZ(firstCode ^ splitCode);
 
@@ -162,21 +162,19 @@ namespace FMM
         if (radius < range_z.second - range_z.first)
             radius = range_z.second - range_z.first;
 
-        radius = radius * 1.01;
+        radius = radius * 1.001;
         R0 = radius / 2;
 
         X0[0] = (range_x.first + range_x.second) / 2 - R0;
         X0[1] = (range_y.first + range_y.second) / 2 - R0;
         X0[2] = (range_z.first + range_z.second) / 2 - R0;
-
-        // std::cout << R0 << " " << X0[0] << " " << X0[1] << " " << X0[2] << std::endl;
     }
 
-    void RadixTree::sortMontonID()
+    void RadixTree::sortBodies()
     {
         getBoundBox();
 
-        sortedMortonCodes.resize(bodies.size());
+        MortonIDs.resize(bodies.size());
 
         const int max_int = (1 << 10);
 
@@ -196,25 +194,24 @@ namespace FMM
             HashType yy = expandBits((HashType)y);
             HashType zz = expandBits((HashType)z);
 
-            sortedMortonCodes[b] = std::make_pair(xx * 4 + yy * 2 + zz, b);
+            MortonIDs[b] = std::make_pair(xx * 4 + yy * 2 + zz, b);
         }
 
-        __gnu_parallel::stable_sort(begin(sortedMortonCodes), end(sortedMortonCodes),
+        __gnu_parallel::stable_sort(begin(MortonIDs), end(MortonIDs),
                              [](const int2 &l, const int2 &r)
                              { return l.first < r.first; });
 
         Bodies tmp = bodies;
 
-#pragma omp paralle for
         for (size_t b = 0; b < bodies.size(); b++)
         {
-            bodies[b] = tmp[sortedMortonCodes[b].second];
+            bodies[b] = tmp[MortonIDs[b].second];
         }
     }
 
     void RadixTree::buildRadixTree()
     {
-        sortMontonID();
+        sortBodies();
 
         Leafs.resize(bodies.size());
         for (size_t b = 0; b < Leafs.size(); b++)
@@ -242,8 +239,8 @@ namespace FMM
 
     void RadixTree::traverse(Node *n, int index)
     {
-        //std::cout << "node[" << n->idx << "] ->cell[" << index << "] ";
-        //std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
+        std::cout << "node[" << n->idx << "] ->cell[" << index << "] ";
+        std::cout << " start: " << n->BODY << " end: " << n->BODY + n->NBODY << " cnt:" << n->NBODY << " \n";
 
         n->index = index;
 
