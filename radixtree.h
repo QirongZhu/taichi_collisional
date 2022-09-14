@@ -1,5 +1,5 @@
 #include "common.h"
-
+#define HUGE 1.e30
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/Min_sphere_of_points_d_traits_3.h>
 #include <CGAL/Min_sphere_of_spheres_d.h>
@@ -111,7 +111,10 @@ namespace FMM
     void horizontalPass(Cell *Ci, Cell *Cj);
     //! Horizontal pass interface
     void horizontalPass();
-
+    
+    void downwardPass();
+    void downwardPass(Cell *Cj);
+    
     void P2M(Cell *C);
     void M2M(Cell *Ci);
     void P2P(Cell *Ci, Cell *Cj);
