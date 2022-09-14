@@ -12,7 +12,7 @@ typedef Kp::Point_3 Pointp;
 #include <CGAL/Min_sphere_of_spheres_d.h>
 #include <CGAL/Cartesian.h>
 #include <CGAL/Min_sphere_of_spheres_d.h>
-
+#define HUGE 1.e30
 typedef double FT;
 typedef CGAL::Cartesian<FT> K;
 typedef CGAL::Min_sphere_of_spheres_d_traits_3<K, FT> Traits;
@@ -69,6 +69,10 @@ namespace FMM
         //! Horizontal pass interface
         void horizontalPass();
 
+        void downwardPass();
+        void downwardPass(Cell *Cj);
+
+
         void P2M(Cell *C);
         void M2M(Cell *Ci);
         void P2P(Cell *Ci, Cell *Cj);
@@ -92,7 +96,7 @@ namespace FMM
         std::vector<std::vector<real_t>> multipoles;
         std::vector<std::vector<real_t>> locals;
         std::vector<std::vector<real_t>> pns;
-
+        Forces forces; 
         TreeType treetype = kdtree;
         int dim = 3;
         int count = 0;

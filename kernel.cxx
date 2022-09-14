@@ -3,6 +3,7 @@
 #else
 #include "tree.h"
 #endif
+#define HUGE 1.e30
 
 #include <vectorclass/vectorclass.h>
 
@@ -338,7 +339,6 @@ namespace FMM
 
         int ni = Ci->NBODY;
         int nj = Cj->NBODY;
-
 #if SIMD_P2P
         if (ni > NSIMD / 2)
         {
@@ -364,7 +364,6 @@ namespace FMM
                 Yi[k] = -Bi[k].X[1];
                 Zi[k] = -Bi[k].X[2];
             }
-
 #ifndef DOUBLE_P2P
             Vec16f xi, yi, zi, r, mj, mi;
             Vec16f invR, dx, dy, dz, r2;
@@ -409,10 +408,10 @@ namespace FMM
                 ay.store(Yi + i);
                 az.store(Zi + i);
             }
-
+            /* here lies the seg fault issue*/
             for (int i = 0; i < ni; i++)
             {
-
+                
 #pragma omp atomic
                 Fi[i].p += (real_t)Mi[i];
 #pragma omp atomic
@@ -422,6 +421,7 @@ namespace FMM
 #pragma omp atomic
                 Fi[i].F[2] += (real_t)Zi[i];
             }
+            //std::cout<<"line 425"<<std::endl;
         }
         else
         {
@@ -513,7 +513,6 @@ namespace FMM
     {
         for (int d = 0; d < 3; d++)
             dX[d] = Ci->X[d] - Cj->X[d]; // Distance vector from source to target
-
         real_t R2 = norm(dX) * theta * theta; // Scalar distance squared
 
         if (R2 > (Ci->R + Cj->R) * (Ci->R + Cj->R))
@@ -548,6 +547,27 @@ namespace FMM
 #pragma omp single nowait                     // Start OpenMP single region with nowait
         horizontalPass(&cells[0], &cells[0]); // Pass root cell to recursive call
     }
+   
+    void Tree::downwardPass(Cell *Cj) {
+        if(Cj->NCHILD == 0)
+            L2P(Cj);
+        else
+            L2L(Cj);
+        for (Cell *Ci = &cells[Cj->CHILD]; Ci != &cells[Cj->CHILD] + Cj->NCHILD; Ci++) {
+#pragma omp task untied
+            downwardPass(Ci);
+        }
+#pragma omp taskwait
+    }
+
+
+    void Tree::downwardPass() {
+#pragma omp parallel
+#pragma omp single nowait
+        downwardPass(&cells[0]);
+    }
+
+
 
     void Tree::P2M_low(Cell *C)
     {
@@ -719,6 +739,84 @@ namespace FMM
         {
             Cj->L[0] += Ci->L[0];
         }
+    }
+    
+    void Tree::L2L(Cell *Ci) {
+        real_t r_local_Ci[NTERM];
+        complex_t c_local_Ci[NTERM];
+
+        for(int indice = 0; indice < NTERM; indice++)
+            r_local_Ci[indice] = Ci->L[indice];
+
+        real_2_complex(r_local_Ci, c_local_Ci, P);
+        for(Cell * Cj = &cells[Ci->CHILD]; Cj != &cells[Ci->CHILD] + Ci->NCHILD; Cj++) {
+            for(int d = 0; d < 3; d++)
+                dX[d] = Ci->X[d]-Cj->X[d];
+            complex_t c_local[NTERM];
+
+            for(int indice = 0; indice < NTERM; indice++)
+                c_local[indice] = 0.0;
+
+            complex_t Gnm[NTERM];
+
+            make_Gnm(&dX[0], &Gnm[0], P);
+
+            for(int i = 0; i < NTERM; i++)
+                Gnm[i] = std::conj(Gnm[i]);
+
+            for(int n = 0; n <= P; n++)
+                for(int m = 0; m <= n; m++)
+                    for(int k = 0; k <= P-n; k++)
+                        for(int l = -k; l <= k; l++)
+                            c_local[index(n, m)] += c_local_Ci[index(n+k, m+l)] * Gnm[index(k, l)];
+
+            real_t r_local[NTERM];
+            complex_2_real(c_local, r_local, P);
+            for(int indice = 0; indice < NTERM; indice++)
+                Cj->L[indice] += r_local[indice];
+
+        }
+    }
+    
+    void Tree::L2P(Cell *Ci) {
+        real_t r_local_Ci[NTERM];
+        complex_t c_local_Ci[NTERM];
+
+        for(int indice = 0; indice < NTERM; indice++)
+            r_local_Ci[indice] = Ci->L[indice];
+
+        real_2_complex(r_local_Ci, c_local_Ci, P);
+        
+        for(size_t bo = Ci->BODY; bo != Ci->BODY + Ci->NBODY; bo++) {
+            Body *B = &bodies[bo];
+            complex_t Phi[4];
+            //if(!B->issink)
+
+            //    continue;
+
+            for(int d = 0; d < 3; d++)
+                dX[d] = Ci->X[d]-B->X[d];
+
+            complex_t Gnm[NTERM];
+            make_Gnm(&dX[0], &Gnm[0], P);
+
+            for(int i = 0; i < NTERM; i++)
+                Gnm[i] = std::conj(Gnm[i]);
+
+            for(int n = 0; n <= 1; n++)
+                for(int m = 0; m <= n; m++)
+                    for(int k = 0; k <= P-n; k++)
+                        for(int l = -k; l <= k; l++)
+                            Phi[index(n, m)] += c_local_Ci[index(n + k, m + l)] * Gnm[index(k, l)];
+            
+            Force* Fi = &forces[bo];
+            Fi->p += std::real(Phi[0]);
+            Fi->F[0] -= std::real(Phi[3]);
+            Fi->F[1] -= std::imag(Phi[3]);
+            Fi->F[2] -= std::real(Phi[2]);
+
+        }
+        
     }
 
     void Tree::L2P_low(Cell *C)
