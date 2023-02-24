@@ -1,11 +1,13 @@
 # taichi_collisional
-An N-body code for star cluster simulations. The code uses an adaptive (octree) Fast Multipole Method to compute gravity, therefore $\mathcal{O}(N)$ instead of pairwise summations ($N^2$). The multipole-to-local (M2L) translations uses a $\mathcal{O}(p^3)$ method by rotating the multipoles in the direction of the seperation vector. The particle-to-particle kernel uses a vectorized version. For more details, see (Mukherjee 2021 ApJ, arxiv:2012.02207).
+This is a version of parallel FMM aiming for accurate N-body integration.
+For a distributed octree, we will use
 
--Much of the code is based on exafmm (https://github.com/exafmm/exafmm). Solid spherical harmonics is adopted over the original formulation (See Dehnen 2014). 
+(0) A Hilbert code hashed octree for a global ID system
 
--The master folder contains the code used in the ApJ paper.
+(1) A top-tree for work-load partition as well as initial force magnitude estimate;
 
--The speed folder includes a fourth-order integrator (arxiv:2011.14984), which improves the energy conservation. The gradient force is approximated using the extraplation method of Omelyan 2006. See also Farr2007. 
+(2) Given the estimated force, walk the top-tree to find the remote nodes need to be exported;
 
+(3) Communicate the cells and particles to build a locally essential tree.
 
-
+(4) The rest follows similary as a sequential FMM. 
