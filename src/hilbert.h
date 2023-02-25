@@ -8,10 +8,10 @@
 
 #include <cstdlib>
 #include <stdint.h>
-#include <vector>
 #include <array>
+#include <vector>
 #include <cmath>
-#include <tuple>
+#include <iostream>
 
 #define EXAFMM_HILBERT 1 //! Set this to 0 for Morton
 #define MAX_LEVEL 21     //! Max level of octree
@@ -31,7 +31,8 @@ namespace hilbert
   {
     for (int i = 0; i <= MAX_LEVEL; i++)
       {
-	levelOffsets[i] = levelOffset(i);
+	      levelOffsets[i] = levelOffset(i);
+        //std::cout << "leveloffset[" << i << "]: " << levelOffset(i) << std::endl;
       }
   }
 
@@ -42,8 +43,7 @@ namespace hilbert
     uint64_t offset = 0;
     while (i >= offset)
       {
-	level++;
-	offset += (uint64_t)1 << 3 * level;
+  	      offset += (uint64_t)1 << 3 * (++level);
       }
     return level;
   }
@@ -56,7 +56,7 @@ namespace hilbert
   }
 
   //! Get ancestor's key giving the level
-  uint64_t getAncestor(uint64_t i, int ans_level)
+  inline uint64_t getAncestor(uint64_t i, int ans_level)
   {
     int level = MAX_LEVEL;
     while (level > ans_level)
@@ -68,7 +68,7 @@ namespace hilbert
   }
 
   //! Get first child's Hilbert key
-  uint64_t getChild(uint64_t i)
+  inline uint64_t getChild(uint64_t i)
   {
     int level = getLevel(i);
     return (i - levelOffset(level)) * 8 + levelOffset(level + 1);
@@ -83,8 +83,10 @@ namespace hilbert
     return key & 7;
   }
 
+
+
   //! Get Hilbert key from 3-D index
-  uint64_t getKey(std::vector<int> &iX, int level, bool offset = true)
+  uint64_t getKey(std::array<int, 3> &iX, int level, bool offset = true)
   {
 #if EXAFMM_HILBERT
     int M = 1 << (level - 1);
@@ -124,8 +126,10 @@ namespace hilbert
     return i;
   }
 
+
+
   //! Get 3-D index from Hilbert key
-  std::tuple<int, int, int> get3DIndex(uint64_t i)
+  std::array<int, 3> get3DIndex(uint64_t i)
   {
     int level = getLevel(i);
     i -= levelOffset(level);
@@ -158,11 +162,11 @@ namespace hilbert
 	  }
       }
 #endif
-    return std::make_tuple(iX[0], iX[1], iX[2]);
+    return std::array<int, 3> {iX[0], iX[1], iX[2]};
   }
 
   //! Get 3-D index from Hilbert key without level offset
-  std::tuple<int, int, int> get3DIndex(uint64_t i, int level)
+  std::array<int, 3> get3DIndex(uint64_t i, int level)
   {
     int iX[3] = {0, 0, 0};
     for (int l = 0; l < level; l++)
@@ -193,13 +197,12 @@ namespace hilbert
 	  }
       }
 #endif
-    return std::make_tuple(iX[0], iX[1], iX[2]);
+    return std::array<int, 3> {iX[0], iX[1], iX[2]};
   }
 
   //! Get 3-D index from coordinates
   std::array<int, 3> get3DIndex(std::vector<double> &X, int level)
   {
-
     double dx = 1.0 / (1LL << level);
     int iX[3];
     for (int d = 0; d < 3; d++)
@@ -220,6 +223,13 @@ namespace hilbert
 	iX[d] = static_cast<int>(std::floor((X[d] - 0.0) / dx));
       }
     return std::array<int, 3>{iX[0], iX[1], iX[2]};
+  }
+
+
+  uint64_t getKey(std::array<double, 3>& coords)
+  {
+    auto ix = get3DIndex(coords, MAX_LEVEL);
+    return getKey(ix, MAX_LEVEL);
   }
 
   //! Get coordinates from 3-D index

@@ -19,4 +19,14 @@ struct Domain {
 };
 
 
+struct Particle {
+    double X[3];
+    uint64_t id;
+    uint64_t hp_key;
+    uint64_t top_node;
+    bool done=false;
+};
+
+typedef std::vector<Particle> Particles;
+
 extern Domain domain;
