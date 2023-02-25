@@ -47,7 +47,9 @@ if (my_processor.my_rank == 0)
     }
   }  
 
-  buildTopTree(particles);
+  topTree top_tree;
+
+  top_tree.buildTopTree(particles);
  
   MPI_Finalize();
 
