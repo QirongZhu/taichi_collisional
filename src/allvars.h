@@ -1,6 +1,18 @@
+#pragma once
+#include <vector>
+
 /*
   definitions of structs
 */
+
+struct myProcessor
+{
+  int my_rank;
+  int total_ranks;
+};
+
+extern myProcessor my_processor;
+
 struct Domain {
 
   double Xmin, Xmax, Ymin, Ymax, Zmin, Zmax;

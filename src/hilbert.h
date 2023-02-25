@@ -37,7 +37,7 @@ namespace hilbert
   }
 
   //! Get level from Hilbert key
-  int getLevel(uint64_t i)
+  inline int getLevel(uint64_t i)
   {
     int level = -1;
     uint64_t offset = 0;
@@ -49,7 +49,7 @@ namespace hilbert
   }
 
   //! Get parent's Hilbert key
-  uint64_t getParent(uint64_t i)
+  inline uint64_t getParent(uint64_t i)
   {
     int level = getLevel(i);
     return (i - levelOffset(level)) / 8 + levelOffset(level - 1);
@@ -75,7 +75,7 @@ namespace hilbert
   }
 
   //! Determine which octant the key belongs to
-  int getOctant(uint64_t key, bool offset = true)
+  inline int getOctant(uint64_t key, bool offset = true)
   {
     int level = getLevel(key);
     if (offset)
@@ -83,10 +83,8 @@ namespace hilbert
     return key & 7;
   }
 
-
-
   //! Get Hilbert key from 3-D index
-  uint64_t getKey(std::array<int, 3> &iX, int level, bool offset = true)
+  inline uint64_t getKey(std::array<int, 3> &iX, int level, bool offset = true)
   {
 #if EXAFMM_HILBERT
     int M = 1 << (level - 1);
@@ -126,10 +124,8 @@ namespace hilbert
     return i;
   }
 
-
-
   //! Get 3-D index from Hilbert key
-  std::array<int, 3> get3DIndex(uint64_t i)
+  inline std::array<int, 3> get3DIndex(uint64_t i)
   {
     int level = getLevel(i);
     i -= levelOffset(level);
@@ -166,7 +162,7 @@ namespace hilbert
   }
 
   //! Get 3-D index from Hilbert key without level offset
-  std::array<int, 3> get3DIndex(uint64_t i, int level)
+  inline std::array<int, 3> get3DIndex(uint64_t i, int level)
   {
     int iX[3] = {0, 0, 0};
     for (int l = 0; l < level; l++)
@@ -201,7 +197,7 @@ namespace hilbert
   }
 
   //! Get 3-D index from coordinates
-  std::array<int, 3> get3DIndex(std::vector<double> &X, int level)
+  inline std::array<int, 3> get3DIndex(std::vector<double> &X, int level)
   {
     double dx = 1.0 / (1LL << level);
     int iX[3];
@@ -213,7 +209,7 @@ namespace hilbert
   }
 
   //! Get 3-D index from coordinates
-  std::array<int, 3> get3DIndex(std::array<double, 3> &X, int level)
+  inline std::array<int, 3> get3DIndex(std::array<double, 3> &X, int level)
   {
 
     double dx = 1.0 / (1LL << level);
@@ -224,7 +220,6 @@ namespace hilbert
       }
     return std::array<int, 3>{iX[0], iX[1], iX[2]};
   }
-
 
   uint64_t getKey(std::array<double, 3>& coords)
   {
