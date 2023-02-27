@@ -82,9 +82,9 @@ struct topTree {
     MPI_Allreduce(&z_min, &z_min_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
     double x_max_global, y_max_global, z_max_global;
-    MPI_Allreduce(&x_max, &x_max_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&y_max, &y_max_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&z_max, &z_max_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&x_max, &x_max_global, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&y_max, &y_max_global, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    MPI_Allreduce(&z_max, &z_max_global, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
     /*if (my_processor.my_rank == 0)
       {
