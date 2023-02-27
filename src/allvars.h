@@ -1,9 +1,13 @@
 #pragma once
 #include <vector>
+#include <numeric>
 
 /*
   definitions of structs
 */
+
+const double MAXDOUBLE = std::numeric_limits<double>::max();
+
 
 struct myProcessor
 {
@@ -14,20 +18,9 @@ struct myProcessor
 extern myProcessor my_processor;
 
 struct Domain {
-
   double Xmin, Xmax, Ymin, Ymax, Zmin, Zmax;
-
-  void setDomain(double xmin, double xmax, 
-		 double ymin, double ymax, 
-		 double zmin, double zmax) {
-    this->Xmin = xmin;
-    this->Xmax = xmax;
-    this->Ymin = ymin;
-    this->Ymax = ymax;
-    this->Zmin = zmin;
-    this->Zmax = zmax;
-  }
-
+  double X0[3];
+  double R0;
 };
 
 

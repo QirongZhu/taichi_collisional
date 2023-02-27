@@ -18,6 +18,13 @@
 
 namespace hilbert
 {
+  double X0[3];
+  double R0;
+
+  void setDomain(double x[3], double r)
+  {
+    X0[0] = x[0], X0[1] = x[1], X0[2] = x[2], R0 = r;
+  }
 
   static uint64_t levelOffsets[MAX_LEVEL + 1];
 
@@ -199,11 +206,11 @@ namespace hilbert
   //! Get 3-D index from coordinates
   inline std::array<int, 3> get3DIndex(std::vector<double> &X, int level)
   {
-    double dx = 1.0 / (1LL << level);
+    double dx = (2.0 * R0) / (1LL << level);
     int iX[3];
     for (int d = 0; d < 3; d++)
       {
-	iX[d] = static_cast<int>(std::floor((X[d] - 0.0) / dx));
+	iX[d] = static_cast<int>(std::floor((X[d] - X0[d]) / dx));
       }
     return std::array<int, 3>{iX[0], iX[1], iX[2]};
   }
@@ -212,11 +219,11 @@ namespace hilbert
   inline std::array<int, 3> get3DIndex(std::array<double, 3> &X, int level)
   {
 
-    double dx = 1.0 / (1LL << level);
+    double dx = (2.0 * R0) / (1LL << level);
     int iX[3];
     for (int d = 0; d < 3; d++)
       {
-	iX[d] = static_cast<int>(std::floor((X[d] - 0.0) / dx));
+	      iX[d] = static_cast<int>(std::floor((X[d] - X0[d]) / dx));
       }
     return std::array<int, 3>{iX[0], iX[1], iX[2]};
   }

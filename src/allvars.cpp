@@ -1,5 +1,5 @@
 #include "allvars.h"
 
 //global vars
-Domain domain;
+//Domain domain;
 myProcessor my_processor;

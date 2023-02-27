@@ -28,7 +28,7 @@ if (my_processor.my_rank == 0)
   std::cout << "Welcome to Taichi! This is a parallel version. " << std::endl;
 }
 
-  Particles particles(100000);
+  Particles particles(1000000);
 
   uint64_t index = 0;
 
@@ -38,14 +38,7 @@ if (my_processor.my_rank == 0)
     p.X[1] = getRandom();
     p.X[2] = getRandom();
     p.id= (index++);
-    std::array<double, 3> coords{p.X[0], p.X[1], p.X[2]};
-    p.hp_key= hilbert::getKey(coords);
-    p.done=false;
-    if (my_processor.my_rank == -1)
-    {
-        std::cout << p.hp_key <<" ==> "<< std::bitset<64>(p.hp_key)<< std::endl;
-    }
-  }  
+  }
 
   topTree top_tree;
 

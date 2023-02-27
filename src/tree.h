@@ -14,15 +14,17 @@ struct topTree {
   std::vector<uint64_t> let;
   std::unordered_map<uint64_t, int> hash_counter;
 
+  Domain domain;
+
   topTree()
   {
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &total_ranks);
 
     if (my_rank == 0)
-    {
+      {
         std::cout << "Constructing a top tree \n";
-    }
+      }
   }
 
   ~topTree() 
@@ -32,10 +34,81 @@ struct topTree {
     hash_counter.clear();
   }
 
+  void setDomain(double xmin, double xmax, 
+		 double ymin, double ymax, 
+		 double zmin, double zmax) 
+  {
+    domain.Xmin = xmin;
+    domain.Xmax = xmax;
+    domain.Ymin = ymin;
+    domain.Ymax = ymax;
+    domain.Zmin = zmin;    
+    domain.Zmax = zmax;
+
+    domain.X0[0]= (xmin + xmax)/2;
+    double R0   = (xmax-xmin)/2;
+    domain.X0[1]= (ymin + ymax)/2;
+    R0 = std::max( (ymax-ymin)/2, R0);
+    domain.X0[2]= (zmin + zmax)/2;
+    R0 = std::max( (zmax-zmin)/2, R0);
+    domain.R0 = R0 * 1.001;
+
+    if (my_processor.my_rank == 0)
+    {
+        std::cout << ">>>>>> X0: [" << domain.X0[0] <<", " 
+        << domain.X0[1] << ", " << domain.X0[2] << "]\n>>>>>> R0:" << domain.R0 << std::endl << std::endl;
+    }
+  }
+
   void buildTopTree(Particles& particles)
   {
     using namespace hilbert;
 
+    double x_min =  MAXDOUBLE, y_min =  MAXDOUBLE, z_min =  MAXDOUBLE;
+    double x_max = -MAXDOUBLE, y_max = -MAXDOUBLE, z_max = -MAXDOUBLE;
+
+    for (auto &p : particles) {
+      x_min = std::min(p.X[0], x_min);
+      x_max = std::max(p.X[0], x_max);
+      y_min = std::min(p.X[1], y_min);
+      y_max = std::max(p.X[1], y_max);
+      z_min = std::min(p.X[2], z_min);
+      z_max = std::max(p.X[2], z_max);
+    }
+
+    double x_min_global, y_min_global, z_min_global;
+    MPI_Allreduce(&x_min, &x_min_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&y_min, &y_min_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&z_min, &z_min_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
+    double x_max_global, y_max_global, z_max_global;
+    MPI_Allreduce(&x_max, &x_max_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&y_max, &y_max_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&z_max, &z_max_global, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
+    /*if (my_processor.my_rank == 0)
+      {
+        std::cout << "Global Domain: \n";
+        std::cout << ">>>>>> xmin: " << x_min_global << " xmax: " << x_max_global << std::endl;
+        std::cout << ">>>>>> ymin: " << y_min_global << " ymax: " << y_max_global << std::endl;
+        std::cout << ">>>>>> zmin: " << z_min_global << " zmax: " << z_max_global << std::endl;
+      }
+    */
+
+    setDomain(x_min_global, x_max_global, y_min_global, y_max_global, z_min_global, z_max_global);
+
+    hilbert::setDomain(domain.X0, domain.R0);
+
+    for (auto&p :particles)
+      {
+	std::array<double, 3> coords{p.X[0], p.X[1], p.X[2]};
+	p.hp_key= hilbert::getKey(coords);
+	p.done=false;
+	if (my_processor.my_rank == -1)
+	  {
+	    std::cout << p.hp_key <<" ==> "<< std::bitset<64>(p.hp_key)<< std::endl;
+	  }
+      }  
     std::vector<uint64_t> leaves_to_process;
 
     for(uint64_t j=9; j<73; j++)
@@ -145,9 +218,9 @@ struct topTree {
     double end_time = MPI_Wtime();
 
     if (my_rank == 0)
-    {
+      {
         std::cout << "LET took " << end_time - start_time << " sec\n";
-    }
+      }
 
   }
 
